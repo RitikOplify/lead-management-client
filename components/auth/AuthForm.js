@@ -1,17 +1,13 @@
 "use client";
 import { asyncSignInUser, asyncSignUpUser } from "@/store/actions/auth";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import { FaEyeSlash, FaEye } from "react-icons/fa";
 
 const AuthForm = ({ type }) => {
   const dispatch = useDispatch();
-  const router = useRouter();
-
-  const { user, isLoading } = useSelector((state) => state.auth);
-
   const [showPassword, setShowPassword] = useState(false);
   const [loader, setLoader] = useState(false);
   const {
@@ -25,21 +21,13 @@ const AuthForm = ({ type }) => {
     if (type === "signup") {
       setLoader(true);
       await dispatch(asyncSignUpUser({ email, password }));
-
       setLoader(false);
     } else {
       setLoader(true);
       await dispatch(asyncSignInUser({ email, password }));
-
       setLoader(false);
     }
   };
-
-  useEffect(() => {
-    if (!isLoading && user !== null) {
-      router.push("/");
-    }
-  }, [user, isLoading]);
 
   const handleGuest = async () => {
     setLoader(true);
@@ -85,7 +73,7 @@ const AuthForm = ({ type }) => {
           <label htmlFor="password" className="mb-1">
             Password
           </label>
-          <div>
+          <div className=" relative">
             <input
               id="password"
               className="px-3 w-full py-2 border border-gray-300 rounded-lg"
@@ -101,13 +89,21 @@ const AuthForm = ({ type }) => {
             />
             <button
               type="button"
-              className="text-md text-gray-600 absolute top-1/2 right-3 "
+              className="text-md text-gray-600 absolute top-1/2 transform -translate-y-1/2 right-3 "
               onClick={() => setShowPassword((prev) => !prev)}
             >
               {showPassword ? (
-                <i className="ri-eye-off-line"></i>
+                <FaEye
+                  onClick={() => {
+                    setShowPassword(true);
+                  }}
+                />
               ) : (
-                <i className="ri-eye-line"></i>
+                <FaEyeSlash
+                  onClick={() => {
+                    setShowPassword(false);
+                  }}
+                />
               )}
             </button>
           </div>

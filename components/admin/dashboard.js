@@ -1,9 +1,14 @@
 import { useEffect, useState } from "react";
-import axios from "@/utils/axios";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { removeUser, setLoading } from "@/store/slices/authSlice";
-import { toast } from "react-toastify";
+import { asyncSignOutUser } from "@/store/actions/auth";
+import { useForm } from "react-hook-form";
+import {
+  asyncCreateExecutive,
+  asyncGetDealers,
+  asyncGetExecutive,
+} from "@/store/actions/admin";
+
 export default function AdminDashboard() {
   const { user, isLoading } = useSelector((state) => state.auth);
 
@@ -11,29 +16,18 @@ export default function AdminDashboard() {
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("executives");
   const logout = async () => {
-    try {
-      dispatch(setLoading(true)); // ✅ correct way
-      const { data } = await axios.get("/admin/logout");
-      if (data.success) {
-        dispatch(removeUser()); // ✅ correct way
-        dispatch(setLoading(false));
-        toast.warn(data.message, { toastId: "logout" });
-        router.replace("/signin");
-      } else {
-        dispatch(setLoading(false));
-        toast.error("Logout failed. Please try again.");
-      }
-    } catch (err) {
-      dispatch(setLoading(false));
-      console.error(err);
-      toast.error("Something went wrong during logout.");
-    }
+    await dispatch(asyncSignOutUser());
   };
+
   useEffect(() => {
     if (!isLoading && user === null) {
       router.replace("/signin");
     }
-  }, [user, isLoading, router]);
+  }, [user, isLoading, router, dispatch]);
+
+  // if (isLoading) return;
+
+  // if (user) return null;
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">
@@ -68,19 +62,12 @@ export default function AdminDashboard() {
         >
           Dealers
         </button>
-        <button
-          onClick={() => setActiveTab("leads")}
-          className={`px-4 py-2 rounded ${
-            activeTab === "leads" ? "bg-blue-600 text-white" : "bg-white border"
-          }`}
-        >
-          Leads
-        </button>
       </div>
 
       {activeTab === "executives" && <ExecutivesSection />}
       {activeTab === "dealers" && <DealersSection />}
-      {activeTab === "leads" && <LeadsSection />}
+
+      <LeadsSection />
     </div>
   );
 }
@@ -95,13 +82,74 @@ function ExecutivesSection() {
 }
 
 function CreateExecutiveForm() {
+  const dispatch = useDispatch();
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  const onSubmit = (data) => {
+    dispatch(asyncCreateExecutive(data));
+  };
   return (
     <div className="bg-white p-4 rounded shadow">
       <h2 className="text-lg font-semibold mb-2">Create Executive</h2>
-      <form className="space-y-3">
-        <input placeholder="Name" className="w-full border p-2 rounded" />
-        <input placeholder="Email" className="w-full border p-2 rounded" />
-        <button className="bg-green-500 text-white px-4 py-2 rounded">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="grid grid-cols-2 gap-2"
+      >
+        <div className="col-span-1">
+          <input
+            placeholder="Name"
+            className="w-full border p-2 rounded"
+            {...register("username", { required: "Name is required" })}
+          />
+          {errors.name && (
+            <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
+          )}
+        </div>
+
+        <div className="col-span-1">
+          <input
+            placeholder="Email"
+            className="w-full border p-2 rounded"
+            type="email"
+            {...register("email", {
+              required: "Email is required",
+              pattern: {
+                value: /^\S+@\S+$/i,
+                message: "Invalid email address",
+              },
+            })}
+          />
+          {errors.email && (
+            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+          )}
+        </div>
+
+        <div className="col-span-2">
+          <input
+            placeholder="Password"
+            className="w-full border p-2 rounded"
+            type="password"
+            {...register("password", {
+              required: "Password is required",
+              minLength: {
+                value: 6,
+                message: "Password must be at least 6 characters",
+              },
+            })}
+          />
+          {errors.password && (
+            <p className="text-red-500 text-sm mt-1">
+              {errors.password.message}
+            </p>
+          )}
+        </div>
+
+        <button className="bg-green-500 p-2 text-white rounded col-span-2">
           Create
         </button>
       </form>
@@ -110,12 +158,25 @@ function CreateExecutiveForm() {
 }
 
 function ExecutiveList() {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    if (user && user.role === "admin") dispatch(asyncGetExecutive());
+  }, []);
+  const { executives } = useSelector((state) => state.admin);
+
   return (
     <div className="bg-white p-4 rounded shadow">
       <h2 className="text-lg font-semibold mb-2">Executive List</h2>
       <ul className="space-y-2">
-        <li className="p-2 border rounded">John Doe - john@example.com</li>
-        <li className="p-2 border rounded">Jane Smith - jane@example.com</li>
+        {executives.map((executive) => {
+          return (
+            <li key={executive.id} className="p-2 border rounded">
+              {executive.username} - {executive.email}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
@@ -124,7 +185,7 @@ function ExecutiveList() {
 function DealersSection() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <CreateDealerForm />
+      {/* <CreateDealerForm /> */}
       <DealerList />
     </div>
   );
@@ -149,12 +210,22 @@ function CreateDealerForm() {
 }
 
 function DealerList() {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(asyncGetDealers());
+  }, []);
+  const { dealers } = useSelector((state) => state.admin);
   return (
     <div className="bg-white p-4 rounded shadow">
       <h2 className="text-lg font-semibold mb-2">Dealer List</h2>
       <ul className="space-y-2">
-        <li className="p-2 border rounded">ABC Corp - abc@dealer.com</li>
-        <li className="p-2 border rounded">XYZ Ltd - xyz@dealer.com</li>
+        {dealers.map((dealer) => {
+          return (
+            <li key={dealer.id} className="p-2 border rounded">
+              {dealer.name} - {dealer.email}
+            </li>
+          );
+        })}
       </ul>
     </div>
   );
@@ -162,7 +233,7 @@ function DealerList() {
 
 function LeadsSection() {
   return (
-    <div className="bg-white p-4 rounded shadow">
+    <div className="bg-white p-4 mt-4 rounded shadow">
       <h2 className="text-lg font-semibold mb-4">All Leads</h2>
       <table className="w-full border text-sm">
         <thead className="bg-gray-100">
