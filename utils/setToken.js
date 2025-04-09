@@ -1,7 +1,7 @@
 export const setAccessToken = (token) => {
-  document.cookie = `accessToken=${token}; path=/; max-age=900; SameSite=Lax; ${
-    location.protocol === "https:" ? "Secure;" : ""
-  }`;
+  document.cookie = `accessToken=${token}; path=/; max-age=${
+    15 * 60
+  }; SameSite=Lax; ${location.protocol === "https:" ? "Secure;" : ""}`;
 };
 
 export const setRefreshToken = (token) => {
