@@ -1,7 +1,8 @@
 import React from "react";
+import LeadDataTable from "@/components/leads/leadTable";
 
 function page() {
-  return <div className=" bg-red-500">dashboard</div>;
+  return <LeadDataTable />;
 }
 
 export default page;

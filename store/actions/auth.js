@@ -91,7 +91,6 @@ export const asyncSignOutUser = () => async (dispatch, getState) => {
     const { data } = await axios.get("/admin/logout");
     if (data.success) {
       dispatch(removeUser());
-
       toast.warn(data.message, { toastId: "logout" });
     } else {
       toast.error("Logout failed. Please try again.");

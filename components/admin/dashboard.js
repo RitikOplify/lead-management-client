@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
-import { asyncSignOutUser } from "@/store/actions/auth";
+import { asyncCurrentUser, asyncSignOutUser } from "@/store/actions/auth";
 import { useForm } from "react-hook-form";
-import {
-  asyncCreateExecutive,
-  asyncGetDealers,
-  asyncGetExecutive,
-} from "@/store/actions/admin";
+import { asyncCreateExecutive, asyncGetDealers } from "@/store/actions/admin";
+import CreateLeadForm from "../leads/createLead";
+import { asyncGetCompanyDtails } from "@/store/actions/leads";
 
 export default function AdminDashboard() {
   const { user, isLoading } = useSelector((state) => state.auth);
@@ -18,6 +16,12 @@ export default function AdminDashboard() {
   const logout = async () => {
     await dispatch(asyncSignOutUser());
   };
+
+  useEffect(() => {
+    if (!user) {
+      dispatch(asyncCurrentUser());
+    }
+  }, []);
 
   useEffect(() => {
     if (!isLoading && user === null) {
@@ -63,6 +67,8 @@ export default function AdminDashboard() {
           Dealers
         </button>
       </div>
+
+      <CreateLeadForm />
 
       {activeTab === "executives" && <ExecutivesSection />}
       {activeTab === "dealers" && <DealersSection />}
@@ -162,15 +168,15 @@ function ExecutiveList() {
   const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
-    if (user && user.role === "admin") dispatch(asyncGetExecutive());
+    if (user && user.role === "admin") dispatch(asyncGetCompanyDtails());
   }, []);
-  const { executives } = useSelector((state) => state.admin);
+  const { company } = useSelector((state) => state.leads);
 
   return (
     <div className="bg-white p-4 rounded shadow">
       <h2 className="text-lg font-semibold mb-2">Executive List</h2>
       <ul className="space-y-2">
-        {executives.map((executive) => {
+        {company?.executives?.map((executive) => {
           return (
             <li key={executive.id} className="p-2 border rounded">
               {executive.username} - {executive.email}
@@ -187,24 +193,6 @@ function DealersSection() {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {/* <CreateDealerForm /> */}
       <DealerList />
-    </div>
-  );
-}
-
-function CreateDealerForm() {
-  return (
-    <div className="bg-white p-4 rounded shadow">
-      <h2 className="text-lg font-semibold mb-2">Create Dealer</h2>
-      <form className="space-y-3">
-        <input
-          placeholder="Dealer Name"
-          className="w-full border p-2 rounded"
-        />
-        <input placeholder="Company" className="w-full border p-2 rounded" />
-        <button className="bg-green-500 text-white px-4 py-2 rounded">
-          Create
-        </button>
-      </form>
     </div>
   );
 }

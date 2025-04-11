@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncCurrentUser } from "@/store/actions/auth";
 import { usePathname, useRouter } from "next/navigation";
+import Loader from "@/components/loader";
 
 function Layout({ children }) {
   const pathname = usePathname();
@@ -21,7 +22,12 @@ function Layout({ children }) {
     }
   }, [user, isLoading, router]);
 
-  if (isLoading) return null;
+  if (isLoading)
+    return (
+      <div className=" h-screen flex justify-center items-center">
+        <Loader />
+      </div>
+    );
 
   if (user) return null;
 
