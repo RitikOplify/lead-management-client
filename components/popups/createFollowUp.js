@@ -5,8 +5,6 @@ import { IoClose } from "react-icons/io5";
 import axios from "@/utils/axios";
 import URL from "@/utils/config";
 function CreateFollowUp({ onClose, id }) {
-  console.log(id);
-
   const {
     register,
     handleSubmit,
@@ -20,7 +18,6 @@ function CreateFollowUp({ onClose, id }) {
         `${URL}/lead/create-followup`,
         followUpData
       );
-      console.log(data);
       onClose();
     } catch (error) {
       console.error(error.response.data.message);
@@ -33,7 +30,7 @@ function CreateFollowUp({ onClose, id }) {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl shadow-xl w-full max-w-4xl p-6 relative"
+        className="bg-white h-screen sm:h-auto md:rounded-xl shadow-xl w-full max-w-4xl p-6 relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}

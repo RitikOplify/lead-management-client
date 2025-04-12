@@ -2,15 +2,9 @@
 import { asyncSignOutUser } from "@/store/actions/auth";
 import Link from "next/link";
 import React from "react";
-import {
-  FaTachometerAlt,
-  FaDatabase,
-  FaShoppingCart,
-  FaUsers,
-  FaChartBar,
-  FaSignOutAlt,
-  FaTimes,
-} from "react-icons/fa";
+import { FaSignOutAlt, FaTimes, FaHome, FaPlus } from "react-icons/fa";
+import { MdOutlineDashboard } from "react-icons/md";
+
 import { useDispatch } from "react-redux";
 function Nav({ navOpen, setNavOpen }) {
   const dispatch = useDispatch();
@@ -35,35 +29,25 @@ function Nav({ navOpen, setNavOpen }) {
       </div>
       <nav className="flex flex-col space-y-4 mt-4 md:mt-0">
         <Link
+          href="/"
+          className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
+        >
+          <FaHome /> Home
+        </Link>
+        <Link
+          href="/new-lead"
+          className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
+        >
+          <FaPlus /> Create Lead
+        </Link>
+
+        <Link
           href="/dashboard"
           className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
         >
-          <FaTachometerAlt /> Dashboard
+          <MdOutlineDashboard />
+          Dashborad
         </Link>
-        <a
-          href="#"
-          className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-        >
-          <FaDatabase /> Import Data
-        </a>
-        <a
-          href="#"
-          className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-        >
-          <FaShoppingCart /> Orders
-        </a>
-        <a
-          href="#"
-          className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-        >
-          <FaUsers /> Users
-        </a>
-        <a
-          href="#"
-          className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-        >
-          <FaChartBar /> Reports
-        </a>
       </nav>
       <div className="mt-auto">
         <button

@@ -1,252 +1,81 @@
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+"use client";
+import React, { useState } from "react";
+import { FaBars } from "react-icons/fa";
+import Nav from "../Nav";
+
 import { useDispatch, useSelector } from "react-redux";
-import { asyncCurrentUser, asyncSignOutUser } from "@/store/actions/auth";
-import { useForm } from "react-hook-form";
-import { asyncCreateExecutive, asyncGetDealers } from "@/store/actions/admin";
-import CreateLeadForm from "../leads/createLead";
-import { asyncGetCompanyDtails } from "@/store/actions/leads";
 
-export default function AdminDashboard() {
-  const { user, isLoading } = useSelector((state) => state.auth);
+import CreateExecutivePopUp from "../popups/CreateExecutivePopUp";
+const Dashboard = () => {
+  const [open, setOpen] = useState(false);
 
-  const router = useRouter();
   const dispatch = useDispatch();
-  const [activeTab, setActiveTab] = useState("executives");
-  const logout = async () => {
-    await dispatch(asyncSignOutUser());
-  };
-
-  useEffect(() => {
-    if (!user) {
-      dispatch(asyncCurrentUser());
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!isLoading && user === null) {
-      router.replace("/signin");
-    }
-  }, [user, isLoading, router, dispatch]);
-
-  // if (isLoading) return;
-
-  // if (user) return null;
-
-  return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <header className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <button
-          className="bg-red-500 text-white px-4 py-2 rounded"
-          onClick={logout}
-        >
-          Logout
-        </button>
-      </header>
-
-      <div className="flex space-x-4 mb-4">
-        <button
-          onClick={() => setActiveTab("executives")}
-          className={`px-4 py-2 rounded ${
-            activeTab === "executives"
-              ? "bg-blue-600 text-white"
-              : "bg-white border"
-          }`}
-        >
-          Executives
-        </button>
-        <button
-          onClick={() => setActiveTab("dealers")}
-          className={`px-4 py-2 rounded ${
-            activeTab === "dealers"
-              ? "bg-blue-600 text-white"
-              : "bg-white border"
-          }`}
-        >
-          Dealers
-        </button>
-      </div>
-
-      <CreateLeadForm />
-
-      {activeTab === "executives" && <ExecutivesSection />}
-      {activeTab === "dealers" && <DealersSection />}
-
-      <LeadsSection />
-    </div>
-  );
-}
-
-function ExecutivesSection() {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <CreateExecutiveForm />
-      <ExecutiveList />
-    </div>
-  );
-}
-
-function CreateExecutiveForm() {
-  const dispatch = useDispatch();
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm();
-
-  const onSubmit = (data) => {
-    dispatch(asyncCreateExecutive(data));
-  };
-  return (
-    <div className="bg-white p-4 rounded shadow">
-      <h2 className="text-lg font-semibold mb-2">Create Executive</h2>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="grid grid-cols-2 gap-2"
-      >
-        <div className="col-span-1">
-          <input
-            placeholder="Name"
-            className="w-full border p-2 rounded"
-            {...register("username", { required: "Name is required" })}
-          />
-          {errors.name && (
-            <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>
-          )}
-        </div>
-
-        <div className="col-span-1">
-          <input
-            placeholder="Email"
-            className="w-full border p-2 rounded"
-            type="email"
-            {...register("email", {
-              required: "Email is required",
-              pattern: {
-                value: /^\S+@\S+$/i,
-                message: "Invalid email address",
-              },
-            })}
-          />
-          {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-          )}
-        </div>
-
-        <div className="col-span-2">
-          <input
-            placeholder="Password"
-            className="w-full border p-2 rounded"
-            type="password"
-            {...register("password", {
-              required: "Password is required",
-              minLength: {
-                value: 6,
-                message: "Password must be at least 6 characters",
-              },
-            })}
-          />
-          {errors.password && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.password.message}
-            </p>
-          )}
-        </div>
-
-        <button className="bg-green-500 p-2 text-white rounded col-span-2">
-          Create
-        </button>
-      </form>
-    </div>
-  );
-}
-
-function ExecutiveList() {
-  const dispatch = useDispatch();
+  const { company } = useSelector((state) => state.leads);
   const { user } = useSelector((state) => state.auth);
 
-  useEffect(() => {
-    if (user && user.role === "admin") dispatch(asyncGetCompanyDtails());
-  }, []);
-  const { company } = useSelector((state) => state.leads);
+  const [navOpen, setNavOpen] = useState(false);
 
   return (
-    <div className="bg-white p-4 rounded shadow">
-      <h2 className="text-lg font-semibold mb-2">Executive List</h2>
-      <ul className="space-y-2">
-        {company?.executives?.map((executive) => {
-          return (
-            <li key={executive.id} className="p-2 border rounded">
-              {executive.username} - {executive.email}
-            </li>
-          );
-        })}
-      </ul>
-    </div>
-  );
-}
+    <div className="flex h-screen">
+      <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
+      {open && <CreateExecutivePopUp onClose={() => setOpen(false)} />}
+      <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
+        <div className="md:hidden mb-4">
+          <div
+            onClick={() => setNavOpen(true)}
+            className="text-2xl text-[#092C1C] cursor-pointer"
+          >
+            <FaBars />
+          </div>
+        </div>
 
-function DealersSection() {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {/* <CreateDealerForm /> */}
-      <DealerList />
-    </div>
-  );
-}
+        <div>
+          <div className=" flex items-center justify-between">
+            <h5 className=" mb-3 text-xl font-semibold">Executive List</h5>
+            <button
+              className="bg-[#092C1C] text-white px-6 py-2 rounded cursor-pointer"
+              onClick={() => {
+                setOpen(true);
+              }}
+            >
+              Create New Executive
+            </button>
+          </div>
+          <div className="shadow-md rounded-lg p-4">
+            {company?.executives?.length > 0 ? (
+              <div>
+                {company.executives.map((executive) => (
+                  <h3 key={executive.id}>{executive.username}</h3>
+                ))}
+              </div>
+            ) : (
+              <p>No Executive Found</p>
+            )}
+          </div>
+        </div>
 
-function DealerList() {
-  const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(asyncGetDealers());
-  }, []);
-  const { dealers } = useSelector((state) => state.admin);
-  return (
-    <div className="bg-white p-4 rounded shadow">
-      <h2 className="text-lg font-semibold mb-2">Dealer List</h2>
-      <ul className="space-y-2">
-        {dealers.map((dealer) => {
-          return (
-            <li key={dealer.id} className="p-2 border rounded">
-              {dealer.name} - {dealer.email}
-            </li>
-          );
-        })}
-      </ul>
+        <div>
+          <div className=" flex items-center justify-between">
+            <h5 className=" mb-3 text-xl font-semibold">Dealer List</h5>
+            <button className="bg-[#092C1C] text-white px-6 py-2 rounded cursor-pointer">
+              Create New Dealer
+            </button>
+          </div>
+          <div className="shadow-md rounded-lg p-4">
+            {company?.dealers?.length > 0 ? (
+              <div>
+                {company.dealers.map((dealer) => (
+                  <h3 key={dealer.id}>{dealer.name}</h3>
+                ))}
+              </div>
+            ) : (
+              <p>No Dealer Found</p>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
-function LeadsSection() {
-  return (
-    <div className="bg-white p-4 mt-4 rounded shadow">
-      <h2 className="text-lg font-semibold mb-4">All Leads</h2>
-      <table className="w-full border text-sm">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="p-2 border">Lead Name</th>
-            <th className="p-2 border">Email</th>
-            <th className="p-2 border">Assigned To</th>
-            <th className="p-2 border">Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className="p-2 border">Ravi Kumar</td>
-            <td className="p-2 border">ravi@lead.com</td>
-            <td className="p-2 border">John Doe</td>
-            <td className="p-2 border">New</td>
-          </tr>
-          <tr>
-            <td className="p-2 border">Neha Sharma</td>
-            <td className="p-2 border">neha@lead.com</td>
-            <td className="p-2 border">Jane Smith</td>
-            <td className="p-2 border">In Progress</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  );
-}
+export default Dashboard;

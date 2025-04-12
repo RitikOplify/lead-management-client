@@ -1,8 +1,8 @@
 import React from "react";
-import LeadDataTable from "@/components/leads/leadTable";
+import Dashboard from "@/components/admin/dashboard";
 
 function page() {
-  return <LeadDataTable />;
+  return <Dashboard />;
 }
 
 export default page;

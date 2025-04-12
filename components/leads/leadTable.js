@@ -24,19 +24,21 @@ const LeadDataTable = () => {
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6">
         <div className="flex justify-between items-center mb-4">
           <div>
-            <h2 className="text-xl font-semibold">Import Data</h2>
-            <p className="text-sm text-gray-500">Dashboard &gt; Import Data</p>
+            <h2 className="text-xl font-semibold">Lead Data</h2>
           </div>
-          <button className="flex items-center bg-green-800 text-white px-4 py-2 rounded">
-            <FaPlus className="mr-2" /> Add Import Entry
-          </button>
+          <Link
+            href={"/new-lead"}
+            className="bg-[#092C1C] text-white px-3 py-2 rounded cursor-pointer flex items-center gap-2"
+          >
+            <FaPlus /> Add Lead Entry
+          </Link>
         </div>
 
-        <div className=" flex items-center justify-end mb-4 space-x-4">
+        {/* <div className=" flex items-center justify-end mb-4 space-x-4">
           <FaEye className="text-gray-600 hover:text-black cursor-pointer" />
           <FaEdit className="text-blue-600 hover:text-blue-800 cursor-pointer" />
           <FaTrash className="text-red-600 hover:text-red-800 cursor-pointer" />
-        </div>
+        </div> */}
         <div className="bg-white shadow-md rounded-lg">
           <div className="overflow-x-auto custom-scroller">
             {company?.leads?.length > 0 ? (

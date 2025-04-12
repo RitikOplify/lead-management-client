@@ -27,12 +27,9 @@ function page({ params }) {
       <div className="p-6 w-full lg:w-[calc(100%-256px)] overflow-y-auto custom-scroller2">
         {lead ? (
           <div className="bg-white">
-            <h2 className="text-2xl font-semibold">Lead Details</h2>
-
-            {/* Lead Information */}
-            <div className="shadow-md rounded-lg p-6 space-y-6">
-              <h3 className="text-lg font-medium mb-2">Personal Info</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
+            <div>
+              <h2 className="text-2xl font-semibold mb-2">Lead Details</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-4">
                 <p>
                   <span className="font-medium">Name:</span> {lead.name}
                 </p>
@@ -67,10 +64,9 @@ function page({ params }) {
               </div>
             </div>
 
-            {/* Product Info */}
-            <div className="shadow-md rounded-lg p-6 space-y-6 mt-6">
-              <h3 className="text-lg font-medium mb-2">Product Info</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
+            <div className="mt-6">
+              <h3 className="text-lg font-medium mb-2 ">Product Info</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-4">
                 <p>
                   <span className="font-medium">Product Name:</span>{" "}
                   {lead.product?.name}
@@ -90,11 +86,10 @@ function page({ params }) {
               </div>
             </div>
 
-            {/* Follow Ups */}
             {lead.followUps && lead.followUps.length > 0 && (
-              <div className="shadow-md rounded-lg space-y-6 mt-6">
-                <h3 className="text-lg font-medium mb-2 p-3">Follow Ups</h3>
-                <div className="space-y-4 overflow-y-auto custom-scroller">
+              <div className="mt-6">
+                <h3 className="text-lg font-medium mb-2">Follow Ups</h3>
+                <div className="space-y-4 overflow-y-auto custom-scroller shadow-md rounded-lg">
                   <table className="min-w-[568px] w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
@@ -141,7 +136,6 @@ function page({ params }) {
               </div>
             )}
 
-            {/* Optional */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-6 mt-6">
               <p>
                 <span className="font-medium">Executive:</span>{" "}

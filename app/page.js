@@ -3,10 +3,9 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncCurrentUser } from "@/store/actions/auth";
 import { useRouter } from "next/navigation";
-import AdminDashboard from "@/components/admin/dashboard";
 import { asyncGetCompanyDtails } from "@/store/actions/leads";
-import AddEntry from "@/components/admin/dashboard2";
 import Loader from "@/components/loader";
+import LeadDataTable from "@/components/leads/leadTable";
 
 function Home() {
   const dispatch = useDispatch();
@@ -43,7 +42,7 @@ function Home() {
     return null;
   }
 
-  return <AddEntry />;
+  return <LeadDataTable />;
 }
 
 export default Home;
