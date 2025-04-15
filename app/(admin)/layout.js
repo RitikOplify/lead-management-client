@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncCurrentUser } from "@/store/actions/auth";
 import { useRouter } from "next/navigation";
@@ -35,8 +35,11 @@ function AdminLayout({ children }) {
       </div>
     );
   if (!user) return null;
+  if (user && user.role == "admin" && user.role == "executive") {
+    router.back();
+  }
 
-  return user.role === "admin" ? children : router.back();
+  return children;
 }
 
 export default AdminLayout;

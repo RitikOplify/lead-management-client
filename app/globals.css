@@ -59,3 +59,35 @@ body {
 .custom-scroller2::-webkit-scrollbar-thumb:hover {
   background: #092c1c;
 }
+
+.custom-scroller3::-webkit-scrollbar {
+  height: 5px;
+}
+
+.custom-scroller3::-webkit-scrollbar-track {
+  background: #092c1c1e;
+}
+
+.custom-scroller3::-webkit-scrollbar-thumb {
+  background: #092c1cc9;
+}
+
+.custom-scroller3::-webkit-scrollbar-thumb:hover {
+  background: #092c1c;
+}
+
+.custom-scroller4::-webkit-scrollbar {
+  height: 3px;
+}
+
+.custom-scroller4::-webkit-scrollbar-track {
+  background: #092c1c1e;
+}
+
+.custom-scroller4::-webkit-scrollbar-thumb {
+  background: #092c1cc9;
+}
+
+.custom-scroller4::-webkit-scrollbar-thumb:hover {
+  background: #092c1c;
+}

@@ -5,18 +5,18 @@ import { toast } from "react-toastify";
 
 export const asyncCreateLeads = (lead) => async (dispatch, getstate) => {
   try {
-    const { data } = await axios.post(`${URL}/lead/create`, lead);
+    const { data } = await axios.post(`/lead/create`, lead);
     dispatch(addNewLead(data.lead));
+    toast.success(data.message);
   } catch (error) {
     console.error(error.response.data.message);
-
     toast.error(error.response.data.message);
   }
 };
 
 export const asyncGetCompanyDtails = () => async (dispatch, getstate) => {
   try {
-    const { data } = await axios.get(`${URL}/lead/alldetails`);
+    const { data } = await axios.get(`/lead/alldetails`);
     console.log(data);
 
     dispatch(addCompany(data.company));

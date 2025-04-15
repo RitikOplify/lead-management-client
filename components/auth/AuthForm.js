@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import { FaEyeSlash, FaEye } from "react-icons/fa";
+import { IoIosArrowDown } from "react-icons/io";
 
 const AuthForm = ({ type }) => {
   const dispatch = useDispatch();
@@ -13,18 +14,19 @@ const AuthForm = ({ type }) => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm();
 
   const onSubmit = async (data) => {
-    const { email, password } = data;
+    // const { email, password, role } = data;
     if (type === "signup") {
       setLoader(true);
-      await dispatch(asyncSignUpUser({ email, password }));
+      await dispatch(asyncSignUpUser(data));
       setLoader(false);
     } else {
       setLoader(true);
-      await dispatch(asyncSignInUser({ email, password }));
+      await dispatch(asyncSignInUser(data));
       setLoader(false);
     }
   };
@@ -32,7 +34,11 @@ const AuthForm = ({ type }) => {
   const handleGuest = async () => {
     setLoader(true);
     await dispatch(
-      asyncSignInUser({ email: "ritik@oplify.in", password: "Ritik@123" })
+      asyncSignInUser({
+        email: "ritik@oplify.in",
+        password: "Ritik@123",
+        role: "admin",
+      })
     );
     setLoader(false);
   };
@@ -47,6 +53,29 @@ const AuthForm = ({ type }) => {
         noValidate
         className="flex flex-col gap-4 md:w-1/3 lg:w-1/5"
       >
+        <div className="flex flex-col">
+          <label className="text-sm mb-1">Role</label>
+          <div className="relative">
+            <select
+              {...register("role", {
+                required: "Role is required.",
+              })}
+              className="px-3 py-2 w-full border border-gray-300 rounded-lg appearance-none"
+            >
+              <option value="">Select Role</option>
+              <option value={"admin"}>Admin</option>
+              <option value={"executive"}>Executive</option>
+              <option value={"dealer"}>Dealer</option>
+            </select>
+            <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none">
+              <IoIosArrowDown size={18} />
+            </div>
+          </div>
+          {errors.role && (
+            <p className="text-red-500 text-sm">{errors.role.message}</p>
+          )}
+        </div>
+
         <div className="flex flex-col">
           <label htmlFor="email" className=" mb-1">
             Email

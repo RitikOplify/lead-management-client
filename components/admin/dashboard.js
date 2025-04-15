@@ -32,14 +32,16 @@ const Dashboard = () => {
         <div>
           <div className=" flex items-center justify-between">
             <h5 className=" mb-3 text-xl font-semibold">Executive List</h5>
-            <button
-              className="bg-[#092C1C] text-white px-6 py-2 rounded cursor-pointer"
-              onClick={() => {
-                setOpen(true);
-              }}
-            >
-              Create New Executive
-            </button>
+            {user?.role == "admin" && (
+              <button
+                className="bg-[#092C1C] text-white px-6 py-2 rounded cursor-pointer"
+                onClick={() => {
+                  setOpen(true);
+                }}
+              >
+                Create New Executive
+              </button>
+            )}
           </div>
           <div className="shadow-md rounded-lg p-4">
             {company?.executives?.length > 0 ? (
@@ -57,9 +59,11 @@ const Dashboard = () => {
         <div>
           <div className=" flex items-center justify-between">
             <h5 className=" mb-3 text-xl font-semibold">Dealer List</h5>
-            <button className="bg-[#092C1C] text-white px-6 py-2 rounded cursor-pointer">
-              Create New Dealer
-            </button>
+            {user?.role == "admin" && (
+              <button className="bg-[#092C1C] text-white px-6 py-2 rounded cursor-pointer">
+                Create New Dealer
+              </button>
+            )}
           </div>
           <div className="shadow-md rounded-lg p-4">
             {company?.dealers?.length > 0 ? (

@@ -2,17 +2,16 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncCurrentUser } from "@/store/actions/auth";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Loader from "@/components/loader";
 
 function Layout({ children }) {
-  const pathname = usePathname();
   const dispatch = useDispatch();
   const router = useRouter();
   const { user, isLoading } = useSelector((state) => state.auth);
   useEffect(() => {
     if (!user) {
-      dispatch(asyncCurrentUser(pathname));
+      dispatch(asyncCurrentUser());
     }
   }, [dispatch, user]);
 

@@ -2,19 +2,23 @@
 import Nav from "@/components/Nav";
 import React, { use, useEffect, useState } from "react";
 import axios from "@/utils/axios";
-import URL from "@/utils/config";
+import { toast } from "react-toastify";
+import Loader from "@/components/loader";
 
 function page({ params }) {
   const { id } = use(params);
   const [lead, setLead] = useState();
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     const fetchLeadDetails = async () => {
       try {
-        const { data } = await axios.get(`${URL}/lead/${id}`);
+        setLoading(true);
+        const { data } = await axios.get(`/lead/${id}`);
         setLead(data.lead);
-        console.log(data.lead);
+        setLoading(false);
       } catch (error) {
+        setLoading(true);
+        toast.error(error.response.data.message);
         console.error("Error fetching lead details:", error);
       }
     };
@@ -25,7 +29,11 @@ function page({ params }) {
     <div className="flex h-screen max-w-[1440px] mx-auto">
       <Nav />
       <div className="p-6 w-full lg:w-[calc(100%-256px)] overflow-y-auto custom-scroller2">
-        {lead ? (
+        {loading ? (
+          <div className=" h-screen flex justify-center items-center">
+            <Loader />
+          </div>
+        ) : lead ? (
           <div className="bg-white">
             <div>
               <h2 className="text-2xl font-semibold mb-2">Lead Details</h2>

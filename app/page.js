@@ -19,7 +19,7 @@ function Home() {
   }, [dispatch, user]);
 
   useEffect(() => {
-    if (user && user.role == "admin") {
+    if ((user && user.role == "admin") || "executive") {
       dispatch(asyncGetCompanyDtails());
     }
   }, [user, dispatch]);
