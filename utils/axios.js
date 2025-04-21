@@ -1,12 +1,3 @@
-// import axios from "axios";
-
-// const instance = axios.create({
-//   baseURL: "http://localhost:8000/",
-//   withCredentials: true,
-// });
-
-// export default instance;
-
 import axios from "axios";
 import { getCookie } from "@/utils/getToken";
 import { setAccessToken, setRefreshToken } from "./setToken";
@@ -80,7 +71,6 @@ instance.interceptors.response.use(
       } catch (err) {
         processQueue(err, null);
 
-        // 🔥 Log user out and redirect
         store.dispatch(removeUser());
 
         Router.replace("/signin");

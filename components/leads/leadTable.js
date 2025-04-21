@@ -86,6 +86,7 @@ const LeadDataTable = () => {
                         </Link>
 
                         <MdOutlineAccessAlarm
+                          className=" cursor-pointer"
                           size={20}
                           onClick={() => {
                             followUpClick(lead.id);

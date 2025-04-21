@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { use, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncCurrentUser } from "@/store/actions/auth";
 import { useRouter } from "next/navigation";
@@ -29,22 +29,17 @@ function AdminLayout({ children }) {
     }
   }, [user, isLoading, router]);
 
-  useEffect(() => {
-    if (user && user.role !== "admin") {
-      router.back();
-    }
-  }, [user, router]);
-
   if (isLoading) {
     return (
-      <div className="h-screen flex justify-center items-center">
+      <div className=" h-screen flex justify-center items-center">
         <Loader />
       </div>
     );
   }
 
-  if (!user || user.role !== "admin") return null;
-
+  if (!user) {
+    return null;
+  }
   return children;
 }
 

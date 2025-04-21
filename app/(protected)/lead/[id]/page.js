@@ -4,11 +4,14 @@ import React, { use, useEffect, useState } from "react";
 import axios from "@/utils/axios";
 import { toast } from "react-toastify";
 import Loader from "@/components/loader";
+import { useSelector } from "react-redux";
 
 function page({ params }) {
   const { id } = use(params);
   const [lead, setLead] = useState();
   const [loading, setLoading] = useState(false);
+  const { user } = useSelector((state) => state.auth);
+
   useEffect(() => {
     const fetchLeadDetails = async () => {
       try {
@@ -16,12 +19,16 @@ function page({ params }) {
         const { data } = await axios.get(`/lead/${id}`);
         setLead(data.lead);
         setLoading(false);
+        console.log(data.lead);
       } catch (error) {
-        setLoading(true);
+        setLoading(false);
+        console.log(error.response.data.message);
+
         toast.error(error.response.data.message);
         console.error("Error fetching lead details:", error);
       }
     };
+
     fetchLeadDetails();
   }, []);
 
@@ -74,24 +81,26 @@ function page({ params }) {
 
             <div className="mt-6">
               <h3 className="text-lg font-medium mb-2 ">Product Info</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-4">
-                <p>
-                  <span className="font-medium">Product Name:</span>{" "}
-                  {lead.product?.name}
-                </p>
-                <p>
-                  <span className="font-medium">Product ID:</span>{" "}
-                  {lead.product?.id}
-                </p>
-                <p>
-                  <span className="font-medium">Category ID:</span>{" "}
-                  {lead.product?.category?.name}
-                </p>
-                <p>
-                  <span className="font-medium">Subcategory ID:</span>{" "}
-                  {lead.product?.subcategory?.name}
-                </p>
-              </div>
+              {lead.products?.map((product) => (
+                <div key={product.id} className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-4">
+                  <p>
+                    <span className="font-medium">Product Name:</span>{" "}
+                    {product.name}
+                  </p>
+                  <p>
+                    <span className="font-medium">Product ID:</span>{" "}
+                    {product.id}
+                  </p>
+                  <p>
+                    <span className="font-medium">Category ID:</span>{" "}
+                    {product.category?.name}
+                  </p>
+                  <p>
+                    <span className="font-medium">Subcategory ID:</span>{" "}
+                    {product.subcategory?.name}
+                  </p>
+                </div>
+              ))}
             </div>
 
             {lead.followUps && lead.followUps.length > 0 && (

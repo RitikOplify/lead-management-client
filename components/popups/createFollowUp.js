@@ -80,6 +80,19 @@ function CreateFollowUp({ onClose, id }) {
             touched={touchedFields.followUp?.stage}
             error={errors?.followUp?.stage}
           />
+          <Select
+            label="Next Follow-Up Step"
+            name="followUp.nextstep"
+            register={register}
+            required="Next Follow-up step is required"
+            options={["INQUIRY", "NEGOTIATION", "FINALIZED"].map((val) => ({
+              value: val,
+              label: val,
+            }))}
+            touched={touchedFields.followUp?.nextstep}
+            error={errors?.followUp?.nextstep}
+          />
+
           <Input
             label="Follow-Up Date"
             name="date"

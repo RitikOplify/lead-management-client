@@ -5,9 +5,10 @@ import React from "react";
 import { FaSignOutAlt, FaTimes, FaHome, FaPlus } from "react-icons/fa";
 import { MdOutlineDashboard } from "react-icons/md";
 
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 function Nav({ navOpen, setNavOpen }) {
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
 
   const logout = async () => {
     await dispatch(asyncSignOutUser());
@@ -41,13 +42,15 @@ function Nav({ navOpen, setNavOpen }) {
           <FaPlus /> Create Lead
         </Link>
 
-        <Link
-          href="/dashboard"
-          className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-        >
-          <MdOutlineDashboard />
-          Dashborad
-        </Link>
+        {user && user.role == "admin" && (
+          <Link
+            href="/dashboard"
+            className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
+          >
+            <MdOutlineDashboard />
+            Dashborad
+          </Link>
+        )}
       </nav>
       <div className="mt-auto">
         <button

@@ -298,8 +298,6 @@ function CreateExecutivePopUp({ onClose }) {
 
     console.log(executive); // For now
 
-    // Uncomment to actually send data
-    /*
     try {
       setLoading(true);
       const { data } = await axios.post(`/admin/sales-executive`, executive);
@@ -312,7 +310,6 @@ function CreateExecutivePopUp({ onClose }) {
       toast.error(error.response.data.message);
       console.error(error.response.data.message);
     }
-    */
   };
 
   return (

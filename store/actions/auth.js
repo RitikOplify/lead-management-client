@@ -18,6 +18,8 @@ export const asyncSignUpUser = (user) => async (dispatch, getstate) => {
 export const asyncSignInUser = (user) => async (dispatch, getstate) => {
   try {
     const { data } = await axios.post(`/auth/signin`, user);
+    console.log(data);
+    
     dispatch(addUser(data.user));
     setAccessToken(data.accessToken);
     setRefreshToken(data.refreshToken);

@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { FaBars } from "react-icons/fa";
 import Nav from "../Nav";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncCreateLeads, asyncGetCompanyDtails } from "@/store/actions/leads";
 import { Input, Select } from "../inputFields";
+import { IoClose } from "react-icons/io5";
+import { IoIosArrowDown } from "react-icons/io";
 const CreateLead = () => {
   const {
     register,
@@ -51,22 +53,57 @@ const CreateLead = () => {
     }
   }, [categoryId, categories]);
 
+  // useEffect(() => {
+  //   if (categoryId && subcategoryId) {
+  //     setFilteredProducts(
+  //       allProducts.filter(
+  //         (p) =>
+  //           p.categoryId === categoryId && p.subcategoryId === subcategoryId
+  //       )
+  //     );
+  //   } else if (categoryId) {
+  //     setFilteredProducts(
+  //       allProducts.filter((p) => p.categoryId === categoryId)
+  //     );
+  //   } else {
+  //     setFilteredProducts(allProducts);
+  //   }
+  // }, [categoryId, subcategoryId, allProducts]);
+
   useEffect(() => {
-    if (categoryId && subcategoryId) {
+    // 🔹 Get all subcategories from selected categories
+    let filteredSubcategories = [];
+    if (categoryId?.length > 0) {
+      filteredSubcategories = categories
+        .filter((cat) => categoryId.includes(cat.id))
+        .flatMap((cat) => cat.subcategories);
+    } else {
+      filteredSubcategories = categories.flatMap((cat) => cat.subcategories);
+    }
+
+    setFilteredSubcategories(filteredSubcategories);
+
+    // 🔹 Filter products based on selected categoryIds & subcategoryIds
+    if (categoryId?.length > 0 && subcategoryId?.length > 0) {
       setFilteredProducts(
         allProducts.filter(
           (p) =>
-            p.categoryId === categoryId && p.subcategoryId === subcategoryId
+            categoryId.includes(p.categoryId) &&
+            subcategoryId.includes(p.subcategoryId)
         )
       );
-    } else if (categoryId) {
+    } else if (categoryId?.length > 0) {
       setFilteredProducts(
-        allProducts.filter((p) => p.categoryId === categoryId)
+        allProducts.filter((p) => categoryId.includes(p.categoryId))
+      );
+    } else if (subcategoryId?.length > 0) {
+      setFilteredProducts(
+        allProducts.filter((p) => subcategoryId.includes(p.subcategoryId))
       );
     } else {
       setFilteredProducts(allProducts);
     }
-  }, [categoryId, subcategoryId, allProducts]);
+  }, [categoryId, subcategoryId, categories, allProducts]);
 
   const onSubmit = async (data) => {
     console.log(data);
@@ -76,6 +113,37 @@ const CreateLead = () => {
     setLoading(false);
   };
   const [navOpen, setNavOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isProductOpen, setProductOpen] = useState(false);
+
+  const [isSubOpen, setIsSubOpen] = useState(false);
+
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const wrapperRef = useRef(null);
+
+  const filteredCategories = (company?.categories || []).filter((cat) =>
+    cat.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="flex h-screen">
@@ -218,16 +286,266 @@ const CreateLead = () => {
             error={errors.stage}
           />
 
-          <Select
+          {/* <Select
             label="Category"
             name="categoryId"
             register={register}
             options={categories.map((c) => ({ value: c.id, label: c.name }))}
             error={errors.categoryId}
             touched={touchedFields.categoryId}
-          />
+          /> */}
+
+          <div className="flex justify-between flex-col items-center">
+            <Controller
+              name="categoryId"
+              control={control}
+              render={({ field }) => (
+                <div className="w-full relative" ref={wrapperRef}>
+                  <p className="mb-1 text-sm">Select Category</p>
+
+                  <div>
+                    <div
+                      onClick={() => setIsOpen(!isOpen)}
+                      className="border border-gray-300 flex items-center justify-between px-3 py-2 rounded-md cursor-pointer bg-white"
+                    >
+                      <span className="text-gray-500">
+                        {field.value?.length > 0 ? (
+                          <div className="flex overflow-x-auto custom-scroller4 whitespace-nowrap  gap-1 ">
+                            {(field.value || []).map((id) => {
+                              const category = company?.categories?.find(
+                                (d) => d.id === id
+                              );
+                              return (
+                                <div
+                                  key={id}
+                                  className="flex items-center gap-1 px-2 bg-green-100 py-0.5 rounded-sm text-sm"
+                                >
+                                  {category?.name}
+                                  <IoClose
+                                    className="cursor-pointer"
+                                    onClick={() =>
+                                      field.onChange(
+                                        field.value.filter((val) => val !== id)
+                                      )
+                                    }
+                                  />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          "Select Category"
+                        )}
+                      </span>
+                      <IoIosArrowDown />
+                    </div>
+                  </div>
+
+                  {(isOpen || field.value?.length > 0) && (
+                    <div
+                      className={`absolute ${
+                        !isOpen ? "hidden" : ""
+                      } top-full left-0 right-0 bg-white border border-gray-300 rounded-md shadow-md z-10 mt-1 overflow-hidden`}
+                    >
+                      {isOpen && (
+                        <div>
+                          <input
+                            ref={inputRef}
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full px-3 py-2 outline-none"
+                            placeholder="Search..."
+                          />
+                          <ul className="max-h-[162.68px] overflow-y-auto custom-scroller2">
+                            {filteredCategories.map((cat) => {
+                              const isSelected = field.value?.includes(cat.id);
+
+                              return (
+                                <li
+                                  key={cat.id}
+                                  className={`flex justify-between items-center px-3 py-2 border-t border-t-gray-300 cursor-pointer ${
+                                    isSelected
+                                      ? "bg-green-100"
+                                      : "hover:bg-gray-100"
+                                  }`}
+                                  onClick={() => {
+                                    if (isSelected) {
+                                      field.onChange(
+                                        field.value.filter(
+                                          (val) => val !== cat.id
+                                        )
+                                      );
+                                    } else {
+                                      field.onChange([
+                                        ...(field.value || []),
+                                        cat.id,
+                                      ]);
+                                    }
+                                  }}
+                                >
+                                  <span>{cat.name}</span>
+                                  {isSelected && (
+                                    <IoClose
+                                      className="text-gray-600 hover:text-black"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        field.onChange(
+                                          field.value.filter(
+                                            (val) => val !== cat.id
+                                          )
+                                        );
+                                      }}
+                                    />
+                                  )}
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* {errors?.dealerIds && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.dealerIds.message}
+                    </p>
+                  )} */}
+                </div>
+              )}
+            />
+          </div>
 
           {categoryId && (
+            <div className="flex justify-between flex-col items-center">
+              <Controller
+                name="subcategoryId"
+                control={control}
+                render={({ field }) => (
+                  <div className="w-full relative">
+                    <p className="mb-1 text-sm">Select Sub Category</p>
+
+                    <div>
+                      <div
+                        onClick={() => setIsSubOpen(!isSubOpen)}
+                        className="border border-gray-300 flex overflow-x-auto items-center justify-between px-3 py-2 rounded-md cursor-pointer bg-white"
+                      >
+                        <span className="text-gray-500">
+                          {field.value?.length > 0 ? (
+                            <div className="flex overflow-x-auto custom-scroller4 whitespace-nowrap  gap-1 ">
+                              {(field.value || []).map((id) => {
+                                const subcategory = filteredSubcategories?.find(
+                                  (d) => d.id === id
+                                );
+                                return (
+                                  <div
+                                    key={id}
+                                    className="flex items-center gap-1 px-2 bg-green-100 py-0.5 rounded-sm text-sm"
+                                  >
+                                    {subcategory?.name}
+                                    <IoClose
+                                      className="cursor-pointer"
+                                      onClick={() =>
+                                        field.onChange(
+                                          field.value.filter(
+                                            (val) => val !== id
+                                          )
+                                        )
+                                      }
+                                    />
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            "Select Sub Category"
+                          )}
+                        </span>
+                        <IoIosArrowDown />
+                      </div>
+                    </div>
+
+                    {(isSubOpen || field.value?.length > 0) && (
+                      <div
+                        className={`absolute ${
+                          !isSubOpen ? "hidden" : ""
+                        } top-full left-0 right-0 bg-white border border-gray-300 rounded-md shadow-md z-10 mt-1 overflow-hidden`}
+                      >
+                        {isSubOpen && (
+                          <div>
+                            {/* <input
+                              ref={inputRef}
+                              type="text"
+                              value={searchTerm}
+                              onChange={(e) => setSearchTerm(e.target.value)}
+                              className="w-full px-3 py-2 outline-none"
+                              placeholder="Search..."
+                            /> */}
+                            <ul className="max-h-[162.68px] overflow-y-auto custom-scroller2">
+                              {filteredSubcategories.map((cat) => {
+                                const isSelected = field.value?.includes(
+                                  cat.id
+                                );
+
+                                return (
+                                  <li
+                                    key={cat.id}
+                                    className={`flex justify-between items-center px-3 py-2 border-t border-t-gray-300 cursor-pointer ${
+                                      isSelected
+                                        ? "bg-green-100"
+                                        : "hover:bg-gray-100"
+                                    }`}
+                                    onClick={() => {
+                                      if (isSelected) {
+                                        field.onChange(
+                                          field.value.filter(
+                                            (val) => val !== cat.id
+                                          )
+                                        );
+                                      } else {
+                                        field.onChange([
+                                          ...(field.value || []),
+                                          cat.id,
+                                        ]);
+                                      }
+                                    }}
+                                  >
+                                    <span>{cat.name}</span>
+                                    {isSelected && (
+                                      <IoClose
+                                        className="text-gray-600 hover:text-black"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          field.onChange(
+                                            field.value.filter(
+                                              (val) => val !== cat.id
+                                            )
+                                          );
+                                        }}
+                                      />
+                                    )}
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* {errors?.dealerIds && (
+                      <p className="text-red-500 text-sm mt-1">
+                        {errors.dealerIds.message}
+                      </p>
+                    )} */}
+                  </div>
+                )}
+              />
+            </div>
+          )}
+
+          {/* {categoryId && (
             <Select
               label="Subcategory"
               name="subcategoryId"
@@ -239,11 +557,136 @@ const CreateLead = () => {
               touched={touchedFields.subcategoryId}
               error={errors.subcategoryId}
             />
-          )}
+          )} */}
 
-          <Select
+          <div className="flex justify-between flex-col items-center">
+            <Controller
+              name="products"
+              control={control}
+              render={({ field }) => (
+                <div className="w-full relative">
+                  <p className="mb-1 text-sm">Select Product</p>
+
+                  <div>
+                    <div
+                      onClick={() => setProductOpen(!isProductOpen)}
+                      className="border border-gray-300 overflow-x-auto flex items-center justify-between px-3 py-2 rounded-md cursor-pointer bg-white"
+                    >
+                      <span className="text-gray-500">
+                        {field.value?.length > 0 ? (
+                          <div className="flex overflow-x-auto custom-scroller4 whitespace-nowrap  gap-1 ">
+                            {(field.value || []).map((id) => {
+                              const product = filteredProducts.find(
+                                (d) => d.id === id
+                              );
+                              return (
+                                <div
+                                  key={id}
+                                  className="flex items-center gap-1 px-2 bg-green-100 py-0.5 rounded-sm text-sm"
+                                >
+                                  {product?.name}
+                                  <IoClose
+                                    className="cursor-pointer"
+                                    onClick={() =>
+                                      field.onChange(
+                                        field.value.filter((val) => val !== id)
+                                      )
+                                    }
+                                  />
+                                </div>
+                              );
+                            })}
+                          </div>
+                        ) : (
+                          "Select Product"
+                        )}
+                      </span>
+                      <IoIosArrowDown />
+                    </div>
+                  </div>
+
+                  {(isProductOpen || field.value?.length > 0) && (
+                    <div
+                      className={`absolute ${
+                        !isProductOpen ? "hidden" : ""
+                      } top-full left-0 right-0 bg-white border border-gray-300 rounded-md shadow-md z-10 mt-1 overflow-hidden`}
+                    >
+                      {isProductOpen && (
+                        <div>
+                          {/* <input
+                            ref={inputRef}
+                            type="text"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full px-3 py-2 outline-none"
+                            placeholder="Search..."
+                          /> */}
+                          <ul className="max-h-[162.68px] overflow-y-auto custom-scroller2">
+                            {filteredProducts.map((product) => {
+                              const isSelected = field.value?.includes(
+                                product.id
+                              );
+
+                              return (
+                                <li
+                                  key={product.id}
+                                  className={`flex justify-between items-center px-3 py-2 border-t border-t-gray-300 cursor-pointer ${
+                                    isSelected
+                                      ? "bg-green-100"
+                                      : "hover:bg-gray-100"
+                                  }`}
+                                  onClick={() => {
+                                    if (isSelected) {
+                                      field.onChange(
+                                        field.value.filter(
+                                          (val) => val !== product.id
+                                        )
+                                      );
+                                    } else {
+                                      field.onChange([
+                                        ...(field.value || []),
+                                        product.id,
+                                      ]);
+                                    }
+                                  }}
+                                >
+                                  <span>{product.name}</span>
+                                  {isSelected && (
+                                    <IoClose
+                                      className="text-gray-600 hover:text-black"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        field.onChange(
+                                          field.value.filter(
+                                            (val) => val !== product.id
+                                          )
+                                        );
+                                      }}
+                                    />
+                                  )}
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* {errors?.dealerIds && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.dealerIds.message}
+                    </p>
+                  )} */}
+                </div>
+              )}
+            />
+          </div>
+
+          {/* <Select
             label="Product"
-            name="productId"
+            name="products"
+            multiple={true}
             register={register}
             options={filteredProducts.map((p) => ({
               value: p.id,
@@ -251,7 +694,7 @@ const CreateLead = () => {
             }))}
             touched={touchedFields.productId}
             error={errors.productId}
-          />
+          /> */}
 
           {user?.role === "admin" && (
             <>
@@ -325,6 +768,20 @@ const CreateLead = () => {
               touched={touchedFields.followUp?.stage}
               error={errors?.followUp?.stage}
             />
+
+            <Select
+              label="Next Follow-Up Step"
+              name="followUp.nextstep"
+              register={register}
+              required="Next Follow-up step is required"
+              options={["INQUIRY", "NEGOTIATION", "FINALIZED"].map((val) => ({
+                value: val,
+                label: val,
+              }))}
+              touched={touchedFields.followUp?.nextstep}
+              error={errors?.followUp?.nextstep}
+            />
+
             <Input
               label="Follow-Up Date"
               name="followUp.date"

@@ -9,12 +9,14 @@ function Select({
   options,
   disabled,
   touched,
+  multiple = false,
 }) {
   return (
     <div className="flex flex-col">
       <label className="text-sm mb-1">{label}</label>
       <div className="relative">
         <select
+          multiple={multiple}
           disabled={disabled}
           {...register(name, { required })}
           className={`w-full px-3 py-2 border outline-[#092C1C] cursor-pointer ${
