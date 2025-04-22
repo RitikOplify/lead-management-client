@@ -39,7 +39,11 @@ function Home() {
   }
 
   if (!user) {
-    return null;
+    return (
+      <div className=" h-screen flex justify-center items-center">
+        <Loader />
+      </div>
+    );
   }
 
   return <LeadDataTable />;

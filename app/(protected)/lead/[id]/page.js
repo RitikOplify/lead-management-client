@@ -33,7 +33,7 @@ function page({ params }) {
   }, []);
 
   return (
-    <div className="flex h-screen max-w-[1440px] mx-auto">
+    <div className="flex h-screen">
       <Nav />
       <div className="p-6 w-full lg:w-[calc(100%-256px)] overflow-y-auto custom-scroller2">
         {loading ? (
@@ -82,7 +82,10 @@ function page({ params }) {
             <div className="mt-6">
               <h3 className="text-lg font-medium mb-2 ">Product Info</h3>
               {lead.products?.map((product) => (
-                <div key={product.id} className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-4">
+                <div
+                  key={product.id}
+                  className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-4"
+                >
                   <p>
                     <span className="font-medium">Product Name:</span>{" "}
                     {product.name}
@@ -107,7 +110,7 @@ function page({ params }) {
               <div className="mt-6">
                 <h3 className="text-lg font-medium mb-2">Follow Ups</h3>
                 <div className="space-y-4 overflow-y-auto custom-scroller shadow-md rounded-lg">
-                  <table className="min-w-[568px] w-full divide-y divide-gray-200">
+                  <table className="min-w-[1024px] w-full divide-y divide-gray-200">
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="p-4 text-left text-sm font-semibold text-gray-600">
@@ -125,9 +128,15 @@ function page({ params }) {
                         <th className="p-4 text-left text-sm font-semibold text-gray-600">
                           Message
                         </th>
+                        <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                          Next Step
+                        </th>
+                        <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                          Next Followup Date
+                        </th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
+                    <tbody className=" divide-y divide-gray-200">
                       {lead.followUps.map((followUp, index) => (
                         <tr key={followUp.id} className="hover:bg-gray-50">
                           <td className="p-4 text-sm text-gray-700">
@@ -144,6 +153,14 @@ function page({ params }) {
                           </td>
                           <td className="p-4 text-sm text-gray-700">
                             {followUp.message}
+                          </td>
+                          <td className="p-4 text-sm text-gray-700">
+                            {followUp.nextFollowUpStep}
+                          </td>
+                          <td className="p-4 text-sm text-gray-700">
+                            {new Date(
+                              followUp.nextFollowUpDate
+                            ).toLocaleString()}
                           </td>
                         </tr>
                       ))}

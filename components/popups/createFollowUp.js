@@ -82,17 +82,26 @@ function CreateFollowUp({ onClose, id }) {
           />
           <Select
             label="Next Follow-Up Step"
-            name="followUp.nextstep"
+            name="nextFollowUpStep"
             register={register}
             required="Next Follow-up step is required"
             options={["INQUIRY", "NEGOTIATION", "FINALIZED"].map((val) => ({
               value: val,
               label: val,
             }))}
-            touched={touchedFields.followUp?.nextstep}
-            error={errors?.followUp?.nextstep}
+            touched={touchedFields.nextFollowUpStep}
+            error={errors?.nextFollowUpStep}
           />
-
+          <Input
+            label="Next Follow-Up Date"
+            name="nextFollowUpDate"
+            register={register}
+            type="date"
+            placeholder="DD/MM/YYYY"
+            required="Date is required"
+            touched={touchedFields.nextFollowUpDate}
+            error={errors?.followUp?.nextFollowUpDate}
+          />
           <Input
             label="Follow-Up Date"
             name="date"
@@ -100,26 +109,27 @@ function CreateFollowUp({ onClose, id }) {
             type="date"
             placeholder="DD/MM/YYYY"
             required="Date is required"
-            touched={touchedFields.followUp?.date}
-            error={errors?.followUp?.date}
+            touched={touchedFields.date}
+            error={errors?.date}
           />
+
           <Input
             label="Follow-Up Time"
             name="time"
             register={register}
             type="time"
-            touched={touchedFields.followUp?.time}
+            touched={touchedFields.time}
             required="Time is required"
-            error={errors?.followUp?.time}
+            error={errors?.time}
           />
           <Input
             label="Follow-Up Message"
             name="message"
             register={register}
-            touched={touchedFields.followUp?.message}
+            touched={touchedFields.message}
             placeholder="Enter message"
             required="Message is required"
-            error={errors?.followUp?.message}
+            error={errors?.message}
           />
           <div className="col-span-full text-right mt-4">
             {loading ? (

@@ -771,15 +771,15 @@ const CreateLead = () => {
 
             <Select
               label="Next Follow-Up Step"
-              name="followUp.nextstep"
+              name="followUp.nextFollowUpStep"
               register={register}
               required="Next Follow-up step is required"
               options={["INQUIRY", "NEGOTIATION", "FINALIZED"].map((val) => ({
                 value: val,
                 label: val,
               }))}
-              touched={touchedFields.followUp?.nextstep}
-              error={errors?.followUp?.nextstep}
+              touched={touchedFields.followUp?.nextFollowUpStep}
+              error={errors?.followUp?.nextFollowUpStep}
             />
 
             <Input
@@ -791,6 +791,17 @@ const CreateLead = () => {
               required="Date is required"
               touched={touchedFields.followUp?.date}
               error={errors?.followUp?.date}
+            />
+
+            <Input
+              label="Next Follow-Up Date"
+              name="followUp.nextFollowUpDate"
+              register={register}
+              type="date"
+              placeholder="DD/MM/YYYY"
+              required="Date is required"
+              touched={touchedFields.followUp?.nextFollowUpDate}
+              error={errors?.followUp?.nextFollowUpDate}
             />
             <Input
               label="Follow-Up Time"

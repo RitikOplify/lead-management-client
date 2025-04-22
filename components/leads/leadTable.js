@@ -18,7 +18,7 @@ const LeadDataTable = () => {
     setOpen(true);
   };
   return (
-    <div className="flex h-screen max-w-[1440px] mx-auto">
+    <div className="flex h-screen mx-auto">
       <Nav />
       {open && <CreateFollowUp onClose={() => setOpen(false)} id={leadId} />}
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6">
