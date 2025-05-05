@@ -23,12 +23,10 @@ function page({ params }) {
       } catch (error) {
         setLoading(false);
         console.log(error.response.data.message);
-
         toast.error(error.response.data.message);
         console.error("Error fetching lead details:", error);
       }
     };
-
     fetchLeadDetails();
   }, []);
 
@@ -140,7 +138,7 @@ function page({ params }) {
                       {lead.followUps.map((followUp, index) => (
                         <tr key={followUp.id} className="hover:bg-gray-50">
                           <td className="p-4 text-sm text-gray-700">
-                            {new Date(followUp.date).toLocaleDateString()}
+                            {new Date(followUp.createdAt).toLocaleDateString()}
                           </td>
                           <td className="p-4 text-sm text-gray-700">
                             {followUp.time}

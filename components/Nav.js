@@ -43,13 +43,23 @@ function Nav({ navOpen, setNavOpen }) {
         </Link>
 
         {user && user.role == "admin" && (
-          <Link
-            href="/dashboard"
-            className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-          >
-            <MdOutlineDashboard />
-            Dashborad
-          </Link>
+          <>
+            <Link
+              href="/dashboard"
+              className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
+            >
+              <MdOutlineDashboard />
+              Dashborad
+            </Link>
+
+            <Link
+              href="/users"
+              className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
+            >
+              <MdOutlineDashboard />
+              Users
+            </Link>
+          </>
         )}
       </nav>
       <div className="mt-auto">

@@ -18,10 +18,7 @@ function CreateFollowUp({ onClose, id }) {
     const followUpData = { ...data, leadId: id };
     try {
       setLoading(true);
-      const { data } = await axios.post(
-        `${URL}/lead/create-followup`,
-        followUpData
-      );
+      const { data } = await axios.post(`/lead/create-followup`, followUpData);
       setLoading(false);
       toast.success(data.message);
       reset();
@@ -39,7 +36,7 @@ function CreateFollowUp({ onClose, id }) {
       onClick={onClose}
     >
       <div
-        className="bg-white h-screen sm:h-auto md:rounded-xl shadow-xl w-full max-w-4xl p-6 relative"
+        className="bg-white h-screen sm:h-auto md:rounded-xl shadow-xl w-full max-w-5xl p-6 relative"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
@@ -57,35 +54,36 @@ function CreateFollowUp({ onClose, id }) {
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
         >
           <Select
-            label="Follow-Up Status"
+            label="Current Status"
             name="status"
             register={register}
-            required="Follow-up status is required"
+            required="Status is required"
             options={["NEW", "IN_PROGRESS", "CLOSED"].map((val) => ({
               value: val,
               label: val,
             }))}
-            touched={touchedFields.followUp?.status}
-            error={errors?.followUp?.status}
+            touched={touchedFields.status}
+            error={errors?.status}
           />
           <Select
-            label="Follow-Up Stage"
+            label="Current Stage"
             name="stage"
             register={register}
-            required="Follow-up stage is required"
-            options={["INQUIRY", "NEGOTIATION", "FINALIZED"].map((val) => ({
-              value: val,
-              label: val,
-            }))}
-            touched={touchedFields.followUp?.stage}
-            error={errors?.followUp?.stage}
+            required="Stage is required"
+            options={["INQUIRY", "NEGOTIATION", "CONVERTED", "LOST"].map(
+              (val) => ({
+                value: val,
+                label: val,
+              })
+            )}
+            touched={touchedFields.stage}
+            error={errors?.stage}
           />
           <Select
-            label="Next Follow-Up Step"
+            label="Next Follow Up Step"
             name="nextFollowUpStep"
             register={register}
-            required="Next Follow-up step is required"
-            options={["INQUIRY", "NEGOTIATION", "FINALIZED"].map((val) => ({
+            options={["NEGOTIATION", "CALL", "VISIT", "MAIL"].map((val) => ({
               value: val,
               label: val,
             }))}
@@ -93,7 +91,7 @@ function CreateFollowUp({ onClose, id }) {
             error={errors?.nextFollowUpStep}
           />
           <Input
-            label="Next Follow-Up Date"
+            label="Next Follow Up Date"
             name="nextFollowUpDate"
             register={register}
             type="date"
@@ -102,33 +100,13 @@ function CreateFollowUp({ onClose, id }) {
             touched={touchedFields.nextFollowUpDate}
             error={errors?.followUp?.nextFollowUpDate}
           />
-          <Input
-            label="Follow-Up Date"
-            name="date"
-            register={register}
-            type="date"
-            placeholder="DD/MM/YYYY"
-            required="Date is required"
-            touched={touchedFields.date}
-            error={errors?.date}
-          />
 
           <Input
-            label="Follow-Up Time"
-            name="time"
-            register={register}
-            type="time"
-            touched={touchedFields.time}
-            required="Time is required"
-            error={errors?.time}
-          />
-          <Input
-            label="Follow-Up Message"
+            label="Follow Up Message"
             name="message"
             register={register}
             touched={touchedFields.message}
             placeholder="Enter message"
-            required="Message is required"
             error={errors?.message}
           />
           <div className="col-span-full text-right mt-4">

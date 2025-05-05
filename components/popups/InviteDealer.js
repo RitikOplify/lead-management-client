@@ -4,8 +4,9 @@ import { toast } from "react-toastify";
 import { IoClose } from "react-icons/io5";
 import { useState } from "react";
 import { Input } from "../inputFields";
+import { useSelector } from "react-redux";
 
-const CreateCategoryForm = ({ onCategoryClose }) => {
+const InviteDealer = ({ onClose }) => {
   const {
     register,
     handleSubmit,
@@ -14,15 +15,17 @@ const CreateCategoryForm = ({ onCategoryClose }) => {
   } = useForm();
 
   const [loading, setLoading] = useState(false);
-
-  const onSubmit = async (cat) => {
+  const { company } = useSelector((state) => state.leads);
+  const url = `${window.location.origin}/new-dealer/${company.id}`;
+  const onSubmit = async (data) => {
+    const inviteData = { ...data, companyName: company.name, url };
     try {
       setLoading(true);
-      const { data } = await axios.post("/admin/category", cat);
+      const { data } = await axios.post("/admin/invite/dealer", inviteData);
       setLoading(false);
       toast.success(data.message);
       reset();
-      onCategoryClose();
+      onClose();
     } catch (err) {
       setLoading(false);
       toast.error(err.response?.data?.message);
@@ -32,32 +35,32 @@ const CreateCategoryForm = ({ onCategoryClose }) => {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onClick={onCategoryClose}
+      onClick={onClose}
     >
       <div
         className="bg-white h-screen sm:h-auto md:rounded-xl shadow-xl w-full max-w-lg p-6 relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          onClick={onCategoryClose}
+          onClick={onClose}
           className="absolute top-3 right-3 text-gray-500 hover:text-black cursor-pointer"
         >
           <IoClose size={24} />
         </button>
 
         <h3 className="text-2xl font-semibold mb-4 text-center">
-          Create Category
+          Invite Dealer
         </h3>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Input
-            label="Category Name"
-            name="name"
+            label="Email"
+            name="email"
             register={register}
-            type={"text"}
-            required="Category name is required"
-            error={errors.name}
-            placeholder={"Enter Category name"}
-            touched={touchedFields.name}
+            type={"email"}
+            required="Email is required"
+            error={errors.email}
+            placeholder={"Enter email"}
+            touched={touchedFields.email}
           />
           <div className="text-right mt-5">
             {loading ? (
@@ -90,7 +93,7 @@ const CreateCategoryForm = ({ onCategoryClose }) => {
                 type="submit"
                 className="bg-[#092C1C] text-white px-6 py-2 rounded cursor-pointer"
               >
-                Create
+                Invite
               </button>
             )}
           </div>
@@ -100,4 +103,4 @@ const CreateCategoryForm = ({ onCategoryClose }) => {
   );
 };
 
-export default CreateCategoryForm;
+export default InviteDealer;

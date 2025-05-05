@@ -1,15 +1,17 @@
 "use client";
 import React, { useState } from "react";
-import { FaEye, FaEdit, FaTrash, FaPlus } from "react-icons/fa";
+import { FaEye, FaPlus } from "react-icons/fa";
 import { MdOutlineAccessAlarm } from "react-icons/md";
-
 import Nav from "../Nav";
 import { useSelector } from "react-redux";
 import { IoIosArrowDown } from "react-icons/io";
 import CreateFollowUp from "../popups/createFollowUp";
 import Link from "next/link";
+import ViewProduct from "../popups/ViewProduct";
 const LeadDataTable = () => {
   const [open, setOpen] = useState(false);
+  const [productOpen, setProductOpen] = useState(false);
+  const [leadData, setLeadData] = useState();
   const [leadId, setLeadId] = useState(null);
   const { company } = useSelector((state) => state.leads);
   const followUpClick = (leadId) => {
@@ -17,10 +19,19 @@ const LeadDataTable = () => {
     if (!leadId) return;
     setOpen(true);
   };
+
+  const viewClick = (lead) => {
+    setLeadData(lead);
+    if (!lead) return;
+    setProductOpen(true);
+  };
   return (
     <div className="flex h-screen mx-auto">
       <Nav />
       {open && <CreateFollowUp onClose={() => setOpen(false)} id={leadId} />}
+      {productOpen && (
+        <ViewProduct onClose={() => setProductOpen(false)} lead={leadData} />
+      )}
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6">
         <div className="flex justify-between items-center mb-4">
           <div>
@@ -49,7 +60,10 @@ const LeadDataTable = () => {
                       Action
                     </th>
                     <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Name
+                      EP Name
+                    </th>
+                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                      HP Name
                     </th>
                     <th className="p-4 text-left text-sm font-semibold text-gray-600">
                       Contact
@@ -66,20 +80,26 @@ const LeadDataTable = () => {
                     <th className="p-4 text-left text-sm font-semibold text-gray-600">
                       Source
                     </th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Price
-                    </th>
+
                     <th className="p-4 text-left text-sm font-semibold text-gray-600">
                       City
                     </th>
+
                     <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      State
+                      Products
                     </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                   {company?.leads?.map((lead, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
+                    <tr
+                      key={index}
+                      className={`${
+                        lead.dealerId
+                          ? "bg-green-50 hover:bg-green-100"
+                          : "hover:bg-gray-50"
+                      }`}
+                    >
                       <td className="p-4 flex items-center space-x-4">
                         <Link href={`/lead/${lead.id}`}>
                           <FaEye size={20} />
@@ -95,6 +115,10 @@ const LeadDataTable = () => {
                       </td>
                       <td className="p-4 text-sm text-gray-700">{lead.name}</td>
                       <td className="p-4 text-sm text-gray-700">
+                        {lead.dealer?.name}
+                      </td>
+
+                      <td className="p-4 text-sm text-gray-700">
                         {lead.contact}
                       </td>
                       <td className="p-4 text-sm text-gray-700">
@@ -109,12 +133,14 @@ const LeadDataTable = () => {
                       <td className="p-4 text-sm text-gray-700">
                         {lead.source}
                       </td>
-                      <td className="p-4 text-sm text-gray-700">
-                        {lead.price}
-                      </td>
                       <td className="p-4 text-sm text-gray-700">{lead.city}</td>
-                      <td className="p-4 text-sm text-gray-700">
-                        {lead.state}
+                      <td
+                        className="p-4 text-sm text-gray-700 underline cursor-pointer"
+                        onClick={() => {
+                          viewClick(lead);
+                        }}
+                      >
+                        View
                       </td>
                     </tr>
                   ))}
@@ -126,7 +152,7 @@ const LeadDataTable = () => {
               </div>
             )}
           </div>
-          <div className="flex items-center justify-between p-4 text-sm text-gray-600">
+          {/* <div className="flex items-center justify-between p-4 text-sm text-gray-600">
             <div className="flex items-center space-x-2">
               <span>Items per page:</span>
               <div className=" relative w-12">
@@ -147,7 +173,7 @@ const LeadDataTable = () => {
               <button className="px-2">&lt;</button>
               <button className="px-2">&gt;</button>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>

@@ -53,23 +53,6 @@ const CreateLead = () => {
     }
   }, [categoryId, categories]);
 
-  // useEffect(() => {
-  //   if (categoryId && subcategoryId) {
-  //     setFilteredProducts(
-  //       allProducts.filter(
-  //         (p) =>
-  //           p.categoryId === categoryId && p.subcategoryId === subcategoryId
-  //       )
-  //     );
-  //   } else if (categoryId) {
-  //     setFilteredProducts(
-  //       allProducts.filter((p) => p.categoryId === categoryId)
-  //     );
-  //   } else {
-  //     setFilteredProducts(allProducts);
-  //   }
-  // }, [categoryId, subcategoryId, allProducts]);
-
   useEffect(() => {
     // 🔹 Get all subcategories from selected categories
     let filteredSubcategories = [];
@@ -115,13 +98,8 @@ const CreateLead = () => {
   const [navOpen, setNavOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isProductOpen, setProductOpen] = useState(false);
-
   const [isSubOpen, setIsSubOpen] = useState(false);
-
   const [searchTerm, setSearchTerm] = useState("");
-
-  const wrapperRef = useRef(null);
-
   const filteredCategories = (company?.categories || []).filter((cat) =>
     cat.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -132,13 +110,28 @@ const CreateLead = () => {
       inputRef.current.focus();
     }
   }, [isOpen]);
+  const categoryRef = useRef(null);
+  const subcategoryRef = useRef(null);
+  const productRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+      if (categoryRef.current && !categoryRef.current.contains(event.target)) {
         setIsOpen(false);
       }
+
+      if (
+        subcategoryRef.current &&
+        !subcategoryRef.current.contains(event.target)
+      ) {
+        setIsSubOpen(false);
+      }
+
+      if (productRef.current && !productRef.current.contains(event.target)) {
+        setProductOpen(false);
+      }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -163,13 +156,20 @@ const CreateLead = () => {
           </div>
         </div>
 
+        <div className=" flex justify-center items-center">
+          <input
+            type="text"
+            placeholder="Search..."
+            className="px-4 w-full max-w-sm rounded-full py-2 border outline-[#092C1C]"
+          />
+        </div>
         {/* Header */}
         <h2 className="text-2xl font-bold">Add Lead</h2>
 
         {/* Form Sections */}
         <div className=" w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Input
-            label="Name"
+            label="Enquiry Person Name *"
             name="name"
             register={register}
             type={"text"}
@@ -179,7 +179,7 @@ const CreateLead = () => {
             touched={touchedFields.name}
           />
           <Input
-            label="Email"
+            label="Email *"
             name="email"
             register={register}
             type="email"
@@ -189,7 +189,7 @@ const CreateLead = () => {
             touched={touchedFields.email}
           />
           <Input
-            label="Contact"
+            label="Contact *"
             name="contact"
             register={register}
             required="Contact is required"
@@ -199,7 +199,7 @@ const CreateLead = () => {
             type={"text"}
           />
           <Input
-            label="Company Name"
+            label="Company Name *"
             name="companyName"
             register={register}
             type={"text"}
@@ -212,14 +212,13 @@ const CreateLead = () => {
             label="Source"
             name="source"
             register={register}
-            required="Source is required"
             error={errors.source}
             placeholder={"Enter source"}
             touched={touchedFields.source}
             type={"text"}
           />
           <Input
-            label="City"
+            label="City *"
             name="city"
             register={register}
             required="City is required"
@@ -232,85 +231,30 @@ const CreateLead = () => {
             label="State"
             name="state"
             register={register}
-            required="State is required"
             error={errors.state}
             placeholder={"Enter state"}
             touched={touchedFields.state}
             type={"text"}
           />
-          <Input
-            label="Price"
-            name="price"
-            register={register}
-            type="number"
-            required="Price is required"
-            error={errors.price}
-            placeholder={"Enter price"}
-            touched={touchedFields.price}
-          />
-          <Input
-            label="Comments"
-            name="comments"
-            register={register}
-            placeholder={"Enter comments"}
-            error={errors.comments}
-            touched={touchedFields.comments}
-            type={"text"}
-          />
         </div>
 
         <div className="border-t pt-6 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <Select
-            label="Status"
-            name="status"
-            register={register}
-            required="Status is required"
-            options={["NEW", "IN_PROGRESS", "CLOSED"].map((val) => ({
-              value: val,
-              label: val,
-            }))}
-            touched={touchedFields.status}
-            error={errors.status}
-          />
-
-          <Select
-            label="Stage"
-            name="stage"
-            register={register}
-            required="Stage is required"
-            options={["INQUIRY", "NEGOTIATION", "FINALIZED"].map((val) => ({
-              value: val,
-              label: val,
-            }))}
-            touched={touchedFields.stage}
-            error={errors.stage}
-          />
-
-          {/* <Select
-            label="Category"
-            name="categoryId"
-            register={register}
-            options={categories.map((c) => ({ value: c.id, label: c.name }))}
-            error={errors.categoryId}
-            touched={touchedFields.categoryId}
-          /> */}
-
           <div className="flex justify-between flex-col items-center">
             <Controller
               name="categoryId"
               control={control}
               render={({ field }) => (
-                <div className="w-full relative" ref={wrapperRef}>
+                <div className="w-full relative" ref={categoryRef}>
                   <p className="mb-1 text-sm">Select Category</p>
 
                   <div>
                     <div
                       onClick={() => setIsOpen(!isOpen)}
-                      className="border border-gray-300 flex items-center justify-between px-3 py-2 rounded-md cursor-pointer bg-white"
+                      className="border border-gray-300 custom-scroller4 flex overflow-x-auto items-center justify-between px-3 py-2 rounded-md cursor-pointer bg-white"
                     >
                       <span className="text-gray-500">
                         {field.value?.length > 0 ? (
-                          <div className="flex overflow-x-auto custom-scroller4 whitespace-nowrap  gap-1 ">
+                          <div className="flex  whitespace-nowrap  gap-1 ">
                             {(field.value || []).map((id) => {
                               const category = company?.categories?.find(
                                 (d) => d.id === id
@@ -420,20 +364,21 @@ const CreateLead = () => {
           {categoryId && (
             <div className="flex justify-between flex-col items-center">
               <Controller
+                defaultValue={[]}
                 name="subcategoryId"
                 control={control}
                 render={({ field }) => (
-                  <div className="w-full relative">
+                  <div className="w-full relative" ref={subcategoryRef}>
                     <p className="mb-1 text-sm">Select Sub Category</p>
 
                     <div>
                       <div
                         onClick={() => setIsSubOpen(!isSubOpen)}
-                        className="border border-gray-300 flex overflow-x-auto items-center justify-between px-3 py-2 rounded-md cursor-pointer bg-white"
+                        className="border border-gray-300 flex overflow-x-auto custom-scroller4 items-center justify-between px-3 py-2 rounded-md cursor-pointer bg-white"
                       >
                         <span className="text-gray-500">
                           {field.value?.length > 0 ? (
-                            <div className="flex overflow-x-auto custom-scroller4 whitespace-nowrap  gap-1 ">
+                            <div className="flex  whitespace-nowrap  gap-1 ">
                               {(field.value || []).map((id) => {
                                 const subcategory = filteredSubcategories?.find(
                                   (d) => d.id === id
@@ -545,36 +490,27 @@ const CreateLead = () => {
             </div>
           )}
 
-          {/* {categoryId && (
-            <Select
-              label="Subcategory"
-              name="subcategoryId"
-              register={register}
-              options={filteredSubcategories.map((sc) => ({
-                value: sc.id,
-                label: sc.name,
-              }))}
-              touched={touchedFields.subcategoryId}
-              error={errors.subcategoryId}
-            />
-          )} */}
-
           <div className="flex justify-between flex-col items-center">
             <Controller
               name="products"
               control={control}
+              rules={{
+                validate: (value) =>
+                  (value && value.length > 0) ||
+                  "Please select at least one product",
+              }}
               render={({ field }) => (
-                <div className="w-full relative">
-                  <p className="mb-1 text-sm">Select Product</p>
+                <div className="w-full relative" ref={productRef}>
+                  <p className="mb-1 text-sm">Select Product *</p>
 
                   <div>
                     <div
                       onClick={() => setProductOpen(!isProductOpen)}
-                      className="border border-gray-300 overflow-x-auto flex items-center justify-between px-3 py-2 rounded-md cursor-pointer bg-white"
+                      className="border border-gray-300 overflow-x-auto custom-scroller4 flex items-center justify-between px-3 py-2 rounded-md cursor-pointer bg-white"
                     >
                       <span className="text-gray-500">
                         {field.value?.length > 0 ? (
-                          <div className="flex overflow-x-auto custom-scroller4 whitespace-nowrap  gap-1 ">
+                          <div className="flex  whitespace-nowrap  gap-1 ">
                             {(field.value || []).map((id) => {
                               const product = filteredProducts.find(
                                 (d) => d.id === id
@@ -673,15 +609,40 @@ const CreateLead = () => {
                     </div>
                   )}
 
-                  {/* {errors?.dealerIds && (
+                  {errors?.products && (
                     <p className="text-red-500 text-sm mt-1">
-                      {errors.dealerIds.message}
+                      {errors.products.message}
                     </p>
-                  )} */}
+                  )}
                 </div>
               )}
             />
           </div>
+
+          <Input
+            label="Price"
+            name="price"
+            register={register}
+            type="number"
+            required="Price is required"
+            error={errors.price}
+            placeholder={"Enter price"}
+            touched={touchedFields.price}
+          />
+
+          {/* {categoryId && (
+            <Select
+              label="Subcategory"
+              name="subcategoryId"
+              register={register}
+              options={filteredSubcategories.map((sc) => ({
+                value: sc.id,
+                label: sc.name,
+              }))}
+              touched={touchedFields.subcategoryId}
+              error={errors.subcategoryId}
+            />
+          )} */}
 
           {/* <Select
             label="Product"
@@ -739,16 +700,36 @@ const CreateLead = () => {
               error={errors.dealerId}
             />
           )}
+
+          {/* <Input
+            label="Comments"
+            name="comments"
+            register={register}
+            placeholder={"Enter comments"}
+            error={errors.comments}
+            touched={touchedFields.comments}
+            type={"text"}
+          /> */}
+
+          <div className="flex flex-col">
+            <label className="text-sm mb-1">Comments</label>
+            <textarea
+              rows="3"
+              {...register("comments")}
+              placeholder="Type your comments here"
+              className="px-3 py-2 border outline-[#092C1C] border-gray-300 rounded-sm"
+            ></textarea>
+          </div>
         </div>
 
         <div className="border-t pt-6 w-full">
-          <h3 className="text-xl font-semibold mb-2">Follow-Up</h3>
+          <h3 className="text-xl font-semibold mb-2">Follow Up</h3>
           <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Select
-              label="Follow-Up Status"
+              label="Current Status"
               name="followUp.status"
               register={register}
-              required="Follow-up status is required"
+              required="Status is required"
               options={["NEW", "IN_PROGRESS", "CLOSED"].map((val) => ({
                 value: val,
                 label: val,
@@ -757,24 +738,25 @@ const CreateLead = () => {
               error={errors?.followUp?.status}
             />
             <Select
-              label="Follow-Up Stage"
+              label="Current Stage"
               name="followUp.stage"
               register={register}
-              required="Follow-up stage is required"
-              options={["INQUIRY", "NEGOTIATION", "FINALIZED"].map((val) => ({
-                value: val,
-                label: val,
-              }))}
+              required="Stage is required"
+              options={["INQUIRY", "NEGOTIATION", "CONVERTED", "LOST"].map(
+                (val) => ({
+                  value: val,
+                  label: val,
+                })
+              )}
               touched={touchedFields.followUp?.stage}
               error={errors?.followUp?.stage}
             />
 
             <Select
-              label="Next Follow-Up Step"
+              label="Next Follow Up Action"
               name="followUp.nextFollowUpStep"
               register={register}
-              required="Next Follow-up step is required"
-              options={["INQUIRY", "NEGOTIATION", "FINALIZED"].map((val) => ({
+              options={["NEGOTIATION", "CALL", "VISIT", "MAIL"].map((val) => ({
                 value: val,
                 label: val,
               }))}
@@ -783,44 +765,34 @@ const CreateLead = () => {
             />
 
             <Input
-              label="Follow-Up Date"
-              name="followUp.date"
-              register={register}
-              type="date"
-              placeholder="DD/MM/YYYY"
-              required="Date is required"
-              touched={touchedFields.followUp?.date}
-              error={errors?.followUp?.date}
-            />
-
-            <Input
-              label="Next Follow-Up Date"
+              label="Next Follow Up Date"
               name="followUp.nextFollowUpDate"
               register={register}
               type="date"
               placeholder="DD/MM/YYYY"
-              required="Date is required"
               touched={touchedFields.followUp?.nextFollowUpDate}
               error={errors?.followUp?.nextFollowUpDate}
             />
-            <Input
-              label="Follow-Up Time"
-              name="followUp.time"
-              register={register}
-              type="time"
-              touched={touchedFields.followUp?.time}
-              required="Time is required"
-              error={errors?.followUp?.time}
-            />
-            <Input
-              label="Follow-Up Message"
+
+            {/* <Input
+              label="Additional Comment"
               name="followUp.message"
+              type={"textarea"}
               register={register}
               touched={touchedFields.followUp?.message}
               placeholder={"Enter message"}
-              required="Message is required"
               error={errors?.followUp?.message}
-            />
+            /> */}
+
+            <div className="flex flex-col">
+              <label className="text-sm mb-1">Additional comments</label>
+              <textarea
+                rows="3"
+                {...register("followUp.message")}
+                placeholder="Type your message here"
+                className="px-3 py-2 border outline-[#092C1C] border-gray-300 rounded-sm"
+              ></textarea>
+            </div>
           </div>
         </div>
 

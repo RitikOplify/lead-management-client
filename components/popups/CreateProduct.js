@@ -68,46 +68,45 @@ const CreateProductForm = ({ onClose }) => {
         <h3 className="text-2xl font-semibold mb-4 text-center">
           Create Product
         </h3>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-        >
-          <Input
-            label="Product Name"
-            name="name"
-            register={register}
-            type={"text"}
-            required="Product name is required"
-            error={errors.name}
-            placeholder={"Enter Product name"}
-            touched={touchedFields.name}
-          />
-
-          <Select
-            label="Category"
-            name="categoryId"
-            register={register}
-            options={categories.map((c) => ({
-              value: c.id,
-              label: c.name,
-            }))}
-            error={errors.categoryId}
-            touched={touchedFields.categoryId}
-          />
-
-          {categoryId && (
-            <Select
-              label="Subcategory"
-              name="subcategoryId"
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Product Name"
+              name="name"
               register={register}
-              options={filteredSubcategories.map((c) => ({
+              type={"text"}
+              required="Product name is required"
+              error={errors.name}
+              placeholder={"Enter Product name"}
+              touched={touchedFields.name}
+            />
+
+            <Select
+              label="Category"
+              name="categoryId"
+              register={register}
+              options={categories.map((c) => ({
                 value: c.id,
                 label: c.name,
               }))}
               error={errors.categoryId}
               touched={touchedFields.categoryId}
             />
-          )}
+
+            {categoryId && (
+              <Select
+                label="Subcategory"
+                name="subcategoryId"
+                register={register}
+                options={filteredSubcategories.map((c) => ({
+                  value: c.id,
+                  label: c.name,
+                }))}
+                error={errors.categoryId}
+                touched={touchedFields.categoryId}
+              />
+            )}
+          </div>
 
           <div className="text-right mt-5">
             {loading ? (

@@ -50,31 +50,30 @@ const CreateSubcategoryForm = ({ onClose }) => {
         <h3 className="text-2xl font-semibold mb-4 text-center">
           Create Sub Category
         </h3>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
-        >
-          <Input
-            label="Subcategory Name"
-            name="name"
-            register={register}
-            type={"text"}
-            required="Sub Category Name is required"
-            error={errors.name}
-            placeholder={"Enter Sub Category name"}
-            touched={touchedFields.name}
-          />
-          <Select
-            label="Category"
-            name="categoryId"
-            register={register}
-            options={(company.categories || []).map((c) => ({
-              value: c.id,
-              label: c.name,
-            }))}
-            error={errors.categoryId}
-            touched={touchedFields.categoryId}
-          />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Subcategory Name"
+              name="name"
+              register={register}
+              type={"text"}
+              required="Sub Category Name is required"
+              error={errors.name}
+              placeholder={"Enter Sub Category name"}
+              touched={touchedFields.name}
+            />
+            <Select
+              label="Category"
+              name="categoryId"
+              register={register}
+              options={(company.categories || []).map((c) => ({
+                value: c.id,
+                label: c.name,
+              }))}
+              error={errors.categoryId}
+              touched={touchedFields.categoryId}
+            />
+          </div>
 
           <div className="text-right mt-5">
             {loading ? (
