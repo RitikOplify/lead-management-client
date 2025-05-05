@@ -115,7 +115,11 @@ const LeadDataTable = () => {
                       </td>
                       <td className="p-4 text-sm text-gray-700">{lead.name}</td>
                       <td className="p-4 text-sm text-gray-700">
-                        {lead.dealer?.name}
+                        {lead.dealer
+                          ? lead.dealer.name
+                          : lead.executive
+                          ? lead.executive.username
+                          : "N/A"}
                       </td>
 
                       <td className="p-4 text-sm text-gray-700">

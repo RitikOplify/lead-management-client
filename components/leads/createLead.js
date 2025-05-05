@@ -18,14 +18,9 @@ const CreateLead = () => {
     watch,
   } = useForm();
   const [loading, setLoading] = useState(false);
-  const categoryId = watch("categoryId");
-  const subcategoryId = watch("subcategoryId");
   const selectedExecutive = useWatch({ control, name: "executiveId" });
   const selectedDealer = useWatch({ control, name: "dealerId" });
   const [allProducts, setAllProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [filteredSubcategories, setFilteredSubcategories] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
 
   const dispatch = useDispatch();
   const { company } = useSelector((state) => state.leads);
@@ -40,53 +35,8 @@ const CreateLead = () => {
   useEffect(() => {
     if (company) {
       setAllProducts(company.products || []);
-      setCategories(company.categories || []);
     }
   }, [company]);
-
-  useEffect(() => {
-    if (categoryId) {
-      const selectedCategory = categories.find((cat) => cat.id === categoryId);
-      setFilteredSubcategories(selectedCategory?.subcategories || []);
-    } else {
-      setFilteredSubcategories([]);
-    }
-  }, [categoryId, categories]);
-
-  useEffect(() => {
-    // 🔹 Get all subcategories from selected categories
-    let filteredSubcategories = [];
-    if (categoryId?.length > 0) {
-      filteredSubcategories = categories
-        .filter((cat) => categoryId.includes(cat.id))
-        .flatMap((cat) => cat.subcategories);
-    } else {
-      filteredSubcategories = categories.flatMap((cat) => cat.subcategories);
-    }
-
-    setFilteredSubcategories(filteredSubcategories);
-
-    // 🔹 Filter products based on selected categoryIds & subcategoryIds
-    if (categoryId?.length > 0 && subcategoryId?.length > 0) {
-      setFilteredProducts(
-        allProducts.filter(
-          (p) =>
-            categoryId.includes(p.categoryId) &&
-            subcategoryId.includes(p.subcategoryId)
-        )
-      );
-    } else if (categoryId?.length > 0) {
-      setFilteredProducts(
-        allProducts.filter((p) => categoryId.includes(p.categoryId))
-      );
-    } else if (subcategoryId?.length > 0) {
-      setFilteredProducts(
-        allProducts.filter((p) => subcategoryId.includes(p.subcategoryId))
-      );
-    } else {
-      setFilteredProducts(allProducts);
-    }
-  }, [categoryId, subcategoryId, categories, allProducts]);
 
   const onSubmit = async (data) => {
     console.log(data);
@@ -96,37 +46,24 @@ const CreateLead = () => {
     setLoading(false);
   };
   const [navOpen, setNavOpen] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
   const [isProductOpen, setProductOpen] = useState(false);
-  const [isSubOpen, setIsSubOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const filteredCategories = (company?.categories || []).filter((cat) =>
-    cat.name.toLowerCase().includes(searchTerm.toLowerCase())
+
+  const filteredProduct = (company?.products || []).filter((product) =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const inputRef = useRef(null);
 
   useEffect(() => {
-    if (isOpen && inputRef.current) {
+    if (isProductOpen && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isOpen]);
-  const categoryRef = useRef(null);
-  const subcategoryRef = useRef(null);
+  }, [isProductOpen]);
+
   const productRef = useRef(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (categoryRef.current && !categoryRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-
-      if (
-        subcategoryRef.current &&
-        !subcategoryRef.current.contains(event.target)
-      ) {
-        setIsSubOpen(false);
-      }
-
       if (productRef.current && !productRef.current.contains(event.target)) {
         setProductOpen(false);
       }
@@ -241,257 +178,6 @@ const CreateLead = () => {
         <div className="border-t pt-6 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="flex justify-between flex-col items-center">
             <Controller
-              name="categoryId"
-              control={control}
-              render={({ field }) => (
-                <div className="w-full relative" ref={categoryRef}>
-                  <p className="mb-1 text-sm">Select Category</p>
-
-                  <div>
-                    <div
-                      onClick={() => setIsOpen(!isOpen)}
-                      className="border border-gray-300 custom-scroller4 flex overflow-x-auto items-center justify-between px-3 py-2 rounded-md cursor-pointer bg-white"
-                    >
-                      <span className="text-gray-500">
-                        {field.value?.length > 0 ? (
-                          <div className="flex  whitespace-nowrap  gap-1 ">
-                            {(field.value || []).map((id) => {
-                              const category = company?.categories?.find(
-                                (d) => d.id === id
-                              );
-                              return (
-                                <div
-                                  key={id}
-                                  className="flex items-center gap-1 px-2 bg-green-100 py-0.5 rounded-sm text-sm"
-                                >
-                                  {category?.name}
-                                  <IoClose
-                                    className="cursor-pointer"
-                                    onClick={() =>
-                                      field.onChange(
-                                        field.value.filter((val) => val !== id)
-                                      )
-                                    }
-                                  />
-                                </div>
-                              );
-                            })}
-                          </div>
-                        ) : (
-                          "Select Category"
-                        )}
-                      </span>
-                      <IoIosArrowDown />
-                    </div>
-                  </div>
-
-                  {(isOpen || field.value?.length > 0) && (
-                    <div
-                      className={`absolute ${
-                        !isOpen ? "hidden" : ""
-                      } top-full left-0 right-0 bg-white border border-gray-300 rounded-md shadow-md z-10 mt-1 overflow-hidden`}
-                    >
-                      {isOpen && (
-                        <div>
-                          <input
-                            ref={inputRef}
-                            type="text"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="w-full px-3 py-2 outline-none"
-                            placeholder="Search..."
-                          />
-                          <ul className="max-h-[162.68px] overflow-y-auto custom-scroller2">
-                            {filteredCategories.map((cat) => {
-                              const isSelected = field.value?.includes(cat.id);
-
-                              return (
-                                <li
-                                  key={cat.id}
-                                  className={`flex justify-between items-center px-3 py-2 border-t border-t-gray-300 cursor-pointer ${
-                                    isSelected
-                                      ? "bg-green-100"
-                                      : "hover:bg-gray-100"
-                                  }`}
-                                  onClick={() => {
-                                    if (isSelected) {
-                                      field.onChange(
-                                        field.value.filter(
-                                          (val) => val !== cat.id
-                                        )
-                                      );
-                                    } else {
-                                      field.onChange([
-                                        ...(field.value || []),
-                                        cat.id,
-                                      ]);
-                                    }
-                                  }}
-                                >
-                                  <span>{cat.name}</span>
-                                  {isSelected && (
-                                    <IoClose
-                                      className="text-gray-600 hover:text-black"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        field.onChange(
-                                          field.value.filter(
-                                            (val) => val !== cat.id
-                                          )
-                                        );
-                                      }}
-                                    />
-                                  )}
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* {errors?.dealerIds && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.dealerIds.message}
-                    </p>
-                  )} */}
-                </div>
-              )}
-            />
-          </div>
-
-          {categoryId && (
-            <div className="flex justify-between flex-col items-center">
-              <Controller
-                defaultValue={[]}
-                name="subcategoryId"
-                control={control}
-                render={({ field }) => (
-                  <div className="w-full relative" ref={subcategoryRef}>
-                    <p className="mb-1 text-sm">Select Sub Category</p>
-
-                    <div>
-                      <div
-                        onClick={() => setIsSubOpen(!isSubOpen)}
-                        className="border border-gray-300 flex overflow-x-auto custom-scroller4 items-center justify-between px-3 py-2 rounded-md cursor-pointer bg-white"
-                      >
-                        <span className="text-gray-500">
-                          {field.value?.length > 0 ? (
-                            <div className="flex  whitespace-nowrap  gap-1 ">
-                              {(field.value || []).map((id) => {
-                                const subcategory = filteredSubcategories?.find(
-                                  (d) => d.id === id
-                                );
-                                return (
-                                  <div
-                                    key={id}
-                                    className="flex items-center gap-1 px-2 bg-green-100 py-0.5 rounded-sm text-sm"
-                                  >
-                                    {subcategory?.name}
-                                    <IoClose
-                                      className="cursor-pointer"
-                                      onClick={() =>
-                                        field.onChange(
-                                          field.value.filter(
-                                            (val) => val !== id
-                                          )
-                                        )
-                                      }
-                                    />
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          ) : (
-                            "Select Sub Category"
-                          )}
-                        </span>
-                        <IoIosArrowDown />
-                      </div>
-                    </div>
-
-                    {(isSubOpen || field.value?.length > 0) && (
-                      <div
-                        className={`absolute ${
-                          !isSubOpen ? "hidden" : ""
-                        } top-full left-0 right-0 bg-white border border-gray-300 rounded-md shadow-md z-10 mt-1 overflow-hidden`}
-                      >
-                        {isSubOpen && (
-                          <div>
-                            {/* <input
-                              ref={inputRef}
-                              type="text"
-                              value={searchTerm}
-                              onChange={(e) => setSearchTerm(e.target.value)}
-                              className="w-full px-3 py-2 outline-none"
-                              placeholder="Search..."
-                            /> */}
-                            <ul className="max-h-[162.68px] overflow-y-auto custom-scroller2">
-                              {filteredSubcategories.map((cat) => {
-                                const isSelected = field.value?.includes(
-                                  cat.id
-                                );
-
-                                return (
-                                  <li
-                                    key={cat.id}
-                                    className={`flex justify-between items-center px-3 py-2 border-t border-t-gray-300 cursor-pointer ${
-                                      isSelected
-                                        ? "bg-green-100"
-                                        : "hover:bg-gray-100"
-                                    }`}
-                                    onClick={() => {
-                                      if (isSelected) {
-                                        field.onChange(
-                                          field.value.filter(
-                                            (val) => val !== cat.id
-                                          )
-                                        );
-                                      } else {
-                                        field.onChange([
-                                          ...(field.value || []),
-                                          cat.id,
-                                        ]);
-                                      }
-                                    }}
-                                  >
-                                    <span>{cat.name}</span>
-                                    {isSelected && (
-                                      <IoClose
-                                        className="text-gray-600 hover:text-black"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          field.onChange(
-                                            field.value.filter(
-                                              (val) => val !== cat.id
-                                            )
-                                          );
-                                        }}
-                                      />
-                                    )}
-                                  </li>
-                                );
-                              })}
-                            </ul>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* {errors?.dealerIds && (
-                      <p className="text-red-500 text-sm mt-1">
-                        {errors.dealerIds.message}
-                      </p>
-                    )} */}
-                  </div>
-                )}
-              />
-            </div>
-          )}
-
-          <div className="flex justify-between flex-col items-center">
-            <Controller
               name="products"
               control={control}
               rules={{
@@ -512,7 +198,7 @@ const CreateLead = () => {
                         {field.value?.length > 0 ? (
                           <div className="flex  whitespace-nowrap  gap-1 ">
                             {(field.value || []).map((id) => {
-                              const product = filteredProducts.find(
+                              const product = allProducts.find(
                                 (d) => d.id === id
                               );
                               return (
@@ -549,16 +235,16 @@ const CreateLead = () => {
                     >
                       {isProductOpen && (
                         <div>
-                          {/* <input
+                          <input
                             ref={inputRef}
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full px-3 py-2 outline-none"
                             placeholder="Search..."
-                          /> */}
+                          />
                           <ul className="max-h-[162.68px] overflow-y-auto custom-scroller2">
-                            {filteredProducts.map((product) => {
+                            {filteredProduct.map((product) => {
                               const isSelected = field.value?.includes(
                                 product.id
                               );
@@ -630,40 +316,13 @@ const CreateLead = () => {
             touched={touchedFields.price}
           />
 
-          {/* {categoryId && (
-            <Select
-              label="Subcategory"
-              name="subcategoryId"
-              register={register}
-              options={filteredSubcategories.map((sc) => ({
-                value: sc.id,
-                label: sc.name,
-              }))}
-              touched={touchedFields.subcategoryId}
-              error={errors.subcategoryId}
-            />
-          )} */}
-
-          {/* <Select
-            label="Product"
-            name="products"
-            multiple={true}
-            register={register}
-            options={filteredProducts.map((p) => ({
-              value: p.id,
-              label: p.name,
-            }))}
-            touched={touchedFields.productId}
-            error={errors.productId}
-          /> */}
-
           {user?.role === "admin" && (
             <>
               <Select
                 label="Executive"
                 name="executiveId"
                 register={register}
-                disabled={!!selectedDealer} // disable if dealer is selected
+                disabled={!!selectedDealer}
                 options={(company?.executives || []).map((e) => ({
                   value: e.id,
                   label: e.email,
@@ -677,7 +336,7 @@ const CreateLead = () => {
                 name="dealerId"
                 touched={touchedFields.dealerId}
                 register={register}
-                disabled={!!selectedExecutive} // disable if executive is selected
+                disabled={!!selectedExecutive}
                 options={(company?.dealers || []).map((d) => ({
                   value: d.id,
                   label: d.email,
@@ -700,16 +359,6 @@ const CreateLead = () => {
               error={errors.dealerId}
             />
           )}
-
-          {/* <Input
-            label="Comments"
-            name="comments"
-            register={register}
-            placeholder={"Enter comments"}
-            error={errors.comments}
-            touched={touchedFields.comments}
-            type={"text"}
-          /> */}
 
           <div className="flex flex-col">
             <label className="text-sm mb-1">Comments</label>
@@ -773,16 +422,6 @@ const CreateLead = () => {
               touched={touchedFields.followUp?.nextFollowUpDate}
               error={errors?.followUp?.nextFollowUpDate}
             />
-
-            {/* <Input
-              label="Additional Comment"
-              name="followUp.message"
-              type={"textarea"}
-              register={register}
-              touched={touchedFields.followUp?.message}
-              placeholder={"Enter message"}
-              error={errors?.followUp?.message}
-            /> */}
 
             <div className="flex flex-col">
               <label className="text-sm mb-1">Additional comments</label>

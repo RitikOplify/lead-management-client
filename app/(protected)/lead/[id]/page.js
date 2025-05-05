@@ -114,9 +114,7 @@ function page({ params }) {
                         <th className="p-4 text-left text-sm font-semibold text-gray-600">
                           Date
                         </th>
-                        <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                          Time
-                        </th>
+
                         <th className="p-4 text-left text-sm font-semibold text-gray-600">
                           Status
                         </th>
@@ -140,9 +138,7 @@ function page({ params }) {
                           <td className="p-4 text-sm text-gray-700">
                             {new Date(followUp.createdAt).toLocaleDateString()}
                           </td>
-                          <td className="p-4 text-sm text-gray-700">
-                            {followUp.time}
-                          </td>
+
                           <td className="p-4 text-sm text-gray-700">
                             {followUp.status}
                           </td>
@@ -169,14 +165,18 @@ function page({ params }) {
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-6 mt-6">
-              <p>
-                <span className="font-medium">Executive:</span>{" "}
-                {lead.executive?.name || "Not Assigned"}
-              </p>
-              <p>
-                <span className="font-medium">Dealer:</span>{" "}
-                {lead.dealer?.name || "Not Assigned"}
-              </p>
+              {lead.executive && (
+                <p>
+                  <span className="font-medium">Executive:</span>{" "}
+                  {lead.executive?.username || "Not Assigned"}
+                </p>
+              )}
+              {lead.dealer && (
+                <p>
+                  <span className="font-medium">Dealer:</span>{" "}
+                  {lead.dealer?.name || "Not Assigned"}
+                </p>
+              )}
               <p>
                 <span className="font-medium">Created At:</span>{" "}
                 {new Date(lead.createdAt).toLocaleString()}
