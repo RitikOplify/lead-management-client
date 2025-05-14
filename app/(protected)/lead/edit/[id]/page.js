@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Nav from "@/components/Nav";
 
-const Dashboard = () => {
+const Page = () => {
   const [navOpen, setNavOpen] = useState(false);
 
   return (
@@ -15,4 +15,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default Page;

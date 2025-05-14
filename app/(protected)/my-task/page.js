@@ -10,13 +10,13 @@ import CreateFollowUp from "@/components/popups/createFollowUp";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncAddMyLeads } from "@/store/actions/leads";
 
-const page = () => {
+const Page = () => {
   const [navOpen, setNavOpen] = useState(false);
   const [productOpen, setProductOpen] = useState(false);
   const [leadData, setLeadData] = useState();
   const dispatch = useDispatch();
 
-  const {myLeads} = useSelector((state) => state.leads);
+  const { myLeads } = useSelector((state) => state.leads);
 
   useEffect(() => {
     dispatch(asyncAddMyLeads());
@@ -183,4 +183,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

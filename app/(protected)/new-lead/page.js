@@ -2,8 +2,8 @@
 import CreateLead from "@/components/leads/createLead";
 import React from "react";
 
-function page() {
+function Page() {
   return <CreateLead />;
 }
 
-export default page;
+export default Page;

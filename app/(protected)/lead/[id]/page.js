@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import Loader from "@/components/loader";
 import { useSelector } from "react-redux";
 
-function page({ params }) {
+function Page({ params }) {
   const { id } = use(params);
   const [lead, setLead] = useState();
   const [loading, setLoading] = useState(false);
@@ -210,4 +210,4 @@ function page({ params }) {
   );
 }
 
-export default page;
+export default Page;

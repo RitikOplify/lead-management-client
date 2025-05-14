@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncAddVisits } from "@/store/actions/leads";
 
-const page = () => {
+const Page = () => {
   const [navOpen, setNavOpen] = useState(false);
   const { visits } = useSelector((state) => state.leads);
 
@@ -71,4 +71,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

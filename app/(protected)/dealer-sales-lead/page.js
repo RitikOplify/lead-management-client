@@ -9,7 +9,7 @@ import CreateFollowUp from "@/components/popups/createFollowUp";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncAddDealerLeads } from "@/store/actions/leads";
 
-const page = () => {
+const Page = () => {
   const [navOpen, setNavOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [leadId, setLeadId] = useState(null);
@@ -161,4 +161,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

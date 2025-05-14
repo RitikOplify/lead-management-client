@@ -11,7 +11,7 @@ import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { addNewVisit } from "@/store/slices/leads";
 
-const page = () => {
+const Page = () => {
   const dispatch = useDispatch();
   const [navOpen, setNavOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -186,4 +186,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

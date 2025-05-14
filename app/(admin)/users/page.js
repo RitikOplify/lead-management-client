@@ -8,7 +8,7 @@ import InviteDealer from "@/components/popups/InviteDealer";
 import axios from "@/utils/axios";
 import { toast } from "react-toastify";
 
-const page = () => {
+const Page = () => {
   const [open, setOpen] = useState(false);
   const [isDealerOpen, setDealerOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
@@ -234,4 +234,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;
