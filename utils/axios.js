@@ -17,7 +17,7 @@ const processQueue = (error, token = null) => {
 };
 
 const instance = axios.create({
-  baseURL: "http://localhost:8000/",
+  baseURL: "https://lead-management-wine.vercel.app/",
   withCredentials: true,
 });
 
@@ -52,7 +52,7 @@ instance.interceptors.response.use(
 
       try {
         const { data } = await axios.get(
-          "http://localhost:8000/auth/refresh-token",
+          "https://lead-management-wine.vercel.app/auth/refresh-token",
           {
             withCredentials: true,
           }
