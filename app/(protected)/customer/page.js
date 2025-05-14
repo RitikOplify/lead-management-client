@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import Nav from "@/components/Nav";
 
-const page = () => {
+const Page = () => {
   const [navOpen, setNavOpen] = useState(false);
 
   return (
