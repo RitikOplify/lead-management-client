@@ -1,10 +1,11 @@
 import React, { useState } from "react";
-import { Input, Select } from "../inputFields";
+import { CustomSelectInput, Input, Select } from "../inputFields";
 import { useForm } from "react-hook-form";
 import { IoClose } from "react-icons/io5";
 import axios from "@/utils/axios";
 import URL from "@/utils/config";
 import { toast } from "react-toastify";
+import { IoIosArrowDown } from "react-icons/io";
 function CreateFollowUp({ onClose, id }) {
   const {
     register,
@@ -53,43 +54,34 @@ function CreateFollowUp({ onClose, id }) {
           onSubmit={handleSubmit(onSubmit)}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
         >
-          <Select
+          <CustomSelectInput
             label="Current Status"
             name="status"
             register={register}
             required="Status is required"
-            options={["NEW", "IN_PROGRESS", "CLOSED"].map((val) => ({
-              value: val,
-              label: val,
-            }))}
+            options={[
+              { value: "NEW" },
+              { value: "IN_PROGRESS" },
+              { value: "CLOSED" },
+            ]}
             touched={touchedFields.status}
             error={errors?.status}
           />
-          <Select
-            label="Current Stage"
-            name="stage"
-            register={register}
-            required="Stage is required"
-            options={["INQUIRY", "NEGOTIATION", "CONVERTED", "LOST"].map(
-              (val) => ({
-                value: val,
-                label: val,
-              })
-            )}
-            touched={touchedFields.stage}
-            error={errors?.stage}
-          />
-          <Select
+
+          <CustomSelectInput
             label="Next Follow Up Step"
             name="nextFollowUpStep"
             register={register}
-            options={["NEGOTIATION", "CALL", "VISIT", "MAIL"].map((val) => ({
-              value: val,
-              label: val,
-            }))}
+            options={[
+              { value: "NEGOTIATION" },
+              { value: "CALL" },
+              { value: "VISIT" },
+              { value: "MAIL" },
+            ]}
             touched={touchedFields.nextFollowUpStep}
             error={errors?.nextFollowUpStep}
           />
+
           <Input
             label="Next Follow Up Date"
             name="nextFollowUpDate"
@@ -101,14 +93,15 @@ function CreateFollowUp({ onClose, id }) {
             error={errors?.followUp?.nextFollowUpDate}
           />
 
-          <Input
-            label="Follow Up Message"
-            name="message"
-            register={register}
-            touched={touchedFields.message}
-            placeholder="Enter message"
-            error={errors?.message}
-          />
+          <div className="flex flex-col">
+            <label className="text-sm mb-1">Additional comments</label>
+            <textarea
+              rows="2"
+              {...register("message")}
+              placeholder="Type your message here"
+              className="px-3 py-2 border outline-[#092C1C] border-gray-300 rounded-sm"
+            ></textarea>
+          </div>
           <div className="col-span-full text-right mt-4">
             {loading ? (
               <button

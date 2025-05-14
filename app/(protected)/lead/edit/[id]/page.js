@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import Nav from "../Nav";
+import Nav from "@/components/Nav";
 
 const Dashboard = () => {
   const [navOpen, setNavOpen] = useState(false);
@@ -9,7 +9,7 @@ const Dashboard = () => {
     <div className="flex h-screen">
       <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
-        <p>Dashborad Here!</p>
+        <p>Edit Here!</p>
       </div>
     </div>
   );

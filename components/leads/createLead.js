@@ -5,9 +5,12 @@ import { Controller, useForm, useWatch } from "react-hook-form";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncCreateLeads, asyncGetCompanyDtails } from "@/store/actions/leads";
-import { Input, Select } from "../inputFields";
+import { CustomSelectInput, Input, Select } from "../inputFields";
 import { IoClose } from "react-icons/io5";
 import { IoIosArrowDown } from "react-icons/io";
+import { useSearchParams } from "next/navigation";
+import { toast } from "react-toastify";
+import axios from "@/utils/axios";
 const CreateLead = () => {
   const {
     register,
@@ -16,7 +19,17 @@ const CreateLead = () => {
     reset,
     formState: { errors, touchedFields },
     watch,
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      name: "",
+      companyName: "",
+    },
+  });
+  const searchParams = useSearchParams();
+  const visitId = searchParams.get("visitId");
+  console.log(visitId);
+
+  const [visitDetails, setVisitDetails] = useState(null);
   const [loading, setLoading] = useState(false);
   const selectedExecutive = useWatch({ control, name: "executiveId" });
   const selectedDealer = useWatch({ control, name: "dealerId" });
@@ -24,7 +37,31 @@ const CreateLead = () => {
 
   const dispatch = useDispatch();
   const { company } = useSelector((state) => state.leads);
-  const { user } = useSelector((state) => state.auth);
+  const { user, currentCompany } = useSelector((state) => state.auth);
+
+  useEffect(() => {
+    async function getVisitDetails() {
+      try {
+        const { data } = await axios.get(`/visit/${visitId}`);
+        setVisitDetails(data.visit);
+        console.log(data?.visit);
+      } catch (error) {
+        toast.error(error?.response?.data?.message);
+      }
+    }
+    if (visitId) {
+      getVisitDetails();
+    }
+  }, [visitId]);
+
+  useEffect(() => {
+    if (visitDetails) {
+      reset({
+        name: visitDetails.customerName || "",
+        companyName: visitDetails.companyName || "",
+      });
+    }
+  }, [visitDetails, reset]);
 
   useEffect(() => {
     if (user) {
@@ -40,9 +77,10 @@ const CreateLead = () => {
 
   const onSubmit = async (data) => {
     console.log(data);
+    const leadData = { ...data, visitId, companyId: currentCompany.id };
     setLoading(true);
-    await dispatch(asyncCreateLeads(data));
-    reset();
+    await dispatch(asyncCreateLeads(leadData));
+    // reset();
     setLoading(false);
   };
   const [navOpen, setNavOpen] = useState(false);
@@ -101,20 +139,36 @@ const CreateLead = () => {
           />
         </div>
         {/* Header */}
-        <h2 className="text-2xl font-bold">Add Lead</h2>
+        <h2 className="text-2xl font-bold mb-10">Add Lead</h2>
 
         {/* Form Sections */}
         <div className=" w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <Select
+            label="Type of Enquiry *"
+            name="enquiryType"
+            placeholder="type"
+            register={register}
+            options={[
+              { value: "project", label: "Project" },
+              { value: "general", label: "General" },
+            ].map((e) => ({
+              value: e.value,
+              label: e.label,
+            }))}
+            touched={touchedFields.enquiryType}
+            error={errors.enquiryType}
+          />
           <Input
             label="Enquiry Person Name *"
             name="name"
             register={register}
-            type={"text"}
+            type="text"
             required="Name is required"
             error={errors.name}
-            placeholder={"Enter name"}
+            placeholder="Enter name"
             touched={touchedFields.name}
           />
+
           <Input
             label="Email *"
             name="email"
@@ -137,6 +191,7 @@ const CreateLead = () => {
           />
           <Input
             label="Company Name *"
+            value={visitDetails?.companyName}
             name="companyName"
             register={register}
             type={"text"}
@@ -306,7 +361,7 @@ const CreateLead = () => {
           </div>
 
           <Input
-            label="Price"
+            label="Price *"
             name="price"
             register={register}
             type="number"
@@ -338,8 +393,8 @@ const CreateLead = () => {
                 register={register}
                 disabled={!!selectedExecutive}
                 options={(company?.dealers || []).map((d) => ({
-                  value: d.id,
-                  label: d.email,
+                  value: d.dealerId,
+                  label: d.dealer.email,
                 }))}
                 error={errors.dealerId}
               />
@@ -371,46 +426,42 @@ const CreateLead = () => {
           </div>
         </div>
 
-        <div className="border-t pt-6 w-full">
-          <h3 className="text-xl font-semibold mb-2">Follow Up</h3>
+        {/* <div className="border-t pt-6 w-full">
+          <h3 className="text-xl font-semibold mb-10">Follow Up</h3>
           <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Select
+            <CustomSelectInput
               label="Current Status"
               name="followUp.status"
               register={register}
-              required="Status is required"
-              options={["NEW", "IN_PROGRESS", "CLOSED"].map((val) => ({
-                value: val,
-                label: val,
-              }))}
-              touched={touchedFields.followUp?.status}
-              error={errors?.followUp?.status}
+              options={[
+                { value: "NEW" },
+                { value: "IN_PROGRESS" },
+                { value: "CLOSED" },
+              ]}
             />
-            <Select
+
+            <CustomSelectInput
               label="Current Stage"
               name="followUp.stage"
               register={register}
-              required="Stage is required"
-              options={["INQUIRY", "NEGOTIATION", "CONVERTED", "LOST"].map(
-                (val) => ({
-                  value: val,
-                  label: val,
-                })
-              )}
-              touched={touchedFields.followUp?.stage}
-              error={errors?.followUp?.stage}
+              options={[
+                { value: "INQUIRY" },
+                { value: "NEGOTIATION" },
+                { value: "CONVERTED" },
+                { value: "LOST" },
+              ]}
             />
 
-            <Select
-              label="Next Follow Up Action"
+            <CustomSelectInput
+              label="Next Follow Up Step"
               name="followUp.nextFollowUpStep"
               register={register}
-              options={["NEGOTIATION", "CALL", "VISIT", "MAIL"].map((val) => ({
-                value: val,
-                label: val,
-              }))}
-              touched={touchedFields.followUp?.nextFollowUpStep}
-              error={errors?.followUp?.nextFollowUpStep}
+              options={[
+                { value: "NEGOTIATION" },
+                { value: "CALL" },
+                { value: "VISIT" },
+                { value: "MAIL" },
+              ]}
             />
 
             <Input
@@ -419,8 +470,6 @@ const CreateLead = () => {
               register={register}
               type="date"
               placeholder="DD/MM/YYYY"
-              touched={touchedFields.followUp?.nextFollowUpDate}
-              error={errors?.followUp?.nextFollowUpDate}
             />
 
             <div className="flex flex-col">
@@ -433,7 +482,7 @@ const CreateLead = () => {
               ></textarea>
             </div>
           </div>
-        </div>
+        </div> */}
 
         <div className="flex justify-end mt-6">
           {loading ? (

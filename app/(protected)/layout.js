@@ -9,7 +9,9 @@ import Loader from "@/components/loader";
 function AdminLayout({ children }) {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { user, isLoading } = useSelector((state) => state.auth);
+  const { user, isLoading, currentCompany } = useSelector(
+    (state) => state.auth
+  );
 
   useEffect(() => {
     if (!user) {
@@ -19,7 +21,7 @@ function AdminLayout({ children }) {
 
   useEffect(() => {
     if (user) {
-      dispatch(asyncGetCompanyDtails());
+      dispatch(asyncGetCompanyDtails(currentCompany.id));
     }
   }, [user, dispatch]);
 

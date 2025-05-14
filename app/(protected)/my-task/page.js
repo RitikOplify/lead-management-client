@@ -1,72 +1,65 @@
 "use client";
-import React, { useState } from "react";
-import { FaEdit, FaEye, FaPlus } from "react-icons/fa";
-import { MdOutlineAccessAlarm } from "react-icons/md";
-import Nav from "../Nav";
-import { useSelector } from "react-redux";
-import { HiOutlineSwitchVertical } from "react-icons/hi";
-
-import CreateFollowUp from "../popups/createFollowUp";
+import React, { useEffect, useState } from "react";
+import Nav from "@/components/Nav";
+import axios from "@/utils/axios";
 import Link from "next/link";
-import ViewProduct from "../popups/ViewProduct";
-import ReassignExecutive from "../popups/ReassignExecutive";
-const LeadDataTable = () => {
-  const [open, setOpen] = useState(false);
+import { FaEdit, FaEye } from "react-icons/fa";
+import { MdOutlineAccessAlarm } from "react-icons/md";
+import ViewProduct from "@/components/popups/ViewProduct";
+import CreateFollowUp from "@/components/popups/createFollowUp";
+
+const page = () => {
+  const [navOpen, setNavOpen] = useState(false);
+  const [data, setData] = useState([]);
   const [productOpen, setProductOpen] = useState(false);
   const [leadData, setLeadData] = useState();
-  const [leadId, setLeadId] = useState(null);
-  const { user } = useSelector((state) => state.auth);
-  const [assignOpen, setAssignOpen] = useState(false);
-  const { company } = useSelector((state) => state.leads);
-  const followUpClick = (leadId) => {
-    setLeadId(leadId);
-    if (!leadId) return;
-    setOpen(true);
-  };
 
+  useEffect(() => {
+    const fetchMyLead = async () => {
+      try {
+        const { data } = await axios.get(`/lead/my-lead`);
+        setData(data.leads);
+        console.log(data);
+      } catch (error) {
+        console.log(error.response.data.message);
+        console.error("Error fetching lead details:", error);
+      }
+    };
+    fetchMyLead();
+  }, []);
   const viewClick = (lead) => {
     setLeadData(lead);
     if (!lead) return;
     setProductOpen(true);
   };
+  const [leadId, setLeadId] = useState(null);
+  const [open, setOpen] = useState(false);
 
-  const handleReassignExecutive = async (leadId) => {
-    if (!leadId) return;
+  const followUpClick = (leadId) => {
     setLeadId(leadId);
-    setAssignOpen(true);
+    if (!leadId) return;
+    setOpen(true);
   };
-
   return (
-    <div className="flex h-screen mx-auto">
-      <Nav />
-      {open && <CreateFollowUp onClose={() => setOpen(false)} id={leadId} />}
+    <div className="flex h-screen">
+      <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
       {productOpen && (
         <ViewProduct onClose={() => setProductOpen(false)} lead={leadData} />
       )}
-      {assignOpen && (
-        <ReassignExecutive
-          onClose={() => setAssignOpen(false)}
-          leadId={leadId}
-        />
-      )}
-      <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6">
-        <div className="flex justify-between items-center mb-4">
-          <div>
-            <h2 className="text-xl font-semibold">Lead Data</h2>
-          </div>
-          <Link
-            href={"/new-lead"}
-            className="bg-[#092C1C] text-white px-3 py-2 rounded cursor-pointer flex items-center gap-2"
-          >
-            <FaPlus /> Add Lead Entry
-          </Link>
-        </div>
+
+      {open && <CreateFollowUp onClose={() => setOpen(false)} id={leadId} />}
+
+      <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
           <div className="overflow-x-auto custom-scroller">
-            {company?.leads?.length > 0 ? (
+            {data.length > 0 ? (
               <table className="min-w-[1136px] w-full whitespace-nowrap divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
+                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                      Next Task
+                    </th>
+
                     <th className="p-4 text-left text-sm font-semibold text-gray-600">
                       Enq number
                     </th>
@@ -74,9 +67,7 @@ const LeadDataTable = () => {
                     <th className="p-4 text-left text-sm font-semibold text-gray-600">
                       Enq Person
                     </th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Sales Person
-                    </th>
+
                     <th className="p-4 text-left text-sm font-semibold text-gray-600">
                       Dealer
                     </th>
@@ -91,15 +82,14 @@ const LeadDataTable = () => {
                       Company
                     </th>
                     <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Status
+                      City
                     </th>
 
                     <th className="p-4 text-left text-sm font-semibold text-gray-600">
                       Source
                     </th>
-
                     <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      City
+                      Status
                     </th>
 
                     <th className="p-4 text-left text-sm font-semibold text-gray-600">
@@ -117,7 +107,7 @@ const LeadDataTable = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {company?.leads?.map((lead, index) => (
+                  {data.map((lead, index) => (
                     <tr
                       key={index}
                       className={`${
@@ -135,27 +125,22 @@ const LeadDataTable = () => {
                           : ""
                       }`}
                     >
+                      <td className="p-4 text-sm">
+                        {lead.nextFollowUpStep || "NA"}
+                      </td>
                       <td className="p-4 text-sm">{lead.enqNo || "NA"}</td>
 
                       <td className="p-4 text-sm">{lead.name}</td>
-                      <td className="p-4 text-sm flex items-center gap-2">
-                        {lead.executiveId ? lead.executive?.username : "NA"}
-                        {user.role === "admin" && lead.executiveId && (
-                          <HiOutlineSwitchVertical
-                            className="cursor-pointer"
-                            onClick={() => handleReassignExecutive(lead.id)}
-                          />
-                        )}
-                      </td>
+
                       <td className="p-4 text-sm">
                         {lead.dealerId ? lead.dealer?.name : "NA"}
                       </td>
                       <td className="p-4 text-sm">{lead.contact}</td>
                       <td className="p-4 text-sm">{lead.email}</td>
                       <td className="p-4 text-sm">{lead.companyName}</td>
-                      <td className="p-4 text-sm">{lead.status}</td>
-                      <td className="p-4 text-sm">{lead.source}</td>
                       <td className="p-4 text-sm">{lead.city}</td>
+                      <td className="p-4 text-sm">{lead.source || "NA"}</td>
+                      <td className="p-4 text-sm">{lead.status}</td>
 
                       <td className="p-4 text-sm">
                         {new Date(lead.createdAt).toLocaleDateString("en-GB")}
@@ -204,4 +189,4 @@ const LeadDataTable = () => {
   );
 };
 
-export default LeadDataTable;
+export default page;

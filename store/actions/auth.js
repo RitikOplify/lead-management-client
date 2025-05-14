@@ -7,6 +7,8 @@ export const asyncSignUpUser = (user) => async (dispatch, getstate) => {
   try {
     const { data } = await axios.post(`/admin/signup`, user);
     dispatch(addUser(data.user));
+    console.log(data.user);
+
     setAccessToken(data.accessToken);
     setRefreshToken(data.refreshToken);
     toast.success("User Registered Successfully");
@@ -19,13 +21,16 @@ export const asyncSignInUser = (user) => async (dispatch, getstate) => {
   try {
     const { data } = await axios.post(`/auth/signin`, user);
     console.log(data);
-    
+    console.log(data.user);
+
     dispatch(addUser(data.user));
     setAccessToken(data.accessToken);
     setRefreshToken(data.refreshToken);
     toast.success("User Logged In Successfully");
   } catch (error) {
-    toast.error(error.response.data.message);
+    console.log(error);
+
+    // toast.error(error.response.data.message);
   }
 };
 
@@ -58,6 +63,7 @@ export const asyncCurrentUser = () => async (dispatch, getState) => {
     const { data } = await axios.get(`/auth/current`);
     dispatch(setLoading(false));
     dispatch(addUser(data.user));
+    
   } catch (error) {
     dispatch(setLoading(false));
   }

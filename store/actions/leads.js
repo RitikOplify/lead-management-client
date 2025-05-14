@@ -14,15 +14,37 @@ export const asyncCreateLeads = (lead) => async (dispatch, getstate) => {
   }
 };
 
-export const asyncGetCompanyDtails = () => async (dispatch, getstate) => {
-  try {
-    const { data } = await axios.get(`/lead/alldetails`);
-    console.log(data);
+export const asyncGetCompanyDtails =
+  (companyId) => async (dispatch, getstate) => {
+    try {
+      const { data } = await axios.get(
+        `/lead/alldetails?companyId=${companyId}`
+      );
+      console.log(data);
 
-    dispatch(addCompany(data.company));
+      dispatch(addCompany(data.company));
+    } catch (error) {
+      // console.error(error.response.data.message);
+      // toast.error(error.response.data.message);
+    }
+  };
+
+export const asyncGetAllLeads = () => async (dispatch, getstate) => {
+  try {
+    const { data } = await axios.get(`/lead/all-leads`);
+    // dispatch(addCompany(data.company));
   } catch (error) {
     // console.error(error.response.data.message);
+    // toast.error(error.response.data.message);
+  }
+};
 
+export const asyncGetCategory = () => async (dispatch, getstate) => {
+  try {
+    const { data } = await axios.get(`/lead/category`);
+    // dispatch(addCompany(data.company));
+  } catch (error) {
+    // console.error(error.response.data.message);
     // toast.error(error.response.data.message);
   }
 };

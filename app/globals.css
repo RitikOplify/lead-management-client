@@ -91,3 +91,13 @@ body {
 .custom-scroller4::-webkit-scrollbar-thumb:hover {
   background: #092c1c;
 }
+
+/* input::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none;
+} */
+
+input[list]::-webkit-calendar-picker-indicator {
+  display: none !important;
+  -webkit-appearance: none;
+}

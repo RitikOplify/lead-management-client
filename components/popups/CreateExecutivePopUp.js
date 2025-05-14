@@ -21,10 +21,12 @@ function CreateExecutivePopUp({ onClose }) {
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = React.useRef(null);
   const filteredSealers = (company?.dealers || []).filter((dealer) =>
-    dealer.name.toLowerCase().includes(searchTerm.toLowerCase())
+    dealer.executiveId
+      ? ""
+      : dealer.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  const inputRef = useRef(null);
 
+  const inputRef = useRef(null);
   useEffect(() => {
     if (isOpen && inputRef.current) {
       inputRef.current.focus();
@@ -60,6 +62,7 @@ function CreateExecutivePopUp({ onClose }) {
       onClose();
     } catch (error) {
       setLoading(false);
+      console.log(error);
       toast.error(error.response.data.message);
       console.error(error.response.data.message);
     }
@@ -113,7 +116,6 @@ function CreateExecutivePopUp({ onClose }) {
             <Controller
               name="dealerIds"
               control={control}
-              rules={{ required: "At least one dealer must be selected" }}
               render={({ field }) => (
                 <div className="w-full relative" ref={wrapperRef}>
                   <p className="mb-1 text-sm">Assign Dealers</p>
@@ -143,7 +145,7 @@ function CreateExecutivePopUp({ onClose }) {
                                 key={id}
                                 className="flex items-center gap-1 px-2 bg-green-100 py-0.5 rounded-sm text-sm"
                               >
-                                {dealer?.name}
+                                {dealer?.dealer.name}
                                 <IoClose
                                   className="cursor-pointer"
                                   onClick={() =>
@@ -205,7 +207,7 @@ function CreateExecutivePopUp({ onClose }) {
                                     }
                                   }}
                                 >
-                                  <span>{dealer.name}</span>
+                                  <span>{dealer.dealer.name}</span>
                                   {isSelected && (
                                     <IoClose
                                       className="text-gray-600 hover:text-black"
@@ -223,15 +225,14 @@ function CreateExecutivePopUp({ onClose }) {
                               );
                             })}
                           </ul>
+                          {filteredSealers.length === 0 && (
+                            <p className="flex justify-between items-center px-3 py-2 border-t border-t-gray-300">
+                              No dealer found
+                            </p>
+                          )}
                         </div>
                       )}
                     </div>
-                  )}
-
-                  {errors?.dealerIds && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.dealerIds.message}
-                    </p>
                   )}
                 </div>
               )}

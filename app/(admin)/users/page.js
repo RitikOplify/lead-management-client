@@ -8,7 +8,7 @@ import InviteDealer from "@/components/popups/InviteDealer";
 import axios from "@/utils/axios";
 import { toast } from "react-toastify";
 
-const User = () => {
+const page = () => {
   const [open, setOpen] = useState(false);
   const [isDealerOpen, setDealerOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
@@ -23,10 +23,34 @@ const User = () => {
       const { data } = await axios.post(`/admin/approve-dealer/${id}`);
       toast.dismiss("dealer-loading");
       toast.success(data.message);
-      reset();
+      // Add function here to refetch or update state
     } catch (error) {
       toast.dismiss("dealer-loading");
       toast.error(error.response?.data?.message);
+    }
+  };
+
+  const handleEditExecutive = (executive) => {
+    console.log("Edit Executive:", executive);
+    // Optional: Open modal with executive data
+  };
+
+  const handleDeleteExecutive = async (executiveId) => {
+    if (confirm("Are you sure you want to delete this executive?")) {
+      console.log("Delete Executive ID:", executiveId);
+      // Call API or dispatch Redux action here
+    }
+  };
+
+  const handleEditDealer = (dealer) => {
+    console.log("Edit Dealer:", dealer);
+    // Optional: Open modal with dealer data
+  };
+
+  const handleDeleteDealer = async (dealerId) => {
+    if (confirm("Are you sure you want to delete this dealer?")) {
+      console.log("Delete Dealer ID:", dealerId);
+      // Call API or dispatch Redux action here
     }
   };
 
@@ -52,7 +76,7 @@ const User = () => {
             className={`px-6 py-2 rounded cursor-pointer ${
               activeTab === "executive"
                 ? "bg-[#092C1C] text-white"
-                : "bg-gray-200 "
+                : "bg-gray-200"
             }`}
             onClick={() => setActiveTab("executive")}
           >
@@ -68,6 +92,7 @@ const User = () => {
           </button>
         </div>
 
+        {/* Executive Section */}
         {activeTab === "executive" && (
           <div>
             <div className="flex items-center justify-between mb-3">
@@ -81,7 +106,8 @@ const User = () => {
                 </button>
               )}
             </div>
-            <div className="rounded-lg p-4">
+
+            <div className="rounded-lg">
               {company?.executives?.length > 0 ? (
                 <table className="w-full divide-y divide-gray-200 mt-6 shadow">
                   <thead className="bg-gray-50">
@@ -92,16 +118,33 @@ const User = () => {
                       <th className="p-4 text-left text-sm font-semibold text-gray-600">
                         Status
                       </th>
+                      <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
-                  <tbody className=" divide-y divide-gray-200">
+                  <tbody className="divide-y divide-gray-200">
                     {company.executives.map((executive) => (
                       <tr key={executive.id} className="hover:bg-gray-50">
                         <td className="p-4 text-sm text-gray-700">
                           {executive.username}
                         </td>
                         <td className="p-4 text-sm text-gray-700">
-                          {executive.isActive}
+                          {executive.isActive ? "Active" : "Inactive"}
+                        </td>
+                        <td className="p-4 text-sm text-gray-700 flex gap-2">
+                          <button
+                            onClick={() => handleEditExecutive(executive)}
+                            className="bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteExecutive(executive.id)}
+                            className="bg-red-600 text-white px-3 py-1 rounded text-sm"
+                          >
+                            Delete
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -114,6 +157,7 @@ const User = () => {
           </div>
         )}
 
+        {/* Dealer Section */}
         {activeTab === "dealer" && (
           <div>
             <div className="flex items-center justify-between mb-3">
@@ -127,7 +171,8 @@ const User = () => {
                 </button>
               )}
             </div>
-            <div className="p-4 space-y-4">
+
+            <div className="space-y-4">
               {company?.dealers?.length > 0 ? (
                 <table className="w-full divide-y divide-gray-200 mt-6 shadow">
                   <thead className="bg-gray-50">
@@ -138,25 +183,42 @@ const User = () => {
                       <th className="p-4 text-left text-sm font-semibold text-gray-600">
                         Status
                       </th>
+                      <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                        Actions
+                      </th>
                     </tr>
                   </thead>
-                  <tbody className=" divide-y divide-gray-200">
+                  <tbody className="divide-y divide-gray-200">
                     {company.dealers.map((dealer) => (
                       <tr key={dealer.id} className="hover:bg-gray-50">
                         <td className="p-4 text-sm text-gray-700">
-                          {dealer.name}
+                          {dealer.dealer.name}
                         </td>
                         <td className="p-4 text-sm text-gray-700">
                           {dealer.status}
                         </td>
-                        {dealer.status === "INACTIVE" && (
-                          <td
-                            className="p-4 text-sm rounded-full py-1 bg-green-500 text-gray-700"
-                            onClick={() => approveDealer(dealer.id)}
+                        <td className="p-4 text-sm text-gray-700 flex flex-wrap gap-2">
+                          {dealer.status === "INACTIVE" && (
+                            <button
+                              onClick={() => approveDealer(dealer.dealer.id)}
+                              className="bg-green-600 text-white px-3 py-1 rounded text-sm"
+                            >
+                              Approve
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleEditDealer(dealer)}
+                            className="bg-blue-600 text-white px-3 py-1 rounded text-sm"
                           >
-                            Approve Dealer
-                          </td>
-                        )}
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDeleteDealer(dealer.id)}
+                            className="bg-red-600 text-white px-3 py-1 rounded text-sm"
+                          >
+                            Delete
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -172,4 +234,4 @@ const User = () => {
   );
 };
 
-export default User;
+export default page;

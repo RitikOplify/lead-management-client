@@ -1,11 +1,11 @@
 import { IoIosArrowDown } from "react-icons/io";
-
 function Select({
   label,
   name,
   register,
   error,
   required,
+  placeholder,
   options,
   disabled,
   touched,
@@ -23,7 +23,7 @@ function Select({
             error && touched ? "border-red-500" : "border-gray-300"
           } rounded-lg appearance-none`}
         >
-          <option value="">Select {label}</option>
+          <option value="">Select {placeholder ? placeholder : label}</option>
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>
               {opt.label}
@@ -65,4 +65,42 @@ function Input({
   );
 }
 
-export { Select, Input };
+
+const CustomSelectInput = ({
+  label,
+  name,
+  register,
+  required,
+  options = [],
+  placeholder = "Select or type",
+  touched,
+  error,
+}) => {
+  return (
+    <div className="flex flex-col">
+      <label className="mb-1 text-sm font-medium text-gray-700">{label}</label>
+      <div className="relative">
+        <input
+          list={`${name}-options`}
+          {...register(name, required && { required })}
+          placeholder={placeholder}
+          className={`appearance-none border px-3 py-2 pr-8 rounded-md w-full ${
+            error ? "border-red-500" : "border-gray-300"
+          }`}
+        />
+        {/* Custom arrow icon */}
+        <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none">
+          <IoIosArrowDown size={18} className="text-black" />
+        </div>
+        <datalist id={`${name}-options`}>
+          {options.map((option) => (
+            <option key={option.value} value={option.value} />
+          ))}
+        </datalist>
+      </div>
+      {error && <p className="text-red-500 text-sm mt-1">{error.message}</p>}
+    </div>
+  );
+};
+
+export { Select, Input, CustomSelectInput };
