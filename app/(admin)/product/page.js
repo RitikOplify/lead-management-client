@@ -9,7 +9,7 @@ const Page = () => {
   const [isProductOpen, setProductOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [editProduct, setEditProduct] = useState(null); // for edit
-  const { products } = useSelector((state) => state.leads);
+  const { products, categories } = useSelector((state) => state.leads);
 
   const handleEdit = (product) => {
     setEditProduct(product);

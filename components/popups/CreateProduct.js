@@ -15,17 +15,12 @@ const CreateProductForm = ({ onClose }) => {
     formState: { errors, touchedFields },
   } = useForm();
 
-  const { company } = useSelector((state) => state.leads);
+  const { categories } = useSelector((state) => state.leads);
   const [loading, setLoading] = useState(false);
 
   const categoryId = watch("categoryId");
-  const [categories, setCategories] = useState([]);
   const [filteredSubcategories, setFilteredSubcategories] = useState([]);
-  useEffect(() => {
-    if (company) {
-      setCategories(company.categories || []);
-    }
-  }, [company]);
+
   useEffect(() => {
     if (categoryId) {
       const selectedCategory = categories.find((cat) => cat.id === categoryId);
@@ -46,7 +41,7 @@ const CreateProductForm = ({ onClose }) => {
     } catch (err) {
       setLoading(false);
       console.log(err.response?.data?.message);
-      
+
       toast.error(err.response?.data?.message);
     }
   };
