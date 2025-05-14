@@ -35,8 +35,8 @@ const AuthForm = ({ type }) => {
     setLoader(true);
     await dispatch(
       asyncSignInUser({
-        email: "ritik@oplify.in",
-        password: "Ritik@09",
+        email: "dummy@oplify.in",
+        password: "dummy@123",
         role: "admin",
       })
     );

@@ -38,8 +38,8 @@ export const asyncAddProducts = () => async (dispatch, getstate) => {
   } catch (error) {
     console.log(error);
 
-    console.error(error.response.data.message);
-    toast.error(error.response.data.message);
+    // console.error(error.response.data.message);
+    // toast.error(error.response.data.message);
   }
 };
 
@@ -50,9 +50,9 @@ export const asyncAddVisits = () => async (dispatch, getstate) => {
     dispatch(addVisits(data.visits));
     // toast.success(data.message);
   } catch (error) {
-    console.log(error);
-    console.error(error.response.data.message);
-    toast.error(error.response.data.message);
+    // console.log(error);
+    // console.error(error.response.data.message);
+    // toast.error(error.response.data.message);
   }
 };
 
@@ -64,8 +64,8 @@ export const asyncAddMyLeads = () => async (dispatch, getstate) => {
     dispatch(addMyLead(data.leads));
     // toast.success(data.message);
   } catch (error) {
-    console.log(error);
-    console.error(error.response.data.message);
+    // console.log(error);
+    // console.error(error.response.data.message);
     toast.error(error.response.data.message);
   }
 };
@@ -77,9 +77,9 @@ export const asyncAddDealerLeads = () => async (dispatch, getstate) => {
     dispatch(addDealerLead(data.leads));
     // toast.success(data.message);
   } catch (error) {
-    console.log(error);
-    console.error(error.response.data.message);
-    toast.error(error.response.data.message);
+    // console.log(error);
+    // console.error(error.response.data.message);
+    // toast.error(error.response.data.message);
   }
 };
 

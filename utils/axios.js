@@ -17,7 +17,7 @@ const processQueue = (error, token = null) => {
 };
 
 const instance = axios.create({
-  baseURL: "https://leadmanagement.transmonk.in/",
+  baseURL: "http://localhost:8000/",
   withCredentials: true,
 });
 
@@ -52,7 +52,7 @@ instance.interceptors.response.use(
 
       try {
         const { data } = await axios.get(
-          "https://leadmanagement.transmonk.in/auth/refresh-token",
+          "http://localhost:8000/auth/refresh-token",
           {
             withCredentials: true,
           }
