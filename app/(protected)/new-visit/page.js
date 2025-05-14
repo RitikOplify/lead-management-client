@@ -8,8 +8,11 @@ import { IoIosArrowDown } from "react-icons/io";
 import axios from "@/utils/axios";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useDispatch } from "react-redux";
+import { addNewVisit } from "@/store/slices/leads";
 
 const page = () => {
+  const dispatch = useDispatch();
   const [navOpen, setNavOpen] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState("Select Action");
@@ -33,9 +36,7 @@ const page = () => {
     try {
       setLoading(true);
       const { data } = await axios.post(`/visit/create`, visitData);
-      console.log(data);
-      console.log(data.visit.action);
-      
+      dispatch(addNewVisit(data.visit));
       if (data.visit.action == "Convert to new lead") {
         router.push(`/new-lead?visitId=${data.visit.id}`);
       }

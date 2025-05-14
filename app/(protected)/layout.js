@@ -3,8 +3,17 @@ import { use, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncCurrentUser } from "@/store/actions/auth";
 import { useRouter } from "next/navigation";
-import { asyncGetCompanyDtails } from "@/store/actions/leads";
+import {
+  asyncAddProducts,
+  asyncAddVisits,
+  asyncGetAllLeads,
+} from "@/store/actions/leads";
 import Loader from "@/components/loader";
+import {
+  asyncAddCategory,
+  asyncGetDealers,
+  asyncGetExecutives,
+} from "@/store/actions/admin";
 
 function AdminLayout({ children }) {
   const dispatch = useDispatch();
@@ -21,7 +30,12 @@ function AdminLayout({ children }) {
 
   useEffect(() => {
     if (user) {
-      dispatch(asyncGetCompanyDtails(currentCompany.id));
+      dispatch(asyncAddCategory());
+      dispatch(asyncAddVisits());
+      dispatch(asyncAddProducts());
+      dispatch(asyncGetDealers());
+      dispatch(asyncGetAllLeads());
+      dispatch(asyncGetExecutives());
     }
   }, [user, dispatch]);
 

@@ -13,10 +13,10 @@ import {
   FaTasks,
   FaBuilding,
   FaCalendarCheck,
+  FaUserTie,
 } from "react-icons/fa";
 import { HiOutlineSwitchVertical } from "react-icons/hi";
 import { MdDashboard, MdCategory } from "react-icons/md";
-
 import { useDispatch, useSelector } from "react-redux";
 import SwitchCompany from "./popups/SwitchCompany";
 
@@ -85,37 +85,57 @@ function Nav({ navOpen, setNavOpen }) {
         </div>
 
         <nav className="flex flex-col space-y-4 mt-4 md:mt-0">
-          {user && user.role === "dealer" && (
+          {/* Switch Company (Dealer) */}
+          {user?.role === "dealer" && (
             <p className="p-2 rounded flex items-center gap-2">
+              <FaUserTie />
               {currentCompany.name}
               <HiOutlineSwitchVertical
                 className="cursor-pointer"
-                onClick={() => handleCompanyChange()}
+                onClick={handleCompanyChange}
               />
             </p>
           )}
-          {user && user.role !== "dealer" && (
+
+          {/* Common */}
+          <Link
+            href="/"
+            className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
+          >
+            <FaHome /> Home
+          </Link>
+
+          <Link
+            href="/new-lead"
+            className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
+          >
+            <FaPlusCircle /> Create Lead
+          </Link>
+
+          {/* Non-Dealer */}
+          {user?.role !== "dealer" && (
             <>
-              <Link
-                href="/"
-                className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-              >
-                <FaHome /> Home
-              </Link>
               <Link
                 href="/new-visit"
                 className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
               >
-                <FaPlusCircle />
-                New Visit
+                <FaPlusCircle /> New Visit
               </Link>
+
+              <Link
+                href="/customer"
+                className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
+              >
+                <FaUsers /> Customer Details
+              </Link>
+
               <Link
                 href="/visits"
                 className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
               >
-                <FaCalendarCheck />
-                All Visit
+                <FaCalendarCheck /> All Visits
               </Link>
+
               <Link
                 href="/dealer-sales-lead"
                 className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
@@ -125,35 +145,24 @@ function Nav({ navOpen, setNavOpen }) {
             </>
           )}
 
-          <Link
-            href="/new-lead"
-            className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-          >
-            <FaPlusCircle /> Create Lead
-          </Link>
-
-          {user && user.role !== "admin" && (
+          {/* Non-Admin */}
+          {user?.role !== "admin" && (
             <Link
               href="/my-task"
               className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
             >
-              <FaTasks /> My Task
+              <FaTasks /> My Tasks
             </Link>
           )}
 
-          {user && user.role === "admin" && (
+          {/* Admin */}
+          {user?.role === "admin" && (
             <>
               <Link
-                href="/reports"
+                href="/analytics"
                 className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
               >
-                <FaChartBar /> Reports
-              </Link>
-              <Link
-                href="/dashboard"
-                className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-              >
-                <MdDashboard /> Dashboard
+                <FaChartBar /> Analytics
               </Link>
 
               <Link
@@ -162,28 +171,31 @@ function Nav({ navOpen, setNavOpen }) {
               >
                 <FaUsers /> Users
               </Link>
+
               <Link
                 href="/category"
                 className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
               >
                 <MdCategory /> Category
               </Link>
+
               <Link
                 href="/product"
                 className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
               >
-                <FaBoxOpen /> Product
+                <FaBoxOpen /> Products
               </Link>
             </>
           )}
         </nav>
 
+        {/* Signout */}
         <div className="mt-auto">
           <button
             className="text-sm hover:underline flex items-center gap-2 cursor-pointer"
             onClick={logout}
           >
-            <FaSignOutAlt /> Signout
+            <FaSignOutAlt /> Sign Out
           </button>
         </div>
       </aside>

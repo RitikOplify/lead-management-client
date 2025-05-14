@@ -17,7 +17,7 @@ const LeadDataTable = () => {
   const [leadId, setLeadId] = useState(null);
   const { user } = useSelector((state) => state.auth);
   const [assignOpen, setAssignOpen] = useState(false);
-  const { company } = useSelector((state) => state.leads);
+  const { company ,leads} = useSelector((state) => state.leads);
   const followUpClick = (leadId) => {
     setLeadId(leadId);
     if (!leadId) return;
@@ -63,7 +63,7 @@ const LeadDataTable = () => {
         </div>
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
           <div className="overflow-x-auto custom-scroller">
-            {company?.leads?.length > 0 ? (
+            {leads?.length > 0 ? (
               <table className="min-w-[1136px] w-full whitespace-nowrap divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
@@ -117,7 +117,7 @@ const LeadDataTable = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {company?.leads?.map((lead, index) => (
+                  {leads?.map((lead, index) => (
                     <tr
                       key={index}
                       className={`${

@@ -3,9 +3,9 @@ import { CustomSelectInput, Input, Select } from "../inputFields";
 import { useForm } from "react-hook-form";
 import { IoClose } from "react-icons/io5";
 import axios from "@/utils/axios";
-import URL from "@/utils/config";
 import { toast } from "react-toastify";
-import { IoIosArrowDown } from "react-icons/io";
+import { useDispatch } from "react-redux";
+import { updateLead } from "@/store/slices/leads";
 function CreateFollowUp({ onClose, id }) {
   const {
     register,
@@ -14,13 +14,14 @@ function CreateFollowUp({ onClose, id }) {
     formState: { errors, touchedFields },
   } = useForm();
   const [loading, setLoading] = useState(false);
-
+  const dispatch = useDispatch();
   const onSubmit = async (data) => {
     const followUpData = { ...data, leadId: id };
     try {
       setLoading(true);
       const { data } = await axios.post(`/lead/create-followup`, followUpData);
       setLoading(false);
+      dispatch(updateLead(data.lead));
       toast.success(data.message);
       reset();
       onClose();

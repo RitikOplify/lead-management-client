@@ -9,7 +9,7 @@ const page = () => {
     <div className="flex h-screen">
       <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
-        <p>Reports Here!</p>
+        <p>Customer Here!</p>
       </div>
     </div>
   );

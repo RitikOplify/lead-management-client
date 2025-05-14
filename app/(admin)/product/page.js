@@ -9,7 +9,7 @@ const Page = () => {
   const [isProductOpen, setProductOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [editProduct, setEditProduct] = useState(null); // for edit
-  const { company } = useSelector((state) => state.leads);
+  const { company,products } = useSelector((state) => state.leads);
 
   const handleEdit = (product) => {
     setEditProduct(product);
@@ -60,7 +60,7 @@ const Page = () => {
         </div>
 
         <div className=" space-y-4">
-          {company?.products?.length > 0 ? (
+          {products?.length > 0 ? (
             <table className="w-full divide-y divide-gray-200 mt-6 shadow">
               <thead className="bg-gray-50">
                 <tr>
@@ -79,7 +79,7 @@ const Page = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {company.products.map((product) => (
+                {products.map((product) => (
                   <tr key={product.id} className="hover:bg-gray-50">
                     <td className="p-4 text-sm text-gray-700">
                       {product.name}

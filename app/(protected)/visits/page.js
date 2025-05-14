@@ -3,68 +3,69 @@ import axios from "@/utils/axios";
 import React, { useEffect, useState } from "react";
 import Nav from "@/components/Nav";
 import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
+import { asyncAddVisits } from "@/store/actions/leads";
 
 const page = () => {
   const [navOpen, setNavOpen] = useState(false);
-  const [visits, setVisits] = useState([]);
-  useEffect(() => {
-    const fetchVisits = async () => {
-      try {
-        const { data } = await axios.get(`/visit`);
-        console.log(data);
-        setVisits(data.visits);
-        console.log(data);
-      } catch (error) {
-        console.log(error.response.data.message);
-        console.error("Error fetching lead details:", error);
-      }
-    };
-    fetchVisits();
-  }, []);
+  const { visits } = useSelector((state) => state.leads);
+
   return (
     <div className="flex h-screen">
       <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
         <h1>Vists</h1>
-        {visits.length > 0 ? (
-          <table className="w-full">
-            <thead>
-              <tr>
-                <th className="text-left">Company Name</th>
-                <th className="text-left">Customer Name</th>
-                <th className="text-left">Purpose</th>
-                <th className="text-left">Visit Date</th>
-                <th className="text-left">Lead</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visits.map((visit) => (
-                <tr key={visit.id}>
-                  <td>{visit.companyName}</td>
-                  <td>{visit.customerName}</td>
-                  <td>{visit.purpose}</td>
-                  <td>
-                    {new Date(visit.visitDate).toLocaleDateString("en-GB")}
-                  </td>
-                  <td>
-                    {visit.leadId ? (
-                      <Link
-                        href={`/lead/${visit.leadId}`}
-                        className="text-blue-500"
-                      >
-                        View Lead
-                      </Link>
-                    ) : (
-                      <span className="text-red-500">No Lead</span>
-                    )}
-                  </td>
+        <div className="overflow-x-auto custom-scroller">
+          {visits.length > 0 ? (
+            <table className="w-full min-w-[1136px] whitespace-nowrap divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                    Company Name
+                  </th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                    Customer Name
+                  </th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                    Purpose
+                  </th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                    Visit Date
+                  </th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                    Lead
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p>No visits found.</p>
-        )}
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {visits.map((visit) => (
+                  <tr key={visit.id}>
+                    <td className="p-4 text-sm">{visit.companyName}</td>
+                    <td className="p-4 text-sm">{visit.customerName}</td>
+                    <td className="p-4 text-sm">{visit.purpose}</td>
+                    <td className="p-4 text-sm">
+                      {new Date(visit.visitDate).toLocaleDateString("en-GB")}
+                    </td>
+                    <td className="p-4 text-sm">
+                      {visit.leadId ? (
+                        <Link
+                          href={`/lead/${visit.leadId}`}
+                          className="text-blue-500"
+                        >
+                          View Lead
+                        </Link>
+                      ) : (
+                        <span className="text-red-500">No Lead</span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <p>No visits found.</p>
+          )}
+        </div>
       </div>
     </div>
   );

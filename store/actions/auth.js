@@ -2,6 +2,7 @@ import axios from "@/utils/axios";
 import { addUser, removeUser, setLoading } from "../slices/authSlice";
 import { toast } from "react-toastify";
 import { setAccessToken, setRefreshToken } from "@/utils/setToken";
+import { addCompany } from "../slices/leads";
 
 export const asyncSignUpUser = (user) => async (dispatch, getstate) => {
   try {
@@ -63,7 +64,10 @@ export const asyncCurrentUser = () => async (dispatch, getState) => {
     const { data } = await axios.get(`/auth/current`);
     dispatch(setLoading(false));
     dispatch(addUser(data.user));
-    
+    if (data.user.role === "admin") {
+      dispatch(addCompany({ name: data.user.name, id: data.user.id }));
+    }
+    console.log(data.user);
   } catch (error) {
     dispatch(setLoading(false));
   }

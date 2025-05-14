@@ -15,7 +15,7 @@ const CreateSubcategoryForm = ({ onClose }) => {
   } = useForm();
 
   const [loading, setLoading] = useState(false);
-  const { company } = useSelector((state) => state.leads);
+  const { categories } = useSelector((state) => state.leads);
 
   const onSubmit = async (cat) => {
     try {
@@ -66,7 +66,7 @@ const CreateSubcategoryForm = ({ onClose }) => {
               label="Category"
               name="categoryId"
               register={register}
-              options={(company.categories || []).map((c) => ({
+              options={(categories || []).map((c) => ({
                 value: c.id,
                 label: c.name,
               }))}

@@ -5,30 +5,34 @@ import axios from "@/utils/axios";
 import Link from "next/link";
 import { FaEdit, FaEye } from "react-icons/fa";
 import { MdOutlineAccessAlarm } from "react-icons/md";
+import CreateFollowUp from "@/components/popups/createFollowUp";
+import { useDispatch, useSelector } from "react-redux";
+import { asyncAddDealerLeads } from "@/store/actions/leads";
 
 const page = () => {
   const [navOpen, setNavOpen] = useState(false);
-  const [data, setData] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [leadId, setLeadId] = useState(null);
+  const { dealerLead } = useSelector((state) => state.leads);
+  const dispatch = useDispatch();
   useEffect(() => {
-    const fetchMyLead = async () => {
-      try {
-        const { data } = await axios.get(`/lead/dealer-lead`);
-        setData(data.leads);
-        console.log(data);
-      } catch (error) {
-        console.log(error.response.data.message);
-        console.error("Error fetching lead details:", error);
-      }
-    };
-    fetchMyLead();
+    dispatch(asyncAddDealerLeads());
   }, []);
+
+  const followUpClick = (leadId) => {
+    setLeadId(leadId);
+    if (!leadId) return;
+    setOpen(true);
+  };
   return (
     <div className="flex h-screen">
       <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
+      {open && <CreateFollowUp onClose={() => setOpen(false)} id={leadId} />}
+
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
           <div className="overflow-x-auto custom-scroller">
-            {data.length > 0 ? (
+            {dealerLead.length > 0 ? (
               <table className="min-w-[1136px] w-full whitespace-nowrap divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
@@ -78,7 +82,7 @@ const page = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {data.map((lead, index) => (
+                  {dealerLead.map((lead, index) => (
                     <tr
                       key={index}
                       className={`${

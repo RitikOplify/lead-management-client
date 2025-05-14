@@ -14,7 +14,7 @@ const page = () => {
   const [navOpen, setNavOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("executive");
 
-  const { company } = useSelector((state) => state.leads);
+  const { company,dealers,executives } = useSelector((state) => state.leads);
   const { user } = useSelector((state) => state.auth);
 
   const approveDealer = async (id) => {
@@ -108,7 +108,7 @@ const page = () => {
             </div>
 
             <div className="rounded-lg">
-              {company?.executives?.length > 0 ? (
+              {executives?.length > 0 ? (
                 <table className="w-full divide-y divide-gray-200 mt-6 shadow">
                   <thead className="bg-gray-50">
                     <tr>
@@ -124,7 +124,7 @@ const page = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {company.executives.map((executive) => (
+                    {executives.map((executive) => (
                       <tr key={executive.id} className="hover:bg-gray-50">
                         <td className="p-4 text-sm text-gray-700">
                           {executive.username}
@@ -173,7 +173,7 @@ const page = () => {
             </div>
 
             <div className="space-y-4">
-              {company?.dealers?.length > 0 ? (
+              {dealers?.length > 0 ? (
                 <table className="w-full divide-y divide-gray-200 mt-6 shadow">
                   <thead className="bg-gray-50">
                     <tr>
@@ -189,7 +189,7 @@ const page = () => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {company.dealers.map((dealer) => (
+                    {dealers.map((dealer) => (
                       <tr key={dealer.id} className="hover:bg-gray-50">
                         <td className="p-4 text-sm text-gray-700">
                           {dealer.dealer.name}

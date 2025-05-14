@@ -1,55 +1,66 @@
 import axios from "@/utils/axios";
-import URL from "@/utils/config";
 import { toast } from "react-toastify";
-import { addDealers, addExecutive, newExecutive } from "../slices/adminSlice";
+import {
+  addCategories,
+  addDealer,
+  addExecutive,
+  addNewDealer,
+  addNewExecutive,
+} from "../slices/leads";
 
 export const asyncCreateExecutive =
   (executive) => async (dispatch, getstate) => {
     try {
-      const { data } = await axios.post(
-        `${URL}/admin//sales-executive`,
-        executive
-      );
+      const { data } = await axios.post(`/admin//sales-executive`, executive);
       toast.success(data.message);
-      dispatch(newExecutive(data.executive));
+      dispatch(addNewExecutive(data.executive));
     } catch (error) {
       toast.error(error.response.data.message);
     }
   };
 
-export const asyncGetExecutive = () => async (dispatch, getstate) => {
+export const asyncGetExecutives = () => async (dispatch, getstate) => {
   try {
-    const { data } = await axios.get(`${URL}/admin/sales-executives`);
-    console.log(data);
+    const { data } = await axios.get(`/admin/sales-executives`);
     dispatch(addExecutive(data.executives));
+  } catch (error) {
+
+    // console.error(error.response.data.message);
+    // toast.error(error.response.data.message);
+  }
+};
+
+export const asyncApproveDealer = (dealerId) => async (dispatch, getstate) => {
+  try {
+    const { data } = await axios.post(`/admin/approve-dealer/${dealerId}`);
     toast.success(data.message);
+    dispatch(addNewDealer(data.dealer));
   } catch (error) {
     console.log(error);
+
     toast.error(error.response.data.message);
   }
 };
 
-// export const asyncCreateAprove = (executive) => async (dispatch, getstate) => {
-//   try {
-//     const { data } = await axios.post(
-//       `${URL}/admin//sales-executive`,
-//       executive
-//     );
-//     toast.success(data.message);
-//     dispatch(newExecutive(data.executive));
-//   } catch (error) {
-//     toast.error(error.response.data.message);
-//   }
-// };
-
 export const asyncGetDealers = () => async (dispatch, getstate) => {
   try {
-    const { data } = await axios.get(`${URL}/admin/dealers`);
-    console.log(data);
-    dispatch(addDealers(data.dealers));
-    toast.success(data.message);
+    const { data } = await axios.get(`/admin/dealers`);
+    dispatch(addDealer(data.dealers));
   } catch (error) {
     console.log(error);
-    toast.error(error.response.data.message);
+    
+    // console.error(error.response.data.message);
+    // toast.error(error.response.data.message);
+  }
+};
+
+export const asyncAddCategory = () => async (dispatch, getstate) => {
+  try {
+    const { data } = await axios.get(`/admin/categories`);
+    console.log(data);
+    dispatch(addCategories(data.categories));
+  } catch (error) {
+    // console.error(error.response.data.message);
+    // toast.error(error.response.data.message);
   }
 };

@@ -11,10 +11,12 @@ const Page = () => {
   const [subCategoryOpen, setSubCategoryOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [expandedCategoryId, setExpandedCategoryId] = useState(null);
-  const { company } = useSelector((state) => state.leads);
+  const { company, categories } = useSelector((state) => state.leads);
 
   const toggleSubcategories = (categoryId) => {
-    setExpandedCategoryId(expandedCategoryId === categoryId ? null : categoryId);
+    setExpandedCategoryId(
+      expandedCategoryId === categoryId ? null : categoryId
+    );
   };
 
   const handleEditCategory = (id) => {
@@ -73,9 +75,9 @@ const Page = () => {
         </div>
 
         <div className="rounded-lg p-4">
-          {company?.categories?.length > 0 ? (
+          {categories?.length > 0 ? (
             <div className="space-y-4 mt-6">
-              {company.categories.map((cat) => (
+              {categories.map((cat) => (
                 <div
                   key={cat.id}
                   className="border rounded-lg p-4 shadow-sm bg-white"
@@ -97,7 +99,7 @@ const Page = () => {
                       </button>
                       <button
                         onClick={() => toggleSubcategories(cat.id)}
-                        className="px-3 py-1 bg-gray-200 rounded text-sm"
+                        className="px-3 py-1 bg-gray-200 rounded text-sm cursor-pointer"
                       >
                         {expandedCategoryId === cat.id
                           ? "Hide Subcategories"
@@ -123,7 +125,9 @@ const Page = () => {
                                 Edit
                               </button>
                               <button
-                                onClick={() => handleDeleteSubCategory(subCat.id)}
+                                onClick={() =>
+                                  handleDeleteSubCategory(subCat.id)
+                                }
                                 className="px-2 py-1 bg-red-500 text-white rounded text-sm"
                               >
                                 Delete

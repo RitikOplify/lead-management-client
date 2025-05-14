@@ -7,25 +7,19 @@ import { FaEdit, FaEye } from "react-icons/fa";
 import { MdOutlineAccessAlarm } from "react-icons/md";
 import ViewProduct from "@/components/popups/ViewProduct";
 import CreateFollowUp from "@/components/popups/createFollowUp";
+import { useDispatch, useSelector } from "react-redux";
+import { asyncAddMyLeads } from "@/store/actions/leads";
 
 const page = () => {
   const [navOpen, setNavOpen] = useState(false);
-  const [data, setData] = useState([]);
   const [productOpen, setProductOpen] = useState(false);
   const [leadData, setLeadData] = useState();
+  const dispatch = useDispatch();
+
+  const {myLeads} = useSelector((state) => state.leads);
 
   useEffect(() => {
-    const fetchMyLead = async () => {
-      try {
-        const { data } = await axios.get(`/lead/my-lead`);
-        setData(data.leads);
-        console.log(data);
-      } catch (error) {
-        console.log(error.response.data.message);
-        console.error("Error fetching lead details:", error);
-      }
-    };
-    fetchMyLead();
+    dispatch(asyncAddMyLeads());
   }, []);
   const viewClick = (lead) => {
     setLeadData(lead);
@@ -52,7 +46,7 @@ const page = () => {
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
           <div className="overflow-x-auto custom-scroller">
-            {data.length > 0 ? (
+            {myLeads.length > 0 ? (
               <table className="min-w-[1136px] w-full whitespace-nowrap divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
@@ -107,7 +101,7 @@ const page = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {data.map((lead, index) => (
+                  {myLeads.map((lead, index) => (
                     <tr
                       key={index}
                       className={`${

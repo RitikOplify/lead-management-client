@@ -4,13 +4,22 @@ import Nav from "../Nav";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { asyncCreateLeads, asyncGetCompanyDtails } from "@/store/actions/leads";
-import { CustomSelectInput, Input, Select } from "../inputFields";
+import {
+  asyncAddProducts,
+  asyncCreateLeads,
+  asyncGetAllLeads,
+} from "@/store/actions/leads";
+import { Input, Select } from "../inputFields";
 import { IoClose } from "react-icons/io5";
 import { IoIosArrowDown } from "react-icons/io";
 import { useSearchParams } from "next/navigation";
 import { toast } from "react-toastify";
 import axios from "@/utils/axios";
+import {
+  asyncAddCategory,
+  asyncGetDealers,
+  asyncGetExecutives,
+} from "@/store/actions/admin";
 const CreateLead = () => {
   const {
     register,
@@ -36,8 +45,10 @@ const CreateLead = () => {
   const [allProducts, setAllProducts] = useState([]);
 
   const dispatch = useDispatch();
-  const { company } = useSelector((state) => state.leads);
+  const { products, executives, dealers } = useSelector((state) => state.leads);
   const { user, currentCompany } = useSelector((state) => state.auth);
+
+  console.log(dealers);
 
   useEffect(() => {
     async function getVisitDetails() {
@@ -65,15 +76,19 @@ const CreateLead = () => {
 
   useEffect(() => {
     if (user) {
-      dispatch(asyncGetCompanyDtails());
+      dispatch(asyncAddCategory());
+      dispatch(asyncAddProducts());
+      dispatch(asyncGetDealers());
+      dispatch(asyncGetAllLeads());
+      dispatch(asyncGetExecutives());
     }
   }, []);
 
   useEffect(() => {
-    if (company) {
-      setAllProducts(company.products || []);
+    if (products) {
+      setAllProducts(products || []);
     }
-  }, [company]);
+  }, [products]);
 
   const onSubmit = async (data) => {
     console.log(data);
@@ -87,7 +102,7 @@ const CreateLead = () => {
   const [isProductOpen, setProductOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredProduct = (company?.products || []).filter((product) =>
+  const filteredProduct = (products || []).filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
   const inputRef = useRef(null);
@@ -121,7 +136,6 @@ const CreateLead = () => {
         onSubmit={handleSubmit(onSubmit)}
         className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto custom-scroller2"
       >
-        {/* Mobile Nav Toggle */}
         <div className="md:hidden mb-4">
           <div
             onClick={() => setNavOpen(true)}
@@ -138,10 +152,9 @@ const CreateLead = () => {
             className="px-4 w-full max-w-sm rounded-full py-2 border outline-[#092C1C]"
           />
         </div>
-        {/* Header */}
+
         <h2 className="text-2xl font-bold mb-10">Add Lead</h2>
 
-        {/* Form Sections */}
         <div className=" w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Select
             label="Type of Enquiry *"
@@ -378,7 +391,7 @@ const CreateLead = () => {
                 name="executiveId"
                 register={register}
                 disabled={!!selectedDealer}
-                options={(company?.executives || []).map((e) => ({
+                options={(executives || []).map((e) => ({
                   value: e.id,
                   label: e.email,
                 }))}
@@ -392,7 +405,7 @@ const CreateLead = () => {
                 touched={touchedFields.dealerId}
                 register={register}
                 disabled={!!selectedExecutive}
-                options={(company?.dealers || []).map((d) => ({
+                options={(dealers || []).map((d) => ({
                   value: d.dealerId,
                   label: d.dealer.email,
                 }))}
@@ -407,9 +420,9 @@ const CreateLead = () => {
               name="dealerId"
               touched={touchedFields.dealerId}
               register={register}
-              options={(company?.dealers || []).map((d) => ({
-                value: d.id,
-                label: d.email,
+              options={(dealers || []).map((d) => ({
+                value: d.dealerId,
+                label: d.dealer.email,
               }))}
               error={errors.dealerId}
             />
@@ -425,64 +438,6 @@ const CreateLead = () => {
             ></textarea>
           </div>
         </div>
-
-        {/* <div className="border-t pt-6 w-full">
-          <h3 className="text-xl font-semibold mb-10">Follow Up</h3>
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <CustomSelectInput
-              label="Current Status"
-              name="followUp.status"
-              register={register}
-              options={[
-                { value: "NEW" },
-                { value: "IN_PROGRESS" },
-                { value: "CLOSED" },
-              ]}
-            />
-
-            <CustomSelectInput
-              label="Current Stage"
-              name="followUp.stage"
-              register={register}
-              options={[
-                { value: "INQUIRY" },
-                { value: "NEGOTIATION" },
-                { value: "CONVERTED" },
-                { value: "LOST" },
-              ]}
-            />
-
-            <CustomSelectInput
-              label="Next Follow Up Step"
-              name="followUp.nextFollowUpStep"
-              register={register}
-              options={[
-                { value: "NEGOTIATION" },
-                { value: "CALL" },
-                { value: "VISIT" },
-                { value: "MAIL" },
-              ]}
-            />
-
-            <Input
-              label="Next Follow Up Date"
-              name="followUp.nextFollowUpDate"
-              register={register}
-              type="date"
-              placeholder="DD/MM/YYYY"
-            />
-
-            <div className="flex flex-col">
-              <label className="text-sm mb-1">Additional comments</label>
-              <textarea
-                rows="3"
-                {...register("followUp.message")}
-                placeholder="Type your message here"
-                className="px-3 py-2 border outline-[#092C1C] border-gray-300 rounded-sm"
-              ></textarea>
-            </div>
-          </div>
-        </div> */}
 
         <div className="flex justify-end mt-6">
           {loading ? (
