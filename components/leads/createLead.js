@@ -127,6 +127,41 @@ const CreateLead = () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+  const [searchLeadData, setSeachLeadData] = useState([]);
+  const [query, setQuery] = useState("");
+
+  const debounceTimeout = useRef(null);
+
+  useEffect(() => {
+    if (!query.trim()) return;
+
+    // Only trigger if length is divisible by 3 or after 2 seconds
+    if (query.trim().length % 3 === 0) {
+      callSearchApi();
+    } else {
+      // Clear previous timeout
+      clearTimeout(debounceTimeout.current);
+
+      // Set new timeout
+      debounceTimeout.current = setTimeout(() => {
+        callSearchApi();
+      }, 2000);
+    }
+
+    async function callSearchApi() {
+      try {
+        const { data } = await axios.post(`/lead/search`, { query });
+        setSeachLeadData(data.leads);
+        console.log(data.leads);
+      } catch (error) {
+        console.log(error?.response?.data?.message);
+        toast.error(error?.response?.data?.message);
+      }
+    }
+
+    // Cleanup timeout on unmount or query change
+    return () => clearTimeout(debounceTimeout.current);
+  }, [query]);
 
   return (
     <div className="flex h-screen">
@@ -148,6 +183,9 @@ const CreateLead = () => {
         <div className=" flex justify-center items-center">
           <input
             type="text"
+            onChange={(e) => {
+              setQuery(e.target.value);
+            }}
             placeholder="Search..."
             className="px-4 w-full max-w-sm rounded-full py-2 border outline-[#092C1C]"
           />

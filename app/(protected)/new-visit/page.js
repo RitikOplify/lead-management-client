@@ -8,7 +8,7 @@ import { IoIosArrowDown } from "react-icons/io";
 import axios from "@/utils/axios";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { addNewVisit } from "@/store/slices/leads";
 
 const Page = () => {
@@ -18,6 +18,9 @@ const Page = () => {
   const [selected, setSelected] = useState("Select Action");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { executives } = useSelector((state) => state.leads);
+  const { user } = useSelector((state) => state.auth);
+
   const handleSelect = (value) => {
     setSelected(value);
     setIsOpen(false);
@@ -105,6 +108,19 @@ const Page = () => {
               error={errors.visitDate}
               touched={touchedFields.visitDate}
             />
+            {user?.role === "admin" && (
+              <Select
+                label="Executive"
+                name="executiveId"
+                register={register}
+                options={(executives || []).map((e) => ({
+                  value: e.id,
+                  label: e.email,
+                }))}
+                touched={touchedFields.executiveId}
+                error={errors.executiveId}
+              />
+            )}
             <Input
               label="Remarks"
               name="remarks"
@@ -130,13 +146,13 @@ const Page = () => {
               {isOpen && (
                 <div className="absolute top-full left-0 right-0 mt-1 border border-gray-300 rounded-lg bg-white shadow-md z-10">
                   <button
-                    className="block px-3 py-2 w-full text-start hover:bg-gray-100 border-b border-gray-300"
+                    className="block px-3 py-2 w-full text-start hover:bg-gray-100 border-b border-gray-300 cursor-pointer"
                     onClick={() => handleSelect("Convert to new lead")}
                   >
                     Convert to new lead
                   </button>
                   <button
-                    className="w-full text-left px-3 py-2 hover:bg-gray-100"
+                    className="w-full text-left px-3 py-2 hover:bg-gray-100 cursor-pointer"
                     onClick={() => handleSelect("NA")}
                   >
                     NA

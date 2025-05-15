@@ -46,10 +46,10 @@ function CreateExecutivePopUp({ onClose }) {
   }, []);
 
   const onSubmit = async (executive) => {
-    if (!executive.dealerIds || executive.dealerIds.length === 0) {
-      toast.error("Please select at least one dealer.");
-      return;
-    }
+    // if (!executive.dealerIds || executive.dealerIds.length === 0) {
+    //   toast.error("Please select at least one dealer.");
+    //   return;
+    // }
 
     console.log(executive); // For now
 

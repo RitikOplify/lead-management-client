@@ -1,4 +1,7 @@
 export const getCookie = (name) => {
-  const match = document.cookie.match(new RegExp("(^| )" + name + "=([^;]+)"));
-  return match ? decodeURIComponent(match[2]) : null;
+  const token = document.cookie.replace(
+    `/(?:(?:^|.*;\s*)${name}\s*=\s*([^;]*).*$)|^.*$/,
+    "$1"`
+  );
+  return token;
 };
