@@ -17,7 +17,7 @@ const processQueue = (error, token = null) => {
 };
 
 const instance = axios.create({
-  baseURL: "http://leadapi.transmonk.in/",
+  baseURL: "https://lead-management-server-pypf.onrender.com/",
   withCredentials: true,
 });
 
@@ -52,7 +52,7 @@ instance.interceptors.response.use(
 
       try {
         const { data } = await axios.get(
-          "http://leadapi.transmonk.in/auth/refresh-token",
+          "https://lead-management-server-pypf.onrender.com/auth/refresh-token",
           {
             withCredentials: true,
           }
