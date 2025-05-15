@@ -1,9 +1,10 @@
 import axios from "axios";
+import { getCookie } from "@/utils/getToken";
+import { setAccessToken, setRefreshToken } from "./setToken";
 import { store } from "@/store/store";
 import { toast } from "react-toastify";
 import Router from "next/router";
 import { removeUser } from "@/store/slices/authSlice";
-
 let isRefreshing = false;
 let failedQueue = [];
 
@@ -17,12 +18,15 @@ const processQueue = (error, token = null) => {
 
 const instance = axios.create({
   baseURL: "https://leadmanagement.transmonk.in/",
-  withCredentials: true, // Automatically sends cookies (accessToken, refreshToken)
+  withCredentials: true,
 });
 
 instance.interceptors.request.use(
   (config) => {
-    config.withCredentials = true; // Ensure cookies are included in each request
+    const token = getCookie("accessToken");
+    if (token) {
+      config.headers["Authorization"] = `Bearer ${token}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)
@@ -37,8 +41,9 @@ instance.interceptors.response.use(
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
-        }).then(() => {
-          return instance(originalRequest); // Retry with cookies
+        }).then((token) => {
+          originalRequest.headers["Authorization"] = `Bearer ${token}`;
+          return instance(originalRequest);
         });
       }
 
@@ -46,22 +51,29 @@ instance.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await axios.get(
+        const { data } = await axios.get(
           "https://leadmanagement.transmonk.in/auth/refresh-token",
           {
             withCredentials: true,
           }
         );
 
-        processQueue(null);
+        const newAccessToken = data.accessToken;
+        const newRefreshToken = data.refreshToken;
 
-        return instance(originalRequest); // Retry original request
+        setAccessToken(newAccessToken);
+        setRefreshToken(newRefreshToken);
+
+        processQueue(null, newAccessToken);
+
+        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        return instance(originalRequest);
       } catch (err) {
-        processQueue(err);
+        processQueue(err, null);
 
         store.dispatch(removeUser());
-        Router.replace("/signin");
 
+        Router.replace("/signin");
         const pathname = window.location.pathname;
         const excludedPaths = ["/signin", "/signup"];
         const isExcluded = excludedPaths.some((path) =>
@@ -72,7 +84,6 @@ instance.interceptors.response.use(
             toastId: "logout-toast",
           });
         }
-
         return Promise.reject(err);
       } finally {
         isRefreshing = false;
