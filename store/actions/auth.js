@@ -10,8 +10,8 @@ export const asyncSignUpUser = (user) => async (dispatch, getstate) => {
     dispatch(addUser(data.user));
     console.log(data.user);
 
-    // setAccessToken(data.accessToken);
-    // setRefreshToken(data.refreshToken);
+    setAccessToken(data.accessToken);
+    setRefreshToken(data.refreshToken);
     toast.success("User Registered Successfully");
   } catch (error) {
     toast.error(error.response.data.message);
@@ -25,8 +25,8 @@ export const asyncSignInUser = (user) => async (dispatch, getstate) => {
     console.log(data.user);
 
     dispatch(addUser(data.user));
-    // setAccessToken(data.accessToken);
-    // setRefreshToken(data.refreshToken);
+    setAccessToken(data.accessToken);
+    setRefreshToken(data.refreshToken);
     toast.success("User Logged In Successfully");
   } catch (error) {
     console.log(error);
