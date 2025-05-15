@@ -24,7 +24,7 @@ export const asyncSignInUser = (user) => async (dispatch, getstate) => {
     const { data } = await axios.post(`/auth/signin`, user);
     console.log(data);
     console.log(data.user);
-
+    localStorage.setItem("refreshToken", data.refreshToken);
     dispatch(addUser(data.user));
     // setAccessToken(data.accessToken);
     // setRefreshToken(data.refreshToken);
