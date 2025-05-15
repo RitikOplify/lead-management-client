@@ -16,7 +16,7 @@ const processQueue = (error, token = null) => {
 };
 
 const instance = axios.create({
-  baseURL: "http://leadmanagementapi.transmonk.in/",
+  baseURL: "https://leadmanagementapi.transmonk.in/",
   withCredentials: true, // Automatically sends cookies (accessToken, refreshToken)
 });
 
@@ -47,7 +47,7 @@ instance.interceptors.response.use(
 
       try {
         await axios.get(
-          "http://leadmanagementapi.transmonk.in/auth/refresh-token",
+          "https://leadmanagementapi.transmonk.in/auth/refresh-token",
           {
             withCredentials: true,
           }
