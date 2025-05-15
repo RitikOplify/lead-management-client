@@ -17,12 +17,12 @@ const processQueue = (error, token = null) => {
 
 const instance = axios.create({
   baseURL: "https://leadmanagementapi.transmonk.in/",
-  withCredentials: true, // Automatically sends cookies (accessToken, refreshToken)
+  withCredentials: true, // only needed here because accessToken is in cookie
 });
 
 instance.interceptors.request.use(
   (config) => {
-    config.withCredentials = true; // Ensure cookies are included in each request
+    // Do not touch cookies manually — let browser send them via `withCredentials: true`
     return config;
   },
   (error) => Promise.reject(error)
@@ -37,24 +37,27 @@ instance.interceptors.response.use(
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
-        }).then(() => {
-          return instance(originalRequest); // Retry with cookies
-        });
+        }).then(() => instance(originalRequest));
       }
 
       originalRequest._retry = true;
       isRefreshing = true;
 
       try {
-        await axios.get(
+        const refreshToken = localStorage.getItem("refreshToken");
+        if (!refreshToken) throw new Error("No refresh token found");
+
+        // Call refresh token API manually with token from localStorage
+        const { data } = await axios.post(
           "https://leadmanagementapi.transmonk.in/auth/refresh-token",
-          {
-            withCredentials: true,
-          }
+          { refreshToken },
+          { withCredentials: false }
         );
 
+        const newRefreshToken = data.refreshToken;
+        localStorage.setItem("refreshToken", newRefreshToken);
+        // Backend will set accessToken as a secure HTTP-only cookie
         processQueue(null);
-
         return instance(originalRequest); // Retry original request
       } catch (err) {
         processQueue(err);

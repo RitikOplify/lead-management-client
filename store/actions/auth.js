@@ -9,6 +9,7 @@ export const asyncSignUpUser = (user) => async (dispatch, getstate) => {
     const { data } = await axios.post(`/admin/signup`, user);
     dispatch(addUser(data.user));
     console.log(data.user);
+    localStorage.setItem("refreshToken", data.refreshToken);
 
     // setAccessToken(data.accessToken);
     // setRefreshToken(data.refreshToken);
