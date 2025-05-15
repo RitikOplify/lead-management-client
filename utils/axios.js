@@ -17,12 +17,14 @@ const processQueue = (error, token = null) => {
 
 const instance = axios.create({
   baseURL: "https://leadmanagementapi.transmonk.in/",
-  withCredentials: true, // only needed here because accessToken is in cookie
 });
 
 instance.interceptors.request.use(
   (config) => {
-    // Do not touch cookies manually — let browser send them via `withCredentials: true`
+    const accessToken = localStorage.getItem("accessToken");
+    if (accessToken) {
+      config.headers["Authorization"] = `Bearer ${accessToken}`;
+    }
     return config;
   },
   (error) => Promise.reject(error)
@@ -37,7 +39,10 @@ instance.interceptors.response.use(
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
-        }).then(() => instance(originalRequest));
+        }).then((token) => {
+          originalRequest.headers["Authorization"] = `Bearer ${token}`;
+          return instance(originalRequest);
+        });
       }
 
       originalRequest._retry = true;
@@ -47,18 +52,23 @@ instance.interceptors.response.use(
         const refreshToken = localStorage.getItem("refreshToken");
         if (!refreshToken) throw new Error("No refresh token found");
 
-        // Call refresh token API manually with token from localStorage
         const { data } = await axios.post(
           "https://leadmanagementapi.transmonk.in/auth/refresh-token",
           { refreshToken },
           { withCredentials: false }
         );
 
+        const newAccessToken = data.accessToken;
         const newRefreshToken = data.refreshToken;
+
+        // Save new tokens
+        localStorage.setItem("accessToken", newAccessToken);
         localStorage.setItem("refreshToken", newRefreshToken);
-        // Backend will set accessToken as a secure HTTP-only cookie
-        processQueue(null);
-        return instance(originalRequest); // Retry original request
+
+        processQueue(null, newAccessToken);
+
+        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+        return instance(originalRequest);
       } catch (err) {
         processQueue(err);
 

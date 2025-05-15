@@ -10,6 +10,7 @@ export const asyncSignUpUser = (user) => async (dispatch, getstate) => {
     dispatch(addUser(data.user));
     console.log(data.user);
     localStorage.setItem("refreshToken", data.refreshToken);
+    localStorage.setItem("accessToken", data.accessToken);
 
     // setAccessToken(data.accessToken);
     // setRefreshToken(data.refreshToken);
@@ -25,6 +26,7 @@ export const asyncSignInUser = (user) => async (dispatch, getstate) => {
     console.log(data);
     console.log(data.user);
     localStorage.setItem("refreshToken", data.refreshToken);
+    localStorage.setItem("accessToken", data.accessToken);
     dispatch(addUser(data.user));
     // setAccessToken(data.accessToken);
     // setRefreshToken(data.refreshToken);
@@ -77,6 +79,8 @@ export const asyncCurrentUser = () => async (dispatch, getState) => {
 export const asyncSignOutUser = () => async (dispatch, getState) => {
   try {
     const { data } = await axios.get("/auth/logout");
+    localStorage.clear("refreshToken");
+    localStorage.clear("accessToken");
     if (data.success) {
       dispatch(removeUser());
       toast.warn(data.message, { toastId: "logout" });
