@@ -16,7 +16,7 @@ const processQueue = (error, token = null) => {
 };
 
 const instance = axios.create({
-  baseURL: "http://localhost:8000/",
+  baseURL: "https://leadmanagementapi.transmonk.in/",
 });
 
 instance.interceptors.request.use(
@@ -53,7 +53,7 @@ instance.interceptors.response.use(
         if (!refreshToken) throw new Error("No refresh token found");
 
         const { data } = await axios.post(
-          "http://localhost:8000/auth/refresh-token",
+          "https://leadmanagementapi.transmonk.in/auth/refresh-token",
           { refreshToken },
           { withCredentials: false }
         );
