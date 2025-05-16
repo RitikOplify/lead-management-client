@@ -16,9 +16,11 @@ const InviteDealer = ({ onClose }) => {
 
   const [loading, setLoading] = useState(false);
   const { company } = useSelector((state) => state.leads);
-  const url = `${window.location.origin}/new-dealer/${company.id}`;
+  const { user } = useSelector((state) => state.auth);
+
+  const url = `${window.location.origin}/new-dealer/${user.id}`;
   const onSubmit = async (data) => {
-    const inviteData = { ...data, companyName: company.name, url };
+    const inviteData = { ...data, companyName: user.name, url };
     try {
       setLoading(true);
       const { data } = await axios.post("/admin/invite/dealer", inviteData);

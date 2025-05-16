@@ -8,8 +8,9 @@ import { useSelector } from "react-redux";
 const Page = () => {
   const [isProductOpen, setProductOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
-  const [editProduct, setEditProduct] = useState(null); // for edit
-  const { products, categories } = useSelector((state) => state.leads);
+  const [editProduct, setEditProduct] = useState(null);
+
+  const { products } = useSelector((state) => state.leads);
 
   const handleEdit = (product) => {
     setEditProduct(product);
@@ -31,9 +32,14 @@ const Page = () => {
         <CreateProductForm
           onClose={() => {
             setProductOpen(false);
-            setEditProduct(null); // reset after closing
+            setEditProduct(null);
           }}
-          productToEdit={editProduct} // pass to form
+          defaultValues={{
+            name: editProduct?.name || "",
+            categoryId: editProduct?.categoryId || "",
+            subcategoryId: editProduct?.subcategoryId || "",
+          }}
+          productId={editProduct?.id || null}
         />
       )}
 
@@ -51,7 +57,7 @@ const Page = () => {
           <button
             className="bg-[#092C1C] text-white px-6 py-2 rounded cursor-pointer"
             onClick={() => {
-              setEditProduct(null); // ensure it's not in edit mode
+              setEditProduct(null); // Clear edit state
               setProductOpen(true);
             }}
           >
@@ -59,37 +65,23 @@ const Page = () => {
           </button>
         </div>
 
-        <div className=" space-y-4">
+        <div className="space-y-4">
           {products?.length > 0 ? (
             <table className="w-full divide-y divide-gray-200 mt-6 shadow">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                    Name
-                  </th>
-                  <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                    Category
-                  </th>
-                  <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                    Sub Category
-                  </th>
-                  <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                    Actions
-                  </th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-600">Name</th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-600">Category</th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-600">Sub Category</th>
+                  <th className="p-4 text-left text-sm font-semibold text-gray-600">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {products.map((product) => (
                   <tr key={product.id} className="hover:bg-gray-50">
-                    <td className="p-4 text-sm text-gray-700">
-                      {product.name}
-                    </td>
-                    <td className="p-4 text-sm text-gray-700">
-                      {product.category?.name}
-                    </td>
-                    <td className="p-4 text-sm text-gray-700">
-                      {product.subcategory?.name}
-                    </td>
+                    <td className="p-4 text-sm text-gray-700">{product.name}</td>
+                    <td className="p-4 text-sm text-gray-700">{product.category?.name}</td>
+                    <td className="p-4 text-sm text-gray-700">{product.subcategory?.name}</td>
                     <td className="p-4 text-sm text-gray-700 flex gap-2">
                       <button
                         onClick={() => handleEdit(product)}

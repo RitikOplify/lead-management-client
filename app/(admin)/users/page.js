@@ -1,65 +1,123 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { FaBars } from "react-icons/fa";
 import Nav from "@/components/Nav";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import CreateExecutivePopUp from "@/components/popups/CreateExecutivePopUp";
 import InviteDealer from "@/components/popups/InviteDealer";
 import axios from "@/utils/axios";
 import { toast } from "react-toastify";
+// import { fetchLeads } from "@/redux/leadsSlice"; // Assuming you have a thunk or action to fetch leads
 
 const Page = () => {
   const [open, setOpen] = useState(false);
   const [isDealerOpen, setDealerOpen] = useState(false);
   const [navOpen, setNavOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("executive");
+  const [editExecutive, setEditExecutive] = useState(null);
+  const [editDealer, setEditDealer] = useState(null);
 
-  const { company,dealers,executives } = useSelector((state) => state.leads);
+  const dispatch = useDispatch();
+
+  const { company, dealers, executives } = useSelector((state) => state.leads);
   const { user } = useSelector((state) => state.auth);
 
+  // Function to reload data after changes
+  // const reloadData = () => {
+  //   dispatch(fetchLeads()); // Adjust if your fetch leads function has a different name
+  // };
+
+  // Approve Dealer API call
   const approveDealer = async (id) => {
     try {
       toast.loading("Updating Dealer.", { toastId: "dealer-loading" });
       const { data } = await axios.post(`/admin/approve-dealer/${id}`);
       toast.dismiss("dealer-loading");
       toast.success(data.message);
-      // Add function here to refetch or update state
+      reloadData();
     } catch (error) {
       toast.dismiss("dealer-loading");
-      toast.error(error.response?.data?.message);
+      toast.error(error.response?.data?.message || "Failed to approve dealer.");
     }
   };
 
+  // Open Executive popup for editing
   const handleEditExecutive = (executive) => {
-    console.log("Edit Executive:", executive);
-    // Optional: Open modal with executive data
+    setEditExecutive(executive);
+    setOpen(true);
   };
 
+  // Delete Executive API call
   const handleDeleteExecutive = async (executiveId) => {
     if (confirm("Are you sure you want to delete this executive?")) {
-      console.log("Delete Executive ID:", executiveId);
-      // Call API or dispatch Redux action here
+      try {
+        toast.loading("Deleting Executive...", { toastId: "delete-exec" });
+        await axios.delete(`/admin/delete-executive/${executiveId}`);
+        toast.dismiss("delete-exec");
+        toast.success("Executive deleted successfully.");
+      } catch (error) {
+        toast.dismiss("delete-exec");
+        toast.error(
+          error.response?.data?.message || "Failed to delete executive."
+        );
+      }
     }
   };
 
+  // Open Dealer popup for editing (if you have such feature)
   const handleEditDealer = (dealer) => {
-    console.log("Edit Dealer:", dealer);
-    // Optional: Open modal with dealer data
+    setEditDealer(dealer);
+    setDealerOpen(true);
   };
 
+  // Delete Dealer API call
   const handleDeleteDealer = async (dealerId) => {
     if (confirm("Are you sure you want to delete this dealer?")) {
-      console.log("Delete Dealer ID:", dealerId);
-      // Call API or dispatch Redux action here
+      try {
+        toast.loading("Deleting Dealer...", { toastId: "delete-dealer" });
+        await axios.delete(`/admin/delete-dealer/${dealerId}`);
+        toast.dismiss("delete-dealer");
+        toast.success("Dealer deleted successfully.");
+        reloadData();
+      } catch (error) {
+        toast.dismiss("delete-dealer");
+        toast.error(
+          error.response?.data?.message || "Failed to delete dealer."
+        );
+      }
     }
+  };
+
+  // Close popup handlers: reset edit states and reload data
+  const closeExecutivePopup = () => {
+    setOpen(false);
+    setEditExecutive(null);
+    reloadData();
+  };
+
+  const closeDealerPopup = () => {
+    setDealerOpen(false);
+    setEditDealer(null);
+    reloadData();
   };
 
   return (
     <div className="flex h-screen">
       <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
 
-      {open && <CreateExecutivePopUp onClose={() => setOpen(false)} />}
-      {isDealerOpen && <InviteDealer onClose={() => setDealerOpen(false)} />}
+      {open && (
+        <CreateExecutivePopUp
+          onClose={closeExecutivePopup}
+          initialData={editExecutive} // Pass data for edit or null for create
+        />
+      )}
+
+      {isDealerOpen && (
+        <InviteDealer
+          onClose={closeDealerPopup}
+          initialData={editDealer} // If you want to edit dealers too
+        />
+      )}
 
       <div className="p-6 w-full lg:w-[calc(100%-256px)] overflow-y-auto">
         <div className="md:hidden mb-4">
@@ -100,7 +158,10 @@ const Page = () => {
               {user?.role === "admin" && (
                 <button
                   className="bg-[#092C1C] text-white px-6 py-2 rounded"
-                  onClick={() => setOpen(true)}
+                  onClick={() => {
+                    setEditExecutive(null);
+                    setOpen(true);
+                  }}
                 >
                   Create New Executive
                 </button>
@@ -164,7 +225,10 @@ const Page = () => {
               <h5 className="text-xl font-semibold">Dealer List</h5>
               {user?.role === "admin" && (
                 <button
-                  onClick={() => setDealerOpen(true)}
+                  onClick={() => {
+                    setEditDealer(null);
+                    setDealerOpen(true);
+                  }}
                   className="bg-[#092C1C] text-white px-6 py-2 rounded"
                 >
                   Invite New Dealer

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Input, Select } from "../inputFields";
+import { Input } from "../inputFields";
 import { Controller, useForm } from "react-hook-form";
 import { IoClose } from "react-icons/io5";
 import axios from "@/utils/axios";
@@ -7,26 +7,35 @@ import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import { IoIosArrowDown } from "react-icons/io";
 
-function CreateExecutivePopUp({ onClose }) {
+function CreateExecutivePopUp({ onClose, initialData }) {
   const {
     register,
     handleSubmit,
     reset,
     control,
     formState: { errors, touchedFields },
-  } = useForm();
+  } = useForm({
+    defaultValues: initialData || {
+      username: "",
+      email: "",
+      dealerIds: [],
+      password: "",
+    },
+  });
+
   const [loading, setLoading] = useState(false);
   const { company } = useSelector((state) => state.leads);
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const wrapperRef = React.useRef(null);
+  const wrapperRef = useRef(null);
+  const inputRef = useRef(null);
+
   const filteredSealers = (company?.dealers || []).filter((dealer) =>
     dealer.executiveId
-      ? ""
+      ? false
       : dealer.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const inputRef = useRef(null);
   useEffect(() => {
     if (isOpen && inputRef.current) {
       inputRef.current.focus();
@@ -45,26 +54,48 @@ function CreateExecutivePopUp({ onClose }) {
     };
   }, []);
 
+  // When initialData changes (edit mode), reset the form with new values
+  useEffect(() => {
+    if (initialData) {
+      reset({
+        username: initialData.username || "",
+        email: initialData.email || "",
+        dealerIds: initialData.dealerIds || [],
+        password: "", // For security, do not pre-fill password
+      });
+    }
+  }, [initialData, reset]);
+
   const onSubmit = async (executive) => {
+    // If you want to enforce dealer selection uncomment below:
     // if (!executive.dealerIds || executive.dealerIds.length === 0) {
     //   toast.error("Please select at least one dealer.");
     //   return;
     // }
 
-    console.log(executive); // For now
-
     try {
       setLoading(true);
-      const { data } = await axios.post(`/admin/sales-executive`, executive);
+      if (initialData?.id) {
+        // EDIT MODE - PUT or PATCH request to update executive
+        const { data } = await axios.put(
+          `/admin/sales-executive/${initialData.id}`,
+          executive
+        );
+        toast.success(data.message || "Executive updated successfully");
+      } else {
+        // CREATE MODE - POST request to create executive
+        const { data } = await axios.post(`/admin/sales-executive`, executive);
+        toast.success(data.message || "Executive created successfully");
+      }
       setLoading(false);
-      toast.success(data.message);
       reset();
       onClose();
     } catch (error) {
       setLoading(false);
-      console.log(error);
-      toast.error(error.response.data.message);
-      console.error(error.response.data.message);
+      console.error(error);
+      toast.error(
+        error.response?.data?.message || "Something went wrong, please try again"
+      );
     }
   };
 
@@ -85,7 +116,7 @@ function CreateExecutivePopUp({ onClose }) {
         </button>
 
         <h3 className="text-2xl font-semibold mb-4 text-center">
-          Create Executive
+          {initialData ? "Edit Executive" : "Create Executive"}
         </h3>
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -97,9 +128,9 @@ function CreateExecutivePopUp({ onClose }) {
             register={register}
             type={"text"}
             required="Username is required"
-            error={errors.name}
+            error={errors.username}
             placeholder={"Enter Username"}
-            touched={touchedFields.name}
+            touched={touchedFields.username}
           />
           <Input
             label="Email"
@@ -134,8 +165,8 @@ function CreateExecutivePopUp({ onClose }) {
                     </div>
 
                     {!isOpen && field.value?.length > 0 && (
-                      <div className="overflow-hidden sm:absolute top-full left-0 right-0 bg-white border b border-gray-300 rounded-md shadow-md z-10 mt-1">
-                        <div className="flex overflow-x-auto custom-scroller4 whitespace-nowrap py-2  gap-1 ">
+                      <div className="overflow-hidden sm:absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-md shadow-md z-10 mt-1">
+                        <div className="flex overflow-x-auto custom-scroller4 whitespace-nowrap py-2 gap-1">
                           {(field.value || []).map((id) => {
                             const dealer = company?.dealers?.find(
                               (d) => d.id === id
@@ -244,9 +275,10 @@ function CreateExecutivePopUp({ onClose }) {
             name="password"
             register={register}
             type="password"
-            required="Password is required"
+            // In edit mode, password is optional
+            required={initialData ? false : "Password is required"}
             error={errors.password}
-            placeholder={"Enter password"}
+            placeholder={initialData ? "Leave blank to keep unchanged" : "Enter password"}
             touched={touchedFields.password}
           />
 
@@ -281,7 +313,7 @@ function CreateExecutivePopUp({ onClose }) {
                 type="submit"
                 className="bg-[#092C1C] text-white px-6 py-2 rounded cursor-pointer"
               >
-                Create
+                {initialData ? "Update" : "Create"}
               </button>
             )}
           </div>

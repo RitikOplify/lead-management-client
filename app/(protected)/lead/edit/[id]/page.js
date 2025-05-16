@@ -1,18 +1,10 @@
 "use client";
-import React, { useState } from "react";
-import Nav from "@/components/Nav";
+import React, { use, useState } from "react";
+import CreateLead from "@/components/leads/createLead";
 
-const Page = () => {
-  const [navOpen, setNavOpen] = useState(false);
-
-  return (
-    <div className="flex h-screen">
-      <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
-      <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
-        <p>Edit Here!</p>
-      </div>
-    </div>
-  );
+const Page = ({ params }) => {
+  const { id } = use(params);
+  return <CreateLead leadId={id} />;
 };
 
 export default Page;

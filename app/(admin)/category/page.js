@@ -9,19 +9,19 @@ import CreateSubcategoryForm from "@/components/popups/CreateSubCategory";
 const Page = () => {
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [subCategoryOpen, setSubCategoryOpen] = useState(false);
+  const [categoryToEdit, setCategoryToEdit] = useState(null);
+  const [subCategoryToEdit, setSubCategoryToEdit] = useState(null);
   const [navOpen, setNavOpen] = useState(false);
   const [expandedCategoryId, setExpandedCategoryId] = useState(null);
-  const { company, categories } = useSelector((state) => state.leads);
+  const { categories } = useSelector((state) => state.leads);
 
   const toggleSubcategories = (categoryId) => {
-    setExpandedCategoryId(
-      expandedCategoryId === categoryId ? null : categoryId
-    );
+    setExpandedCategoryId(expandedCategoryId === categoryId ? null : categoryId);
   };
 
-  const handleEditCategory = (id) => {
-    console.log("Edit Category:", id);
-    // TODO: open edit modal or navigate to edit page
+  const handleEditCategory = (category) => {
+    setCategoryToEdit(category);
+    setCategoryOpen(true);
   };
 
   const handleDeleteCategory = (id) => {
@@ -29,9 +29,9 @@ const Page = () => {
     // TODO: confirm and call delete API
   };
 
-  const handleEditSubCategory = (id) => {
-    console.log("Edit SubCategory:", id);
-    // TODO: open edit modal or navigate
+  const handleEditSubCategory = (subCategory) => {
+    setSubCategoryToEdit(subCategory);
+    setSubCategoryOpen(true);
   };
 
   const handleDeleteSubCategory = (id) => {
@@ -39,14 +39,32 @@ const Page = () => {
     // TODO: confirm and call delete API
   };
 
+  const handleCloseCategoryForm = () => {
+    setCategoryOpen(false);
+    setCategoryToEdit(null);
+  };
+
+  const handleCloseSubCategoryForm = () => {
+    setSubCategoryOpen(false);
+    setSubCategoryToEdit(null);
+  };
+
   return (
     <div className="flex h-screen">
       <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
+
       {categoryOpen && (
-        <CreateCategoryForm onCategoryClose={() => setCategoryOpen(false)} />
+        <CreateCategoryForm
+          onClose={handleCloseCategoryForm}
+          categoryToEdit={categoryToEdit}
+        />
       )}
+
       {subCategoryOpen && (
-        <CreateSubcategoryForm onClose={() => setSubCategoryOpen(false)} />
+        <CreateSubcategoryForm
+          onClose={handleCloseSubCategoryForm}
+          subCategoryToEdit={subCategoryToEdit}
+        />
       )}
 
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
@@ -62,13 +80,19 @@ const Page = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <button
             className="bg-[#092C1C] text-white px-6 py-2 rounded"
-            onClick={() => setCategoryOpen(true)}
+            onClick={() => {
+              setCategoryToEdit(null);
+              setCategoryOpen(true);
+            }}
           >
             Create Category
           </button>
           <button
             className="bg-[#092C1C] text-white px-6 py-2 rounded"
-            onClick={() => setSubCategoryOpen(true)}
+            onClick={() => {
+              setSubCategoryToEdit(null);
+              setSubCategoryOpen(true);
+            }}
           >
             Create Sub Category
           </button>
@@ -86,7 +110,7 @@ const Page = () => {
                     <h2 className="text-lg font-semibold">{cat.name}</h2>
                     <div className="space-x-2">
                       <button
-                        onClick={() => handleEditCategory(cat.id)}
+                        onClick={() => handleEditCategory(cat)}
                         className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
                       >
                         Edit
@@ -119,15 +143,13 @@ const Page = () => {
                             <span>{subCat.name}</span>
                             <div className="space-x-2">
                               <button
-                                onClick={() => handleEditSubCategory(subCat.id)}
+                                onClick={() => handleEditSubCategory(subCat)}
                                 className="px-2 py-1 bg-blue-500 text-white rounded text-sm"
                               >
                                 Edit
                               </button>
                               <button
-                                onClick={() =>
-                                  handleDeleteSubCategory(subCat.id)
-                                }
+                                onClick={() => handleDeleteSubCategory(subCat.id)}
                                 className="px-2 py-1 bg-red-500 text-white rounded text-sm"
                               >
                                 Delete
@@ -136,9 +158,7 @@ const Page = () => {
                           </div>
                         ))
                       ) : (
-                        <p className="text-sm text-gray-500">
-                          No Subcategories Found
-                        </p>
+                        <p className="text-sm text-gray-500">No Subcategories Found</p>
                       )}
                     </div>
                   )}

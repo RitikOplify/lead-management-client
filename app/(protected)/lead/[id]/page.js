@@ -5,6 +5,7 @@ import axios from "@/utils/axios";
 import { toast } from "react-toastify";
 import Loader from "@/components/loader";
 import { useSelector } from "react-redux";
+import Link from "next/link";
 
 function Page({ params }) {
   const { id } = use(params);
@@ -41,7 +42,20 @@ function Page({ params }) {
         ) : lead ? (
           <div className="bg-white">
             <div>
-              <h2 className="text-2xl font-semibold mb-2">Lead Details</h2>
+              <div className=" flex justify-between mb-2">
+                <h2 className="text-2xl font-semibold ">Lead Details</h2>
+                <div className=" flex gap-4">
+                  <Link
+                    href={`/new-visit?leadId=${lead.id}`}
+                    className="bg-[#092C1C] text-white px-3 py-2 rounded cursor-pointer flex items-center"
+                  >
+                    Add Visit
+                  </Link>
+                  <h3 className="bg-[#092C1C] text-white px-3 py-2 rounded cursor-pointer flex items-center">
+                    Add Followup
+                  </h3>
+                </div>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-4">
                 <p>
                   <span className="font-medium">Name:</span> {lead.name}

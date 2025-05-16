@@ -1,13 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Nav from "@/components/Nav";
 import { Input, Select } from "@/components/inputFields";
 import { useForm } from "react-hook-form";
-import Link from "next/link";
 import { IoIosArrowDown } from "react-icons/io";
 import axios from "@/utils/axios";
 import { toast } from "react-toastify";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { addNewVisit } from "@/store/slices/leads";
 
@@ -20,39 +19,83 @@ const Page = () => {
   const router = useRouter();
   const { executives } = useSelector((state) => state.leads);
   const { user } = useSelector((state) => state.auth);
+  const searchParams = useSearchParams();
+  const [lead, setLead] = useState(null);
+  const leadId = searchParams.get("leadId");
 
   const handleSelect = (value) => {
     setSelected(value);
     setIsOpen(false);
   };
+
   const {
     register,
     handleSubmit,
     control,
     reset,
     formState: { errors, touchedFields },
-    watch,
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      customerName: "",
+      companyName: "",
+      executiveId: "",
+    },
+  });
 
   const onSubmit = async (visit) => {
-    const visitData = { ...visit, action: selected };
+    if (selected === "Select Action") {
+      toast.error("Please select an action.");
+      return;
+    }
+
+    const visitData = { ...visit, action: selected, leadId };
+
     try {
       setLoading(true);
       const { data } = await axios.post(`/visit/create`, visitData);
       dispatch(addNewVisit(data.visit));
-      if (data.visit.action == "Convert to new lead") {
+      if (data.visit.action === "Convert to new lead") {
         router.push(`/new-lead?visitId=${data.visit.id}`);
       }
-      setLoading(false);
       toast.success(data.message);
       reset();
     } catch (error) {
-      setLoading(false);
       console.log(error);
-      toast.error(error.response.data.message);
-      console.error(error.response.data.message);
+      toast.error(error?.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (lead) {
+      reset({
+        customerName: lead.name || "",
+        companyName: lead.companyName || "",
+        executiveId: lead.executiveId || "",
+        purpose: "",
+      });
+    }
+  }, [lead, reset]);
+
+  useEffect(() => {
+    const fetchLeadDetails = async () => {
+      try {
+        setLoading(true);
+        const { data } = await axios.get(`/lead/${leadId}`);
+        setLead(data.lead);
+      } catch (error) {
+        console.error("Error fetching lead details:", error);
+        toast.error(error?.response?.data?.message || "Failed to fetch lead");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (leadId) {
+      fetchLeadDetails();
+    }
+  }, [leadId]);
 
   return (
     <div className="flex h-screen">
@@ -60,15 +103,15 @@ const Page = () => {
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
         <h1 className="text-xl font-bold mb-4">Add Visit</h1>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <div className=" w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
               label="Customer Name *"
               name="customerName"
               register={register}
-              type={"text"}
+              type="text"
               required="Customer is required"
               error={errors.customerName}
-              placeholder={"Enter Customer name"}
+              placeholder="Enter Customer name"
               touched={touchedFields.customerName}
             />
             <Input
@@ -78,23 +121,20 @@ const Page = () => {
               type="text"
               required="Company Name is required"
               error={errors.companyName}
-              placeholder={"Enter Company name"}
+              placeholder="Enter Company name"
               touched={touchedFields.companyName}
             />
             <Select
               label="Purpose of Visit *"
               name="purpose"
-              placeholder="purpose"
+              placeholder="Purpose"
               register={register}
               options={[
                 { value: "general", label: "General" },
                 { value: "followup", label: "Followup" },
                 { value: "promotion", label: "Promotion" },
                 { value: "awareness", label: "Awareness" },
-              ].map((e) => ({
-                value: e.value,
-                label: e.label,
-              }))}
+              ]}
               touched={touchedFields.purpose}
               error={errors.purpose}
             />
@@ -125,16 +165,15 @@ const Page = () => {
               label="Remarks"
               name="remarks"
               register={register}
-              type={"text"}
-              placeholder={"Enter remarks"}
+              type="text"
+              placeholder="Enter remarks"
             />
-
             <div className="flex flex-col relative">
               <label className="text-sm mb-1">Select Action</label>
               <div className="relative">
                 <div
                   onClick={() => setIsOpen(!isOpen)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-left"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-left cursor-pointer"
                 >
                   {selected}
                 </div>
@@ -145,13 +184,17 @@ const Page = () => {
 
               {isOpen && (
                 <div className="absolute top-full left-0 right-0 mt-1 border border-gray-300 rounded-lg bg-white shadow-md z-10">
+                  {!lead && (
+                    <button
+                      type="button"
+                      className="block px-3 py-2 w-full text-start hover:bg-gray-100 border-b border-gray-300 cursor-pointer"
+                      onClick={() => handleSelect("Convert to new lead")}
+                    >
+                      Convert to new lead
+                    </button>
+                  )}
                   <button
-                    className="block px-3 py-2 w-full text-start hover:bg-gray-100 border-b border-gray-300 cursor-pointer"
-                    onClick={() => handleSelect("Convert to new lead")}
-                  >
-                    Convert to new lead
-                  </button>
-                  <button
+                    type="button"
                     className="w-full text-left px-3 py-2 hover:bg-gray-100 cursor-pointer"
                     onClick={() => handleSelect("NA")}
                   >

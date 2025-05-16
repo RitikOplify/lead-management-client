@@ -1,9 +1,8 @@
 "use client";
-import axios from "@/utils/axios";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Nav from "@/components/Nav";
 import Link from "next/link";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { asyncAddVisits } from "@/store/actions/leads";
 
 const Page = () => {
@@ -14,8 +13,8 @@ const Page = () => {
     <div className="flex h-screen">
       <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
-        <h1>Vists</h1>
-        <div className="overflow-x-auto custom-scroller">
+        <h1 className="text-xl font-semibold">Vists</h1>
+        <div className="overflow-x-auto custom-scroller shadow-md rounded-lg">
           {visits.length > 0 ? (
             <table className="w-full min-w-[1136px] whitespace-nowrap divide-y divide-gray-200">
               <thead className="bg-gray-50">
@@ -55,7 +54,7 @@ const Page = () => {
                           View Lead
                         </Link>
                       ) : (
-                        <span className="text-red-500">No Lead</span>
+                        <Link href={`/new-lead?visitId=${visit.id}`} className="text-yellow-500">Add Lead</Link>
                       )}
                     </td>
                   </tr>

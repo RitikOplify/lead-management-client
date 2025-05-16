@@ -20,7 +20,7 @@ import {
   asyncGetDealers,
   asyncGetExecutives,
 } from "@/store/actions/admin";
-const CreateLead = () => {
+const CreateLead = ({ leadId }) => {
   const {
     register,
     handleSubmit,
@@ -32,6 +32,17 @@ const CreateLead = () => {
     defaultValues: {
       name: "",
       companyName: "",
+      email: "",
+      contact: "",
+      enquiryType: "",
+      source: "",
+      city: "",
+      state: "",
+      price: "",
+      comments: "",
+      products: [],
+      executiveId: "",
+      dealerId: "",
     },
   });
   const searchParams = useSearchParams();
@@ -47,7 +58,7 @@ const CreateLead = () => {
   const dispatch = useDispatch();
   const { products, executives, dealers } = useSelector((state) => state.leads);
   const { user, currentCompany } = useSelector((state) => state.auth);
-
+  const isEditMode = Boolean(leadId);
   console.log(dealers);
 
   useEffect(() => {
@@ -94,7 +105,17 @@ const CreateLead = () => {
     console.log(data);
     const leadData = { ...data, visitId, companyId: currentCompany.id };
     setLoading(true);
-    await dispatch(asyncCreateLeads(leadData));
+    if (isEditMode) {
+      try {
+        const { data } = await axios.put(`/lead/${leadId}`, leadData);
+        console.log(data.lead);
+      } catch (error) {
+        console.log(error.response.data.message);
+      }
+    } else {
+      await dispatch(asyncCreateLeads(leadData));
+    }
+
     // reset();
     setLoading(false);
   };
@@ -163,6 +184,37 @@ const CreateLead = () => {
     return () => clearTimeout(debounceTimeout.current);
   }, [query]);
 
+  useEffect(() => {
+    if (isEditMode) {
+      const getLeadDetails = async () => {
+        try {
+          const { data } = await axios.get(`/lead/${leadId}`);
+          // setVisitDetails(data.visit);
+          const products = data.lead.products.map((product) => product.id);
+          reset({
+            name: data.lead.name || "",
+            companyName: data.lead.companyName || "",
+            email: data.lead.email || "",
+            contact: data.lead.contact || "",
+            enquiryType: data.lead.enquiryType || "",
+            source: data.lead.source || "",
+            city: data.lead.city || "",
+            state: data.lead.state || "",
+            price: data.lead.price || "",
+            comments: data.lead.comments || "",
+            products: products || [],
+            executiveId: data.lead.executiveId || "",
+            dealerId: data.lead.dealerId || "",
+          });
+          console.log(data.lead.products);
+        } catch (error) {
+          toast.error(error?.response?.data?.message);
+        }
+      };
+      getLeadDetails();
+    }
+  }, [isEditMode, leadId, reset]);
+
   return (
     <div className="flex h-screen">
       <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
@@ -191,7 +243,9 @@ const CreateLead = () => {
           />
         </div>
 
-        <h2 className="text-2xl font-bold mb-10">Add Lead</h2>
+        <h2 className="text-2xl font-bold mb-10">
+          {isEditMode ? "Edit Lead" : "Add Lead"}
+        </h2>
 
         <div className=" w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <Select
@@ -506,9 +560,9 @@ const CreateLead = () => {
           ) : (
             <button
               type="submit"
-              className="bg-[#092C1C] text-white px-6 py-2 rounded cursor-pointer"
+              className="px-6 py-2 rounded-lg bg-green-950 text-white font-semibold hover:bg-green-800 transition"
             >
-              Create
+              {isEditMode ? "Update Lead" : "Create Lead"}
             </button>
           )}
         </div>
