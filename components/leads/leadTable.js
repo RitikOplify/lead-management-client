@@ -10,6 +10,7 @@ import CreateFollowUp from "../popups/createFollowUp";
 import Link from "next/link";
 import ViewProduct from "../popups/ViewProduct";
 import ReassignExecutive from "../popups/ReassignExecutive";
+import EditLead from "../popups/EditLeadPopUp";
 const LeadDataTable = () => {
   const [open, setOpen] = useState(false);
   const [productOpen, setProductOpen] = useState(false);
@@ -17,7 +18,10 @@ const LeadDataTable = () => {
   const [leadId, setLeadId] = useState(null);
   const { user } = useSelector((state) => state.auth);
   const [assignOpen, setAssignOpen] = useState(false);
-  const { company ,leads} = useSelector((state) => state.leads);
+  const [editLead, setEditLead] = useState(false);
+  const [editLeadId, setEditLeadId] = useState(false);
+
+  const { company, leads } = useSelector((state) => state.leads);
   const followUpClick = (leadId) => {
     setLeadId(leadId);
     if (!leadId) return;
@@ -49,6 +53,17 @@ const LeadDataTable = () => {
           leadId={leadId}
         />
       )}
+
+      {editLead && (
+        <EditLead
+          onClose={() => {
+            setEditLead(false);
+            setEditLeadId("");
+          }}
+          leadId={editLeadId}
+        />
+      )}
+
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6">
         <div className="flex justify-between items-center mb-4">
           <div>
@@ -120,7 +135,9 @@ const LeadDataTable = () => {
                   {leads?.map((lead, index) => (
                     <tr
                       key={index}
-                      className={`${
+                      className={` ${
+                        editLeadId === lead.id && "bg-green-200!"
+                      } ${
                         lead.nextFollowUpDate
                           ? (() => {
                               const nextDate = new Date(lead.nextFollowUpDate);
@@ -173,9 +190,15 @@ const LeadDataTable = () => {
                       </td>
 
                       <td className="p-4 flex items-center space-x-4">
-                        <Link href={`/lead/edit/${lead.id}`}>
+                        <div
+                          // href={`/lead/edit/${lead.id}`}
+                          onClick={() => {
+                            setEditLead(true);
+                            setEditLeadId(lead.id);
+                          }}
+                        >
                           <FaEdit size={20} />
-                        </Link>
+                        </div>
                         <Link href={`/lead/${lead.id}`}>
                           <FaEye size={20} />
                         </Link>

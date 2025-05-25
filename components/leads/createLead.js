@@ -9,7 +9,7 @@ import {
   asyncCreateLeads,
   asyncGetAllLeads,
 } from "@/store/actions/leads";
-import { Input, Select } from "../inputFields";
+import { CustomSelectInput, Input, Select } from "../inputFields";
 import { IoClose } from "react-icons/io5";
 import { IoIosArrowDown } from "react-icons/io";
 import { useSearchParams } from "next/navigation";
@@ -20,6 +20,7 @@ import {
   asyncGetDealers,
   asyncGetExecutives,
 } from "@/store/actions/admin";
+import CreateLeadForm from "./CreateLeadForm";
 const CreateLead = ({ leadId }) => {
   const {
     register,
@@ -218,8 +219,9 @@ const CreateLead = ({ leadId }) => {
   return (
     <div className="flex h-screen">
       <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
+      <CreateLeadForm leadId={leadId} />
 
-      <form
+      {/* <form
         onSubmit={handleSubmit(onSubmit)}
         className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto custom-scroller2"
       >
@@ -305,14 +307,19 @@ const CreateLead = ({ leadId }) => {
             placeholder={"Enter company name"}
             touched={touchedFields.companyName}
           />
-          <Input
+
+          <CustomSelectInput
             label="Source"
             name="source"
             register={register}
-            error={errors.source}
-            placeholder={"Enter source"}
-            touched={touchedFields.source}
-            type={"text"}
+            placeholder="Select or type"
+            options={[
+              { value: "Visit" },
+              { value: "Email" },
+              { value: "Call" },
+              { value: "Web" },
+              { value: "Show" },
+            ]}
           />
           <Input
             label="City *"
@@ -566,7 +573,7 @@ const CreateLead = ({ leadId }) => {
             </button>
           )}
         </div>
-      </form>
+      </form> */}
     </div>
   );
 };

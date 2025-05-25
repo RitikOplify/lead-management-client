@@ -54,7 +54,12 @@ const Page = () => {
                           View Lead
                         </Link>
                       ) : (
-                        <Link href={`/new-lead?visitId=${visit.id}`} className="text-yellow-500">Add Lead</Link>
+                        <Link
+                          href={`/new-lead?visitId=${visit.id}`}
+                          className="text-yellow-500"
+                        >
+                          Create Lead
+                        </Link>
                       )}
                     </td>
                   </tr>

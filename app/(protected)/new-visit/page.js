@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Nav from "@/components/Nav";
-import { Input, Select } from "@/components/inputFields";
+import { CustomSelectInput, Input, Select } from "@/components/inputFields";
 import { useForm } from "react-hook-form";
 import { IoIosArrowDown } from "react-icons/io";
 import axios from "@/utils/axios";
@@ -31,7 +31,6 @@ const Page = () => {
   const {
     register,
     handleSubmit,
-    control,
     reset,
     formState: { errors, touchedFields },
   } = useForm({
@@ -124,7 +123,7 @@ const Page = () => {
               placeholder="Enter Company name"
               touched={touchedFields.companyName}
             />
-            <Select
+            {/* <Select
               label="Purpose of Visit *"
               name="purpose"
               placeholder="Purpose"
@@ -134,6 +133,21 @@ const Page = () => {
                 { value: "followup", label: "Followup" },
                 { value: "promotion", label: "Promotion" },
                 { value: "awareness", label: "Awareness" },
+              ]}
+              touched={touchedFields.purpose}
+              error={errors.purpose}
+            /> */}
+            <CustomSelectInput
+              label="Purpose of Visit *"
+              name="purpose"
+              register={register}
+              required={"Purpose is required"}
+              placeholder="Select or type"
+              options={[
+                { value: "General" },
+                { value: "Followup" },
+                { value: "Promotion" },
+                { value: "Awareness" },
               ]}
               touched={touchedFields.purpose}
               error={errors.purpose}
@@ -153,6 +167,7 @@ const Page = () => {
                 label="Executive"
                 name="executiveId"
                 register={register}
+                required={"Executive is required"}
                 options={(executives || []).map((e) => ({
                   value: e.id,
                   label: e.email,

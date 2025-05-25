@@ -76,7 +76,8 @@ function Page({ params }) {
                   <span className="font-medium">Status:</span> {lead.status}
                 </p>
                 <p>
-                  <span className="font-medium">Stage:</span> {lead.stage}
+                  <span className="font-medium">Final Status:</span>{" "}
+                  {lead.finalStatus || "NA"}
                 </p>
                 <p>
                   <span className="font-medium">Source:</span> {lead.source}
@@ -112,30 +113,32 @@ function Page({ params }) {
                   </p>
                   <p>
                     <span className="font-medium">Subcategory ID:</span>{" "}
-                    {product.subcategory?.name}
+                    {product.subcategory?.name || "NA"}
                   </p>
                 </div>
               ))}
             </div>
 
-            <div className="mt-6">
-              <h3 className="text-lg font-medium mb-2 ">Visits Info</h3>
-              {lead.visits?.map((visit) => (
-                <div
-                  key={visit.id}
-                  className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-4"
-                >
-                  <p>
-                    <span className="font-medium">Visit Date:</span>{" "}
-                    {new Date(visit.visitDate).toLocaleDateString()}
-                  </p>
-                  <p>
-                    <span className="font-medium">Purpose:</span>{" "}
-                    {visit.purpose}
-                  </p>
-                </div>
-              ))}
-            </div>
+            {lead.visits && lead.visits.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-lg font-medium mb-2 ">Visits Info</h3>
+                {lead.visits?.map((visit) => (
+                  <div
+                    key={visit.id}
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-4"
+                  >
+                    <p>
+                      <span className="font-medium">Visit Date:</span>{" "}
+                      {new Date(visit.visitDate).toLocaleDateString()}
+                    </p>
+                    <p>
+                      <span className="font-medium">Purpose:</span>{" "}
+                      {visit.purpose}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {lead.followUps && lead.followUps.length > 0 && (
               <div className="mt-6">

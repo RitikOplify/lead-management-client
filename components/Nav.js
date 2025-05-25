@@ -121,7 +121,12 @@ function Nav({ navOpen, setNavOpen }) {
               >
                 <FaPlusCircle /> New Visit
               </Link>
-
+              <Link
+                href="/visits"
+                className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
+              >
+                <FaCalendarCheck /> All Visits
+              </Link>
               <Link
                 href="/customer"
                 className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
@@ -130,17 +135,10 @@ function Nav({ navOpen, setNavOpen }) {
               </Link>
 
               <Link
-                href="/visits"
-                className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-              >
-                <FaCalendarCheck /> All Visits
-              </Link>
-
-              <Link
                 href="/dealer-sales-lead"
                 className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
               >
-                <FaBuilding /> Dealer Sales Lead
+                <FaBuilding /> Partner{"'"}s Sales Lead
               </Link>
             </>
           )}
@@ -171,19 +169,17 @@ function Nav({ navOpen, setNavOpen }) {
               >
                 <FaUsers /> Users
               </Link>
-
-              <Link
-                href="/category"
-                className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-              >
-                <MdCategory /> Category
-              </Link>
-
               <Link
                 href="/product"
                 className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
               >
                 <FaBoxOpen /> Products
+              </Link>
+              <Link
+                href="/category"
+                className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
+              >
+                <MdCategory /> Category
               </Link>
             </>
           )}

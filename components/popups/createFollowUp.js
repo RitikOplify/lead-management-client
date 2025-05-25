@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { CustomSelectInput, Input, Select } from "../inputFields";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { IoClose } from "react-icons/io5";
 import axios from "@/utils/axios";
 import { toast } from "react-toastify";
@@ -11,10 +11,15 @@ function CreateFollowUp({ onClose, id }) {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, touchedFields },
   } = useForm();
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
+  const currentStatus = useWatch({ control, name: "status" });
+  const nextFollowUpStep = useWatch({ control, name: "nextFollowUpStep" });
+  const nextFollowUpDate = useWatch({ control, name: "nextFollowUpDate" });
+
   const onSubmit = async (data) => {
     const followUpData = { ...data, leadId: id };
     try {
@@ -62,37 +67,64 @@ function CreateFollowUp({ onClose, id }) {
             required="Status is required"
             options={[
               { value: "NEW" },
-              { value: "IN_PROGRESS" },
+              { value: "FOLLOW_UP" },
+              { value: "OPEN" },
+              { value: "TECHNICAL_DISCUSSION" },
+              { value: "QUOATION" },
+              { value: "NEGOTIATION" },
               { value: "CLOSED" },
             ]}
             touched={touchedFields.status}
             error={errors?.status}
           />
 
-          <CustomSelectInput
-            label="Next Follow Up Step"
-            name="nextFollowUpStep"
-            register={register}
-            options={[
-              { value: "NEGOTIATION" },
-              { value: "CALL" },
-              { value: "VISIT" },
-              { value: "MAIL" },
-            ]}
-            touched={touchedFields.nextFollowUpStep}
-            error={errors?.nextFollowUpStep}
-          />
+          {currentStatus === "CLOSED" && (
+            <Select
+              label="Final Status"
+              name="finalStatus"
+              register={register}
+              required={"Final status is required"}
+              options={([{ name: "CONVERTED" }, { name: "LOST" }] || []).map(
+                (e) => ({
+                  value: e.name,
+                  label: e.name,
+                })
+              )}
+              touched={touchedFields.finalStatus}
+              error={errors.finalStatus}
+            />
+          )}
 
-          <Input
-            label="Next Follow Up Date"
-            name="nextFollowUpDate"
-            register={register}
-            type="date"
-            placeholder="DD/MM/YYYY"
-            required="Date is required"
-            touched={touchedFields.nextFollowUpDate}
-            error={errors?.followUp?.nextFollowUpDate}
-          />
+          {currentStatus !== "CLOSED" && (
+            <>
+              <CustomSelectInput
+                label="Next Follow Up Step"
+                name="nextFollowUpStep"
+                register={register}
+                options={[
+                  { value: "NEGOTIATION" },
+                  { value: "CALL" },
+                  { value: "VISIT" },
+                  { value: "MAIL" },
+                ]}
+                touched={touchedFields.nextFollowUpStep}
+                error={errors?.nextFollowUpStep}
+              />
+
+              {nextFollowUpStep && (
+                <Input
+                  label="Next Follow Up Date"
+                  name="nextFollowUpDate"
+                  register={register}
+                  type="date"
+                  placeholder="DD/MM/YYYY"
+                  required="Date is required"
+                  touched={touchedFields.nextFollowUpDate}
+                  error={errors?.followUp?.nextFollowUpDate}
+                />
+              )}
+            </>
+          )}
 
           <div className="flex flex-col">
             <label className="text-sm mb-1">Additional comments</label>

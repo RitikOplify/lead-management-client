@@ -65,7 +65,6 @@ function Input({
   );
 }
 
-
 const CustomSelectInput = ({
   label,
   name,
@@ -73,7 +72,6 @@ const CustomSelectInput = ({
   required,
   options = [],
   placeholder = "Select or type",
-  touched,
   error,
 }) => {
   return (

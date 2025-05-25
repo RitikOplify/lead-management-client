@@ -92,13 +92,13 @@ const Page = () => {
   const closeExecutivePopup = () => {
     setOpen(false);
     setEditExecutive(null);
-    reloadData();
+    // reloadData();
   };
 
   const closeDealerPopup = () => {
     setDealerOpen(false);
     setEditDealer(null);
-    reloadData();
+    // reloadData();
   };
 
   return (
