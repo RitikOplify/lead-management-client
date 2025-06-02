@@ -44,7 +44,7 @@ export const asyncGetAllLeads =
       );
     } catch (error) {
       console.error(error.response?.data?.message);
-      toast.error(error.response?.data?.message || "Failed to fetch leads");
+      // toast.error(error.response?.data?.message || "Failed to fetch leads");
     }
   };
 
