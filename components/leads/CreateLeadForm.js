@@ -21,6 +21,8 @@ import {
   asyncGetExecutives,
 } from "@/store/actions/admin";
 import SearchLeadTable from "../popups/SearchLeadTable";
+import CreatableSelectInput from "../CustomSelect";
+import CustomSelect from "../CustomCreatableSelectInner";
 function CreateLeadForm({ leadId, onClose }) {
   const {
     register,
@@ -63,7 +65,9 @@ function CreateLeadForm({ leadId, onClose }) {
   const [allProducts, setAllProducts] = useState([]);
 
   const dispatch = useDispatch();
-  const { products, executives, dealers } = useSelector((state) => state.leads);
+  const { products, executives, dealers, categories } = useSelector(
+    (state) => state.leads
+  );
   const { user, currentCompany } = useSelector((state) => state.auth);
   const isEditMode = Boolean(leadId);
   console.log(dealers);
@@ -115,6 +119,7 @@ function CreateLeadForm({ leadId, onClose }) {
 
   const onSubmit = async (data) => {
     console.log(data);
+
     const leadData = { ...data, visitId, companyId: currentCompany.id };
     setLoading(true);
     if (isEditMode) {
@@ -132,7 +137,9 @@ function CreateLeadForm({ leadId, onClose }) {
     // reset();
     setLoading(false);
   };
+
   const [navOpen, setNavOpen] = useState(false);
+
   const [isProductOpen, setProductOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -277,6 +284,8 @@ function CreateLeadForm({ leadId, onClose }) {
 
   return (
     <>
+      <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
+
       <form
         onSubmit={handleSubmit(onSubmit)}
         className={`p-6 w-full ${
@@ -337,18 +346,17 @@ function CreateLeadForm({ leadId, onClose }) {
             name="enquiryPersonName"
             register={register}
             type="text"
-            required="Name is required"
-            error={errors.name}
+            required="Enquiry Person Name is required"
+            error={errors.enquiryPersonName}
             placeholder="Enter name"
             touched={touchedFields.enquiryPersonName}
           />
 
           <Input
-            label="Email *"
+            label="Email"
             name="customerEmail"
             register={register}
             type="email"
-            required="Email is required"
             error={errors.customerEmail}
             placeholder={"Enter email"}
             touched={touchedFields.customerEmail}
@@ -438,19 +446,13 @@ function CreateLeadForm({ leadId, onClose }) {
         </div>
 
         <div className="border-t pt-6 w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="flex justify-between flex-col items-center">
+          {/* <div className="flex justify-between flex-col items-center">
             <Controller
               name="products"
               control={control}
-              rules={{
-                validate: (value) =>
-                  (value && value.length > 0) ||
-                  "Please select at least one product",
-              }}
               render={({ field }) => (
                 <div className="w-full relative" ref={productRef}>
-                  <p className="mb-1 text-sm">Select Product *</p>
-
+                  <p className="mb-1 text-sm">Select Product</p>
                   <div>
                     <div
                       onClick={() => setProductOpen(!isProductOpen)}
@@ -565,19 +567,42 @@ function CreateLeadForm({ leadId, onClose }) {
                 </div>
               )}
             />
-          </div>
+          </div> */}
+
+          <CustomSelect
+            control={control}
+            name="products"
+            label="Select Products"
+            options={
+              products?.map((product) => ({
+                label: product.name,
+                value: product.id,
+              })) || []
+            }
+            isMulti
+            placeholder="Select Products"
+          />
+          <CustomSelect
+            control={control}
+            name="categories"
+            label="Select Categories"
+            options={
+              categories?.map((cat) => ({ label: cat.name, value: cat.id })) ||
+              []
+            }
+            isMulti
+            placeholder="Select categories"
+          />
 
           <Input
-            label="Price *"
+            label="Price"
             name="price"
             register={register}
             type="number"
-            required="Price is required"
             error={errors.price}
             placeholder={"Enter price"}
             touched={touchedFields.price}
           />
-
           {user?.role === "admin" && (
             <>
               <Select
@@ -606,7 +631,6 @@ function CreateLeadForm({ leadId, onClose }) {
               />
             </>
           )}
-
           {user?.role === "executive" && (
             <Select
               label="Dealer"
@@ -620,7 +644,6 @@ function CreateLeadForm({ leadId, onClose }) {
               error={errors.dealerId}
             />
           )}
-
           <div className="flex flex-col">
             <label className="text-sm mb-1">Comments</label>
             <textarea

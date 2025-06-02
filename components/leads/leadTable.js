@@ -233,7 +233,7 @@
 
 "use client";
 import React, { useEffect, useState } from "react";
-import { FaEdit, FaEye, FaPlus } from "react-icons/fa";
+import { FaBars, FaEdit, FaEye, FaPlus } from "react-icons/fa";
 import { MdOutlineAccessAlarm } from "react-icons/md";
 import { HiOutlineSwitchVertical } from "react-icons/hi";
 import Link from "next/link";
@@ -295,9 +295,11 @@ const LeadDataTable = () => {
     setPage(page + 1);
   };
 
+  const [navOpen, setNavOpen] = useState(false);
+
   return (
     <div className="flex h-screen mx-auto">
-      <Nav />
+      <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
       {open && <CreateFollowUp onClose={() => setOpen(false)} id={leadId} />}
       {productOpen && (
         <ViewProduct onClose={() => setProductOpen(false)} lead={leadData} />
@@ -319,6 +321,14 @@ const LeadDataTable = () => {
       )}
 
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6">
+        <div className="md:hidden mb-4">
+          <div
+            onClick={() => setNavOpen(true)}
+            className="text-2xl text-[#092C1C] cursor-pointer"
+          >
+            <FaBars />
+          </div>
+        </div>
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Lead Data</h2>
           <Link
@@ -439,11 +449,15 @@ const LeadDataTable = () => {
           <div>
             <div className=" flex justify-end">
               <div className=" p-5">
-                <button className=" cursor-pointer" onClick={handlePrevPage}>Previos</button>
+                <button className=" cursor-pointer" onClick={handlePrevPage}>
+                  Previos
+                </button>
                 <span className="mx-2">
                   Page {page} of {totalLeads}
                 </span>
-                <button className=" cursor-pointer" onClick={handleNextPage}>Next</button>
+                <button className=" cursor-pointer" onClick={handleNextPage}>
+                  Next
+                </button>
               </div>
             </div>
           </div>

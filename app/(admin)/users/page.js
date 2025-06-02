@@ -101,6 +101,16 @@ const Page = () => {
     // reloadData();
   };
 
+  const handleCopyInviteLink = async () => {
+    try {
+      const inviteLink = `https://leadmanagement.transmonk.in/new-dealer/${company?.id}`;
+      await navigator.clipboard.writeText(inviteLink);
+      toast.success("Invite link copied to clipboard!");
+    } catch (err) {
+      toast.error("Failed to copy the invite link.");
+    }
+  };
+
   return (
     <div className="flex h-screen">
       <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
@@ -226,15 +236,12 @@ const Page = () => {
               {user?.role === "admin" && (
                 <div className="flex gap-2">
                   <button
-                    onClick={() => {
-                      setEditDealer(null);
-                      setDealerOpen(true);
-                    }}
-                    className="bg-[#092C1C] text-white px-6 py-2 rounded"
+                    onClick={handleCopyInviteLink}
+                    className="bg-[#092C1C] text-white px-6 py-2 rounded cursor-pointer"
                   >
                     Copy Invite Link
                   </button>
-                  <button
+                  {/* <button
                     onClick={() => {
                       setEditDealer(null);
                       setDealerOpen(true);
@@ -242,7 +249,7 @@ const Page = () => {
                     className="bg-[#092C1C] text-white px-6 py-2 rounded"
                   >
                     Invite New Dealer
-                  </button>
+                  </button> */}
                 </div>
               )}
             </div>

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import Nav from "@/components/Nav";
 import { toast } from "react-toastify";
 import axios from "@/utils/axios";
+import { FaBars } from "react-icons/fa";
 
 const Page = () => {
   const [navOpen, setNavOpen] = useState(false);
@@ -24,6 +25,14 @@ const Page = () => {
     <div className="flex h-screen">
       <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
+        <div className="md:hidden mb-4">
+          <div
+            onClick={() => setNavOpen(true)}
+            className="text-2xl text-[#092C1C] cursor-pointer"
+          >
+            <FaBars />
+          </div>
+        </div>
         <h1 className=" font-bold">Customers</h1>
 
         <div className=" grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

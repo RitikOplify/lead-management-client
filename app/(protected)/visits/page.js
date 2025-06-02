@@ -4,6 +4,7 @@ import Nav from "@/components/Nav";
 import Link from "next/link";
 import { useSelector } from "react-redux";
 import { asyncAddVisits } from "@/store/actions/leads";
+import { FaBars } from "react-icons/fa";
 
 const Page = () => {
   const [navOpen, setNavOpen] = useState(false);
@@ -15,6 +16,14 @@ const Page = () => {
     <div className="flex h-screen">
       <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
+        <div className="md:hidden mb-4">
+          <div
+            onClick={() => setNavOpen(true)}
+            className="text-2xl text-[#092C1C] cursor-pointer"
+          >
+            <FaBars />
+          </div>
+        </div>
         <h1 className="text-xl font-semibold">Vists</h1>
         <div className="overflow-x-auto custom-scroller shadow-md rounded-lg">
           {visits.length > 0 ? (

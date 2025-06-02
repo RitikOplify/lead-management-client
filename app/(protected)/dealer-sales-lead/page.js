@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Nav from "@/components/Nav";
 import axios from "@/utils/axios";
 import Link from "next/link";
-import { FaEdit, FaEye } from "react-icons/fa";
+import { FaBars, FaEdit, FaEye } from "react-icons/fa";
 import { MdOutlineAccessAlarm } from "react-icons/md";
 import CreateFollowUp from "@/components/popups/createFollowUp";
 import { useDispatch, useSelector } from "react-redux";
@@ -30,6 +30,14 @@ const Page = () => {
       {open && <CreateFollowUp onClose={() => setOpen(false)} id={leadId} />}
 
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
+        <div className="md:hidden mb-4">
+          <div
+            onClick={() => setNavOpen(true)}
+            className="text-2xl text-[#092C1C] cursor-pointer"
+          >
+            <FaBars />
+          </div>
+        </div>
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
           <div className="overflow-x-auto custom-scroller">
             {dealerLead.length > 0 ? (

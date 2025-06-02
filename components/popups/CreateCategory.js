@@ -137,6 +137,7 @@ const CreateCategoryForm = ({ onClose, categoryToEdit = null }) => {
         // Update logic
         const { data } = await axios.put(`/admin/category/${categoryToEdit.id}`, formData);
         // dispatch(updateCategory(data.category));
+        onClose();
         toast.success(data.message);
       } else {
         // Create logic
@@ -146,7 +147,7 @@ const CreateCategoryForm = ({ onClose, categoryToEdit = null }) => {
       }
 
       reset();
-      onCategoryClose();
+      onClose();
     } catch (err) {
       toast.error(err.response?.data?.message || "Something went wrong");
     } finally {

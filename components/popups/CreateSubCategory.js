@@ -163,6 +163,7 @@ const CreateSubcategoryForm = ({ onClose, subCategoryToEdit }) => {
           `/admin/subcategory/${subCategoryToEdit.id}`,
           formData
         );
+        onClose(); // Close the modal after update
       } else {
         // Create new subcategory
         response = await axios.post("/admin/subcategory", formData);

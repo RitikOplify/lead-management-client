@@ -7,6 +7,7 @@ import Loader from "@/components/loader";
 import { useSelector } from "react-redux";
 import Link from "next/link";
 import CreateFollowUp from "@/components/popups/createFollowUp";
+import { FaBars } from "react-icons/fa";
 
 function Page({ params }) {
   const { id } = use(params);
@@ -40,13 +41,24 @@ function Page({ params }) {
     setOpen(true);
   };
 
+    const [navOpen, setNavOpen] = useState(false);
+
+
   return (
     <div className="flex h-screen">
-      <Nav />
+      <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
 
       {open && <CreateFollowUp onClose={() => setOpen(false)} id={leadId} />}
 
       <div className="p-6 w-full lg:w-[calc(100%-256px)] overflow-y-auto custom-scroller2">
+        <div className="md:hidden mb-4">
+          <div
+            onClick={() => setNavOpen(true)}
+            className="text-2xl text-[#092C1C] cursor-pointer"
+          >
+            <FaBars />
+          </div>
+        </div>
         {loading ? (
           <div className=" h-screen flex justify-center items-center">
             <Loader />
@@ -75,19 +87,23 @@ function Page({ params }) {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-4">
                 <p>
-                  <span className="font-medium">Name:</span> {lead?.customer?.customerName || "NA"}
+                  <span className="font-medium">Name:</span>{" "}
+                  {lead?.customer?.customerName || "NA"}
                 </p>
                 <p>
-                  <span className="font-medium">Email:</span> {lead.customer?.email}
+                  <span className="font-medium">Email:</span>{" "}
+                  {lead.customer?.email}
                 </p>
                 <p>
-                  <span className="font-medium">Contact:</span> {lead.customer?.contact}
+                  <span className="font-medium">Contact:</span>{" "}
+                  {lead.customer?.contact}
                 </p>
                 <p>
                   <span className="font-medium">City:</span> {lead.city}
                 </p>
                 <p>
-                  <span className="font-medium">State:</span> {lead.state || "NA"}
+                  <span className="font-medium">State:</span>{" "}
+                  {lead.state || "NA"}
                 </p>
                 <p>
                   <span className="font-medium">Status:</span> {lead.status}
@@ -97,14 +113,20 @@ function Page({ params }) {
                   {lead.finalStatus || "NA"}
                 </p>
                 <p>
-                  <span className="font-medium">Source:</span> {lead.source}
+                  <span className="font-medium">Source:</span>{" "}
+                  {lead.source || "NA"}
                 </p>
                 <p>
-                  <span className="font-medium">Price:</span> ₹
-                  {lead.price?.toLocaleString()}
+                  <span className="font-medium">Price: </span>
+                  {`${
+                    lead.price?.toLocaleString()
+                      ? `${lead.price?.toLocaleString()}  ₹`
+                      : "NA"
+                  }`}
                 </p>
                 <p>
-                  <span className="font-medium">Comments:</span> {lead.comments || "NA"}
+                  <span className="font-medium">Comments:</span>{" "}
+                  {lead.comments || "NA"}
                 </p>
               </div>
             </div>
@@ -120,21 +142,26 @@ function Page({ params }) {
                     <span className="font-medium">Product Name:</span>{" "}
                     {product.name}
                   </p>
-                  <p>
-                    <span className="font-medium">Product ID:</span>{" "}
-                    {product.id}
-                  </p>
-                  <p>
-                    <span className="font-medium">Category ID:</span>{" "}
-                    {product.category?.name}
-                  </p>
-                  <p>
-                    <span className="font-medium">Subcategory ID:</span>{" "}
-                    {product.subcategory?.name || "NA"}
-                  </p>
                 </div>
               ))}
             </div>
+
+            {lead.categories?.length > 0 && (
+              <div className="mt-6">
+                <h3 className="text-lg font-medium mb-2 ">Categories</h3>
+                {lead.categories?.map((cat) => (
+                  <div
+                    key={cat.id}
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-4"
+                  >
+                    <p>
+                      <span className="font-medium">Category Name:</span>{" "}
+                      {cat.name}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
 
             {lead.visits && lead.visits.length > 0 && (
               <div className="mt-6">
@@ -198,7 +225,7 @@ function Page({ params }) {
                             {followUp.message || "No message"}
                           </td>
                           <td className="p-4 text-sm text-gray-700">
-                            {followUp.nextFollowUpStep}
+                            {followUp.nextFollowUpStep || "NA"}
                           </td>
                           <td className="p-4 text-sm text-gray-700">
                             {new Date(

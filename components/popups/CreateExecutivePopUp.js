@@ -81,6 +81,7 @@ function CreateExecutivePopUp({ onClose, initialData }) {
           `/admin/sales-executive/${initialData.id}`,
           executive
         );
+        onClose();
         toast.success(data.message || "Executive updated successfully");
       } else {
         // CREATE MODE - POST request to create executive

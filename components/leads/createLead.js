@@ -218,7 +218,6 @@ const CreateLead = ({ leadId }) => {
 
   return (
     <div className="flex h-screen">
-      <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
       <CreateLeadForm />
     </div>
   );
