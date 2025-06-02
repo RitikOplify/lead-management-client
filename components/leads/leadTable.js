@@ -446,21 +446,23 @@ const LeadDataTable = () => {
               </div>
             )}
           </div>
-          <div>
-            <div className=" flex justify-end">
-              <div className=" p-5">
-                <button className=" cursor-pointer" onClick={handlePrevPage}>
-                  Previous
-                </button>
-                <span className="mx-2">
-                  Page {page} of {totalLeads}
-                </span>
-                <button className=" cursor-pointer" onClick={handleNextPage}>
-                  Next
-                </button>
+          {leads?.length > 0 && (
+            <div>
+              <div className=" flex justify-end">
+                <div className=" p-5">
+                  <button className=" cursor-pointer" onClick={handlePrevPage}>
+                    Previous
+                  </button>
+                  <span className="mx-2">
+                    Page {page} of {totalLeads}
+                  </span>
+                  <button className=" cursor-pointer" onClick={handleNextPage}>
+                    Next
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
