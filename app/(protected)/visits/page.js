@@ -80,7 +80,7 @@ const Page = () => {
               </tbody>
             </table>
           ) : (
-            <p>No visits found.</p>
+            <p className=" py-2">No visits found.</p>
           )}
         </div>
       </div>
