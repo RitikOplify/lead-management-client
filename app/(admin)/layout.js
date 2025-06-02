@@ -3,9 +3,13 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncCurrentUser } from "@/store/actions/auth";
 import { useRouter } from "next/navigation";
-import {  asyncAddProducts } from "@/store/actions/leads";
+import { asyncAddProducts } from "@/store/actions/leads";
 import Loader from "@/components/loader";
-import { asyncAddCategory, asyncGetDealers, asyncGetExecutives } from "@/store/actions/admin";
+import {
+  asyncAddCategory,
+  asyncGetDealers,
+  asyncGetExecutives,
+} from "@/store/actions/admin";
 
 function AdminLayout({ children }) {
   const dispatch = useDispatch();
@@ -20,12 +24,10 @@ function AdminLayout({ children }) {
 
   useEffect(() => {
     if (user) {
-      if (user.role == "admin") {
-        dispatch(asyncAddCategory());
-        dispatch(asyncAddProducts());
-        dispatch(asyncGetDealers());
-        dispatch(asyncGetExecutives());
-      }
+      dispatch(asyncAddCategory());
+      dispatch(asyncAddProducts());
+      dispatch(asyncGetDealers());
+      dispatch(asyncGetExecutives());
     }
   }, [user, dispatch]);
 

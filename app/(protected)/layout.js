@@ -34,7 +34,6 @@ function AdminLayout({ children }) {
       dispatch(asyncAddVisits());
       dispatch(asyncAddProducts());
       dispatch(asyncGetDealers());
-      // dispatch(asyncGetAllLeads());
       dispatch(asyncGetExecutives());
     }
   }, [user, dispatch]);

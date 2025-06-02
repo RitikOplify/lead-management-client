@@ -28,7 +28,7 @@ function Home() {
   }, [dispatch, user]);
 
   useEffect(() => {
-    if ((user && user.role == "admin") || "executive") {
+    if (user) {
       dispatch(asyncAddCategory());
       dispatch(asyncAddVisits());
       dispatch(asyncAddProducts());

@@ -56,7 +56,7 @@ export const asyncGetDealers = () => async (dispatch, getstate) => {
 
 export const asyncAddCategory = () => async (dispatch, getstate) => {
   try {
-    const { data } = await axios.get(`/admin/categories`);
+    const { data } = await axios.get(`/lead/categories`);
     console.log(data);
     dispatch(addCategories(data.categories));
   } catch (error) {
