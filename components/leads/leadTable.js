@@ -450,7 +450,7 @@ const LeadDataTable = () => {
             <div className=" flex justify-end">
               <div className=" p-5">
                 <button className=" cursor-pointer" onClick={handlePrevPage}>
-                  Previos
+                  Previous
                 </button>
                 <span className="mx-2">
                   Page {page} of {totalLeads}
