@@ -1,9 +1,8 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Nav from "@/components/Nav";
 import { CustomSelectInput, Input, Select } from "@/components/inputFields";
 import { useForm } from "react-hook-form";
-import { IoIosArrowDown } from "react-icons/io";
 import axios from "@/utils/axios";
 import { toast } from "react-toastify";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -13,8 +12,6 @@ import { addNewVisit } from "@/store/slices/leads";
 const Page = () => {
   const dispatch = useDispatch();
   const [navOpen, setNavOpen] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState("Select Action");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { executives } = useSelector((state) => state.leads);
@@ -22,37 +19,71 @@ const Page = () => {
   const searchParams = useSearchParams();
   const [lead, setLead] = useState(null);
   const leadId = searchParams.get("leadId");
+  const [customers, setCustomers] = useState();
 
-  const handleSelect = (value) => {
-    setSelected(value);
-    setIsOpen(false);
-  };
+  const [query, setQuery] = useState("");
+  console.log(query);
+
+  const debounceTimeout = useRef(null);
+
+  useEffect(() => {
+    if (!query.trim()) return;
+
+    // Only trigger if length is divisible by 3 or after 2 seconds
+    if (query.trim().length % 3 === 0) {
+      callSearchApi();
+    } else {
+      // Clear previous timeout
+      clearTimeout(debounceTimeout.current);
+
+      // Set new timeout
+      debounceTimeout.current = setTimeout(() => {
+        callSearchApi();
+      }, 2000);
+    }
+
+    async function callSearchApi() {
+      try {
+        const { data } = await axios.get(
+          `/lead/customers/search?query=${query}`
+        );
+        console.log("customers", data.customers);
+        setCustomers(data.customers);
+        // setSeachLeadData(data.leads);
+        // console.log(data.leads);
+      } catch (error) {
+        console.log(error?.response?.data?.message);
+        toast.error(error?.response?.data?.message);
+      }
+    }
+
+    // Cleanup timeout on unmount or query change
+    return () => clearTimeout(debounceTimeout.current);
+  }, [query]);
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors, touchedFields },
   } = useForm({
     defaultValues: {
       customerName: "",
-      companyName: "",
+      contactPersonName: "",
       executiveId: "",
+      customerId: "",
     },
   });
 
   const onSubmit = async (visit) => {
-    if (selected === "Select Action") {
-      toast.error("Please select an action.");
-      return;
-    }
-
-    const visitData = { ...visit, action: selected, leadId };
+    const visitData = { ...visit, leadId };
 
     try {
       setLoading(true);
       const { data } = await axios.post(`/visit/create`, visitData);
       dispatch(addNewVisit(data.visit));
+      reset();
       if (data.visit.action === "Convert to new lead") {
         router.push(`/new-lead?visitId=${data.visit.id}`);
       }
@@ -69,9 +100,10 @@ const Page = () => {
   useEffect(() => {
     if (lead) {
       reset({
-        customerName: lead.name || "",
-        companyName: lead.companyName || "",
-        executiveId: lead.executiveId || "",
+        contactPersonName: lead?.enquiryPerson || "",
+        customerName: lead?.customer?.customerName || "",
+        executiveId: lead?.executiveId || "",
+        customerId: lead?.customer?.id || "",
         purpose: "",
       });
     }
@@ -82,6 +114,8 @@ const Page = () => {
       try {
         setLoading(true);
         const { data } = await axios.get(`/lead/${leadId}`);
+        console.log(data);
+
         setLead(data.lead);
       } catch (error) {
         console.error("Error fetching lead details:", error);
@@ -104,39 +138,46 @@ const Page = () => {
         <form onSubmit={handleSubmit(onSubmit)}>
           <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <Input
-              label="Customer Name *"
-              name="customerName"
+              label="Contact Person Name *"
+              name="contactPersonName"
               register={register}
               type="text"
-              required="Customer is required"
-              error={errors.customerName}
-              placeholder="Enter Customer name"
-              touched={touchedFields.customerName}
+              required="Contact Person is required"
+              error={errors.contactPersonName}
+              placeholder="Enter Contact Person"
+              touched={touchedFields.contactPersonName}
             />
-            <Input
-              label="Company Name *"
-              name="companyName"
-              register={register}
-              type="text"
-              required="Company Name is required"
-              error={errors.companyName}
-              placeholder="Enter Company name"
-              touched={touchedFields.companyName}
-            />
-            {/* <Select
-              label="Purpose of Visit *"
-              name="purpose"
-              placeholder="Purpose"
-              register={register}
-              options={[
-                { value: "general", label: "General" },
-                { value: "followup", label: "Followup" },
-                { value: "promotion", label: "Promotion" },
-                { value: "awareness", label: "Awareness" },
-              ]}
-              touched={touchedFields.purpose}
-              error={errors.purpose}
-            /> */}
+
+            <div className=" relative">
+              <Input
+                label="Company Name *"
+                name="customerName"
+                onChange={(value) => setQuery(value)}
+                register={register}
+                type="text"
+                required="Company Name is required"
+                error={errors.customerName}
+                placeholder="Enter Company name"
+                touched={touchedFields.customerName}
+              />
+              {customers?.length > 0 && (
+                <ul className="border absolute border-gray-300 overflow-hidden bg-white w-full z-10 rounded-md">
+                  {customers.map((customer) => (
+                    <li
+                      key={customer.id}
+                      className="cursor-pointer px-3 py-2 border border-gray-100 hover:bg-gray-100"
+                      onClick={() => {
+                        setValue("customerName", customer.customerName);
+                        setValue("customerId", customer.id);
+                        setCustomers([]);
+                      }}
+                    >
+                      {customer.customerName}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
             <CustomSelectInput
               label="Purpose of Visit *"
               name="purpose"
@@ -183,41 +224,6 @@ const Page = () => {
               type="text"
               placeholder="Enter remarks"
             />
-            <div className="flex flex-col relative">
-              <label className="text-sm mb-1">Select Action</label>
-              <div className="relative">
-                <div
-                  onClick={() => setIsOpen(!isOpen)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-left cursor-pointer"
-                >
-                  {selected}
-                </div>
-                <div className="absolute top-1/2 right-3 transform -translate-y-1/2 pointer-events-none">
-                  <IoIosArrowDown size={18} className="text-black" />
-                </div>
-              </div>
-
-              {isOpen && (
-                <div className="absolute top-full left-0 right-0 mt-1 border border-gray-300 rounded-lg bg-white shadow-md z-10">
-                  {!lead && (
-                    <button
-                      type="button"
-                      className="block px-3 py-2 w-full text-start hover:bg-gray-100 border-b border-gray-300 cursor-pointer"
-                      onClick={() => handleSelect("Convert to new lead")}
-                    >
-                      Convert to new lead
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    className="w-full text-left px-3 py-2 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => handleSelect("NA")}
-                  >
-                    NA
-                  </button>
-                </div>
-              )}
-            </div>
           </div>
           <div className="flex justify-end mt-6">
             {loading ? (

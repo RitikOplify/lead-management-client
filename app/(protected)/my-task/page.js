@@ -9,6 +9,7 @@ import ViewProduct from "@/components/popups/ViewProduct";
 import CreateFollowUp from "@/components/popups/createFollowUp";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncAddMyLeads } from "@/store/actions/leads";
+import EditLead from "@/components/popups/EditLeadPopUp";
 
 const Page = () => {
   const [navOpen, setNavOpen] = useState(false);
@@ -28,7 +29,8 @@ const Page = () => {
   };
   const [leadId, setLeadId] = useState(null);
   const [open, setOpen] = useState(false);
-
+  const [editLead, setEditLead] = useState(false);
+  const [editLeadId, setEditLeadId] = useState(false);
   const followUpClick = (leadId) => {
     setLeadId(leadId);
     if (!leadId) return;
@@ -42,6 +44,15 @@ const Page = () => {
       )}
 
       {open && <CreateFollowUp onClose={() => setOpen(false)} id={leadId} />}
+      {editLead && (
+        <EditLead
+          onClose={() => {
+            setEditLead(false);
+            setEditLeadId("");
+          }}
+          leadId={editLeadId}
+        />
+      )}
 
       <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
         <div className="bg-white shadow-md rounded-lg overflow-hidden">
@@ -152,9 +163,15 @@ const Page = () => {
                       </td>
 
                       <td className="p-4 flex items-center space-x-4">
-                        <Link href={`/lead/edit/${lead.id}`}>
+                        <div
+                          className="cursor-pointer"
+                          onClick={() => {
+                            setEditLead(true);
+                            setEditLeadId(lead.id);
+                          }}
+                        >
                           <FaEdit size={20} />
-                        </Link>
+                        </div>
                         <Link href={`/lead/${lead.id}`}>
                           <FaEye size={20} />
                         </Link>

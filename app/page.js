@@ -44,6 +44,12 @@ function Home() {
     }
   }, [user, isLoading, router]);
 
+  useEffect(() => {
+    if (!isLoading && user && user.role == "dealer") {
+      router.replace("/my-task");
+    }
+  }, [user, isLoading, router]);
+
   if (isLoading) {
     return (
       <div className=" h-screen flex justify-center items-center">

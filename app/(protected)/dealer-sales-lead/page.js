@@ -105,11 +105,11 @@ const Page = () => {
                       </td>
                       <td className="p-4 text-sm">{lead.enqNo || "NA"}</td>
 
-                      <td className="p-4 text-sm">{lead.name}</td>
+                      <td className="p-4 text-sm">{lead.enquiryPerson}</td>
 
-                      <td className="p-4 text-sm">{lead.contact}</td>
-                      <td className="p-4 text-sm">{lead.email}</td>
-                      <td className="p-4 text-sm">{lead.companyName}</td>
+                      <td className="p-4 text-sm">{lead.customer?.contact}</td>
+                      <td className="p-4 text-sm">{lead.customer?.email}</td>
+                      <td className="p-4 text-sm">{lead.customer?.customerName}</td>
                       <td className="p-4 text-sm">{lead.city}</td>
                       <td className="p-4 text-sm">{lead.source || "NA"}</td>
                       <td className="p-4 text-sm">{lead.status}</td>

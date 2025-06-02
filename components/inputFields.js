@@ -41,6 +41,7 @@ function Select({
 
 function Input({
   label,
+  onChange,
   name,
   placeholder,
   register,
@@ -55,7 +56,12 @@ function Input({
       <input
         type={type}
         placeholder={placeholder}
-        {...register(name, { required })}
+        {...register(name, {
+          required,
+          onChange: (e) => {
+            onChange?.(e.target.value);
+          },
+        })}
         className={`px-3 py-2 border outline-[#092C1C] ${
           error && touched ? "border-red-500" : "border-gray-300"
         } rounded-lg`}

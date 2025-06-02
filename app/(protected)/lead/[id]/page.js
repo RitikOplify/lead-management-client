@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import Loader from "@/components/loader";
 import { useSelector } from "react-redux";
 import Link from "next/link";
+import CreateFollowUp from "@/components/popups/createFollowUp";
 
 function Page({ params }) {
   const { id } = use(params);
@@ -30,10 +31,21 @@ function Page({ params }) {
     };
     fetchLeadDetails();
   }, []);
+  const [open, setOpen] = useState(false);
+
+  const [leadId, setLeadId] = useState(null);
+  const followUpClick = (leadId) => {
+    setLeadId(leadId);
+    if (!leadId) return;
+    setOpen(true);
+  };
 
   return (
     <div className="flex h-screen">
       <Nav />
+
+      {open && <CreateFollowUp onClose={() => setOpen(false)} id={leadId} />}
+
       <div className="p-6 w-full lg:w-[calc(100%-256px)] overflow-y-auto custom-scroller2">
         {loading ? (
           <div className=" h-screen flex justify-center items-center">
@@ -51,26 +63,31 @@ function Page({ params }) {
                   >
                     Add Visit
                   </Link>
-                  <h3 className="bg-[#092C1C] text-white px-3 py-2 rounded cursor-pointer flex items-center">
+                  <h3
+                    className="bg-[#092C1C] text-white px-3 py-2 rounded cursor-pointer flex items-center"
+                    onClick={() => {
+                      followUpClick(lead.id);
+                    }}
+                  >
                     Add Followup
                   </h3>
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-4">
                 <p>
-                  <span className="font-medium">Name:</span> {lead.name}
+                  <span className="font-medium">Name:</span> {lead?.customer?.customerName || "NA"}
                 </p>
                 <p>
-                  <span className="font-medium">Email:</span> {lead.email}
+                  <span className="font-medium">Email:</span> {lead.customer?.email}
                 </p>
                 <p>
-                  <span className="font-medium">Contact:</span> {lead.contact}
+                  <span className="font-medium">Contact:</span> {lead.customer?.contact}
                 </p>
                 <p>
                   <span className="font-medium">City:</span> {lead.city}
                 </p>
                 <p>
-                  <span className="font-medium">State:</span> {lead.state}
+                  <span className="font-medium">State:</span> {lead.state || "NA"}
                 </p>
                 <p>
                   <span className="font-medium">Status:</span> {lead.status}
@@ -87,7 +104,7 @@ function Page({ params }) {
                   {lead.price?.toLocaleString()}
                 </p>
                 <p>
-                  <span className="font-medium">Comments:</span> {lead.comments}
+                  <span className="font-medium">Comments:</span> {lead.comments || "NA"}
                 </p>
               </div>
             </div>
@@ -154,9 +171,7 @@ function Page({ params }) {
                         <th className="p-4 text-left text-sm font-semibold text-gray-600">
                           Status
                         </th>
-                        <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                          Stage
-                        </th>
+
                         <th className="p-4 text-left text-sm font-semibold text-gray-600">
                           Message
                         </th>
@@ -178,11 +193,9 @@ function Page({ params }) {
                           <td className="p-4 text-sm text-gray-700">
                             {followUp.status}
                           </td>
+
                           <td className="p-4 text-sm text-gray-700">
-                            {followUp.stage}
-                          </td>
-                          <td className="p-4 text-sm text-gray-700">
-                            {followUp.message}
+                            {followUp.message || "No message"}
                           </td>
                           <td className="p-4 text-sm text-gray-700">
                             {followUp.nextFollowUpStep}

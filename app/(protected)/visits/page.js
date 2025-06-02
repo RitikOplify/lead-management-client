@@ -9,6 +9,8 @@ const Page = () => {
   const [navOpen, setNavOpen] = useState(false);
   const { visits } = useSelector((state) => state.leads);
 
+  console.log("Visits Data:", visits);
+
   return (
     <div className="flex h-screen">
       <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
@@ -20,7 +22,7 @@ const Page = () => {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                    Company Name
+                    Contact Person Name
                   </th>
                   <th className="p-4 text-left text-sm font-semibold text-gray-600">
                     Customer Name
@@ -39,8 +41,10 @@ const Page = () => {
               <tbody className="divide-y divide-gray-200">
                 {visits.map((visit) => (
                   <tr key={visit.id}>
-                    <td className="p-4 text-sm">{visit.companyName}</td>
-                    <td className="p-4 text-sm">{visit.customerName}</td>
+                    <td className="p-4 text-sm">{visit?.contactPersonName}</td>
+                    <td className="p-4 text-sm">
+                      {visit?.customer?.customerName}
+                    </td>
                     <td className="p-4 text-sm">{visit.purpose}</td>
                     <td className="p-4 text-sm">
                       {new Date(visit.visitDate).toLocaleDateString("en-GB")}
@@ -49,16 +53,16 @@ const Page = () => {
                       {visit.leadId ? (
                         <Link
                           href={`/lead/${visit.leadId}`}
-                          className="text-blue-500"
+                          className="text-white bg-blue-500 rounded-md px-3 py-1"
                         >
                           View Lead
                         </Link>
                       ) : (
                         <Link
                           href={`/new-lead?visitId=${visit.id}`}
-                          className="text-yellow-500"
+                          className="text-white bg-[#092C1C] rounded-md px-3 py-1"
                         >
-                          Create Lead
+                          Add Lead
                         </Link>
                       )}
                     </td>

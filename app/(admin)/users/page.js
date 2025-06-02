@@ -224,15 +224,26 @@ const Page = () => {
             <div className="flex items-center justify-between mb-3">
               <h5 className="text-xl font-semibold">Dealer List</h5>
               {user?.role === "admin" && (
-                <button
-                  onClick={() => {
-                    setEditDealer(null);
-                    setDealerOpen(true);
-                  }}
-                  className="bg-[#092C1C] text-white px-6 py-2 rounded"
-                >
-                  Invite New Dealer
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setEditDealer(null);
+                      setDealerOpen(true);
+                    }}
+                    className="bg-[#092C1C] text-white px-6 py-2 rounded"
+                  >
+                    Copy Invite Link
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditDealer(null);
+                      setDealerOpen(true);
+                    }}
+                    className="bg-[#092C1C] text-white px-6 py-2 rounded"
+                  >
+                    Invite New Dealer
+                  </button>
+                </div>
               )}
             </div>
 

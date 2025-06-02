@@ -98,12 +98,14 @@ function Nav({ navOpen, setNavOpen }) {
           )}
 
           {/* Common */}
-          <Link
-            href="/"
-            className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-          >
-            <FaHome /> Home
-          </Link>
+          {user?.role !== "dealer" && (
+            <Link
+              href="/"
+              className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
+            >
+              <FaHome /> Home
+            </Link>
+          )}
 
           <Link
             href="/new-lead"

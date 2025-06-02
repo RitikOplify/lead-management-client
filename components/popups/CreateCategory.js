@@ -115,7 +115,7 @@ import { Input } from "../inputFields";
 import { useDispatch } from "react-redux";
 import { addNewCategory } from "@/store/slices/leads";
 
-const CreateCategoryForm = ({ onCategoryClose, categoryToEdit = null }) => {
+const CreateCategoryForm = ({ onClose, categoryToEdit = null }) => {
   const {
     register,
     handleSubmit,
@@ -157,14 +157,14 @@ const CreateCategoryForm = ({ onCategoryClose, categoryToEdit = null }) => {
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-      onClick={onCategoryClose}
+      onClick={onClose}
     >
       <div
         className="bg-white h-screen sm:h-auto md:rounded-xl shadow-xl w-full max-w-lg p-6 relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button
-          onClick={onCategoryClose}
+          onClick={onClose}
           className="absolute top-3 right-3 text-gray-500 hover:text-black cursor-pointer"
         >
           <IoClose size={24} />

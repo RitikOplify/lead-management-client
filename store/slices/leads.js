@@ -8,6 +8,8 @@ const initialState = {
   executives: [],
   dealers: [],
   leads: [],
+  totalLeads: 0,
+  currentPage: 1,
   products: [],
   categories: [],
   visits: [],
@@ -25,6 +27,12 @@ export const leadsReducer = createSlice({
     addLeads: (state, action) => {
       state.leads = action.payload;
     },
+    setLeadPagination: (state, action) => {
+      state.leads = action.payload.leads;
+      state.totalLeads = action.payload.total;
+      state.currentPage = action.payload.page;
+    },
+
     updateLead: (state, action) => {
       const updatedLead = action.payload;
       state.leads = state.leads.map((lead) =>
@@ -80,6 +88,7 @@ export const leadsReducer = createSlice({
 });
 
 export const {
+  setLeadPagination,
   addCompany,
   addLeads,
   addNewLead,

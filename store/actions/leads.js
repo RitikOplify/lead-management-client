@@ -6,12 +6,14 @@ import {
   addNewLead,
   addProducts,
   addVisits,
+  setLeadPagination,
 } from "../slices/leads";
 import { toast } from "react-toastify";
 
-export const asyncCreateLeads = (lead) => async (dispatch, getstate) => {
+export const asyncCreateLeads = (lead, reset) => async (dispatch, getstate) => {
   try {
     const { data } = await axios.post(`/lead/create`, lead);
+    reset();
     dispatch(addNewLead(data.lead));
     toast.success(data.message);
   } catch (error) {
@@ -20,15 +22,31 @@ export const asyncCreateLeads = (lead) => async (dispatch, getstate) => {
   }
 };
 
-export const asyncGetAllLeads = () => async (dispatch, getstate) => {
-  try {
-    const { data } = await axios.get(`/lead/all-leads`);
-    dispatch(addLeads(data.leads));
-  } catch (error) {
-    // console.error(error.response.data.message);
-    // toast.error(error.response.data.message);
-  }
-};
+// export const asyncGetAllLeads = () => async (dispatch, getstate) => {
+//   try {
+//     const { data } = await axios.get(`/lead/all-leads`);
+//     dispatch(addLeads(data.leads));
+//   } catch (error) {
+//     // console.error(error.response.data.message);
+//     // toast.error(error.response.data.message);
+//   }
+// };
+
+export const asyncGetAllLeads =
+  (page = 1, limit = 10) =>
+  async (dispatch, getState) => {
+    try {
+      const { data } = await axios.get(
+        `/lead/all-leads?page=${page}&limit=${limit}`
+      );
+      dispatch(
+        setLeadPagination({ leads: data.leads, total: data.totalPages, page })
+      );
+    } catch (error) {
+      console.error(error.response?.data?.message);
+      toast.error(error.response?.data?.message || "Failed to fetch leads");
+    }
+  };
 
 export const asyncAddProducts = () => async (dispatch, getstate) => {
   try {

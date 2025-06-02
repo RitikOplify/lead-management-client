@@ -148,7 +148,6 @@
 
 // export default CreateProductForm;
 
-
 import axios from "@/utils/axios";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -157,7 +156,11 @@ import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { Input, Select } from "../inputFields";
 
-const CreateProductForm = ({ onClose, defaultValues = {}, productId = null }) => {
+const CreateProductForm = ({
+  onClose,
+  defaultValues = {},
+  productId = null,
+}) => {
   const {
     register,
     handleSubmit,

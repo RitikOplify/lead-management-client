@@ -4,7 +4,8 @@ import { toast } from "react-toastify";
 import { IoClose } from "react-icons/io5";
 import { useState } from "react";
 import { Input, Select } from "../inputFields";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { updateLead } from "@/store/slices/leads";
 
 const ReassignExecutive = ({ onClose, leadId }) => {
   const {
@@ -15,8 +16,8 @@ const ReassignExecutive = ({ onClose, leadId }) => {
   } = useForm();
 
   const [loading, setLoading] = useState(false);
-  const { company } = useSelector((state) => state.leads);
-
+  const { company, executives } = useSelector((state) => state.leads);
+  const dispatch = useDispatch();
   const onSubmit = async (executiveId) => {
     const updateData = { leadId, ...executiveId };
     try {
@@ -25,15 +26,16 @@ const ReassignExecutive = ({ onClose, leadId }) => {
         "/admin/reassign-executive",
         updateData
       );
+      dispatch(updateLead(data.lead));
       console.log(data);
-      
+
       setLoading(false);
       toast.success(data.message);
       reset();
       onClose();
     } catch (err) {
-        console.log(err);
-        
+      console.log(err);
+
       setLoading(false);
       toast.error(err.response?.data?.message);
     }
@@ -63,7 +65,7 @@ const ReassignExecutive = ({ onClose, leadId }) => {
             label="Executive"
             name="executiveId"
             register={register}
-            options={(company?.executives || []).map((e) => ({
+            options={(executives || []).map((e) => ({
               value: e.id,
               label: e.username,
             }))}
