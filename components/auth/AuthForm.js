@@ -31,18 +31,6 @@ const AuthForm = ({ type }) => {
     }
   };
 
-  const handleGuest = async () => {
-    setLoader(true);
-    await dispatch(
-      asyncSignInUser({
-        email: "dummy@oplify.in",
-        password: "dummy@123",
-        role: "admin",
-      })
-    );
-    setLoader(false);
-  };
-
   return (
     <div className="h-screen w-full flex items-center justify-center flex-col">
       <h1 className="text-3xl font-bold text-green-950 mb-10">
@@ -175,13 +163,6 @@ const AuthForm = ({ type }) => {
             {type === "signup" ? "Sign Up" : "Sign In"}
           </button>
         )}
-
-        <div
-          className="px-3 py-2 text-center cursor-pointer rounded-lg bg-red-700 text-white"
-          onClick={handleGuest}
-        >
-          Guest Credentials
-        </div>
 
         <p className="text-center">
           {type === "signup" ? (
