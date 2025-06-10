@@ -15,7 +15,7 @@ const Page = () => {
 
   useEffect(() => {
     dispatch(asyncAddDealerLeads());
-  }, []);
+  }, [dispatch]);
 
   const followUpClick = (id) => {
     setLeadId(id);

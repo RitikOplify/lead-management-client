@@ -28,8 +28,8 @@ const ViewProduct = ({ onClose, lead }) => {
         </p>
 
         <div className=" grid grid-cols-1 sm:grid-cols-2">
-          {lead.products?.map((product) => (
-            <td className="px-6 py-4 text-gray-800  text-sm font-medium">
+          {lead.products?.map((product,i) => (
+            <td key={i} className="px-6 py-4 text-gray-800  text-sm font-medium">
               {product.name}
             </td>
           ))}
