@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { FaBars, FaEdit, FaEye } from "react-icons/fa";
 import { MdOutlineAccessAlarm } from "react-icons/md";
-import CreateFollowUp from "@/components/popups/CreateFollowUp";
+import CreateFollowUp from "@/components/popups/createFollowUp";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncAddDealerLeads } from "@/store/actions/leads";
 import { FiInbox } from "react-icons/fi"; // import icon at top

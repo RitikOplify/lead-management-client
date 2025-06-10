@@ -6,7 +6,7 @@ import { FaEdit, FaEye } from "react-icons/fa";
 import { MdOutlineAccessAlarm } from "react-icons/md";
 import { asyncAddMyLeads } from "@/store/actions/leads";
 import ViewProduct from "@/components/popups/ViewProduct";
-import CreateFollowUp from "@/components/popups/CreateFollowUp";
+import CreateFollowUp from "@/components/popups/createFollowUp";
 import EditLead from "@/components/popups/EditLeadPopUp";
 
 const MyLeadsPage = () => {

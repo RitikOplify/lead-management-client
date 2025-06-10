@@ -12,7 +12,7 @@ import { HiOutlineSwitchVertical } from "react-icons/hi";
 import Link from "next/link";
 import { useDispatch, useSelector } from "react-redux";
 
-import CreateFollowUp from "../popups/CreateFollowUp";
+import CreateFollowUp from "../popups/createFollowUp";
 import ViewProduct from "../popups/ViewProduct";
 import ReassignExecutive from "../popups/ReassignExecutive";
 import EditLead from "../popups/EditLeadPopUp";

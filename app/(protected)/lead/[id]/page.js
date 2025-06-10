@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import Loader from "@/components/loader";
 import { useSelector } from "react-redux";
 import Link from "next/link";
-import CreateFollowUp from "@/components/popups/CreateFollowUp";
+import CreateFollowUp from "@/components/popups/createFollowUp";
 
 function Page({ params }) {
   const { id } = use(params);
