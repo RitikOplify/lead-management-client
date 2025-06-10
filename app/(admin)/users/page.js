@@ -1,104 +1,89 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { FaBars } from "react-icons/fa";
-import Nav from "@/components/Nav";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { toast } from "react-toastify";
+import {
+  AiOutlineEdit,
+  AiOutlineDelete,
+  AiOutlineCheckCircle,
+  AiOutlineUserAdd,
+  AiOutlineCopy,
+} from "react-icons/ai";
 import CreateExecutivePopUp from "@/components/popups/CreateExecutivePopUp";
 import InviteDealer from "@/components/popups/InviteDealer";
 import axios from "@/utils/axios";
-import { toast } from "react-toastify";
-// import { fetchLeads } from "@/redux/leadsSlice"; // Assuming you have a thunk or action to fetch leads
+import UpdateDealerStatus from "@/components/popups/UpdateDealer";
 
 const Page = () => {
   const [open, setOpen] = useState(false);
   const [isDealerOpen, setDealerOpen] = useState(false);
-  const [navOpen, setNavOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("executive");
   const [editExecutive, setEditExecutive] = useState(null);
   const [editDealer, setEditDealer] = useState(null);
 
-  const dispatch = useDispatch();
-
   const { company, dealers, executives } = useSelector((state) => state.leads);
   const { user } = useSelector((state) => state.auth);
-
-  // Function to reload data after changes
-  // const reloadData = () => {
-  //   dispatch(fetchLeads()); // Adjust if your fetch leads function has a different name
-  // };
-
-  // Approve Dealer API call
+  const dispatch = useDispatch();
   const approveDealer = async (id) => {
     try {
-      toast.loading("Updating Dealer.", { toastId: "dealer-loading" });
+      toast.loading("Approving dealer...", { toastId: "approve-dealer" });
       const { data } = await axios.post(`/admin/approve-dealer/${id}`);
-      toast.dismiss("dealer-loading");
+      // dispatch(UpdateDealerStatus(data.dealer));
+      toast.dismiss("approve-dealer");
       toast.success(data.message);
-      reloadData();
     } catch (error) {
-      toast.dismiss("dealer-loading");
+      toast.dismiss("approve-dealer");
+      console.log(error.response?.data?.message);
       toast.error(error.response?.data?.message || "Failed to approve dealer.");
     }
   };
 
-  // Open Executive popup for editing
   const handleEditExecutive = (executive) => {
     setEditExecutive(executive);
     setOpen(true);
   };
 
-  // Delete Executive API call
-  const handleDeleteExecutive = async (executiveId) => {
-    if (confirm("Are you sure you want to delete this executive?")) {
-      try {
-        toast.loading("Deleting Executive...", { toastId: "delete-exec" });
-        await axios.delete(`/admin/delete-executive/${executiveId}`);
-        toast.dismiss("delete-exec");
-        toast.success("Executive deleted successfully.");
-      } catch (error) {
-        toast.dismiss("delete-exec");
-        toast.error(
-          error.response?.data?.message || "Failed to delete executive."
-        );
-      }
+  const handleDeleteExecutive = async (id) => {
+    if (!confirm("Are you sure you want to delete this executive?")) return;
+    try {
+      toast.loading("Deleting executive...", { toastId: "delete-executive" });
+      await axios.delete(`/admin/delete-executive/${id}`);
+      toast.dismiss("delete-executive");
+      toast.success("Executive deleted successfully.");
+    } catch (error) {
+      toast.dismiss("delete-executive");
+      toast.error(
+        error.response?.data?.message || "Failed to delete executive."
+      );
     }
   };
 
-  // Open Dealer popup for editing (if you have such feature)
   const handleEditDealer = (dealer) => {
     setEditDealer(dealer);
     setDealerOpen(true);
   };
 
-  // Delete Dealer API call
-  const handleDeleteDealer = async (dealerId) => {
-    if (confirm("Are you sure you want to delete this dealer?")) {
-      try {
-        toast.loading("Deleting Dealer...", { toastId: "delete-dealer" });
-        await axios.delete(`/admin/delete-dealer/${dealerId}`);
-        toast.dismiss("delete-dealer");
-        toast.success("Dealer deleted successfully.");
-        reloadData();
-      } catch (error) {
-        toast.dismiss("delete-dealer");
-        toast.error(
-          error.response?.data?.message || "Failed to delete dealer."
-        );
-      }
+  const handleDeleteDealer = async (id) => {
+    if (!confirm("Are you sure you want to delete this dealer?")) return;
+    try {
+      toast.loading("Deleting dealer...", { toastId: "delete-dealer" });
+      await axios.delete(`/admin/delete-dealer/${id}`);
+      toast.dismiss("delete-dealer");
+      toast.success("Dealer deleted successfully.");
+    } catch (error) {
+      toast.dismiss("delete-dealer");
+      toast.error(error.response?.data?.message || "Failed to delete dealer.");
     }
   };
 
-  // Close popup handlers: reset edit states and reload data
   const closeExecutivePopup = () => {
     setOpen(false);
     setEditExecutive(null);
-    // reloadData();
   };
 
   const closeDealerPopup = () => {
     setDealerOpen(false);
     setEditDealer(null);
-    // reloadData();
   };
 
   const handleCopyInviteLink = async () => {
@@ -106,55 +91,41 @@ const Page = () => {
       const inviteLink = `https://leadmanagement.transmonk.in/new-dealer/${company?.id}`;
       await navigator.clipboard.writeText(inviteLink);
       toast.success("Invite link copied to clipboard!");
-    } catch (err) {
+    } catch {
       toast.error("Failed to copy the invite link.");
     }
   };
 
   return (
-    <div className="flex h-screen">
-      <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
-
-      {open && (
-        <CreateExecutivePopUp
-          onClose={closeExecutivePopup}
-          initialData={editExecutive} // Pass data for edit or null for create
-        />
-      )}
-
+    <>
       {isDealerOpen && (
-        <InviteDealer
-          onClose={closeDealerPopup}
-          initialData={editDealer} // If you want to edit dealers too
+        <UpdateDealerStatus
+          dealerId={editDealer.dealer.id}
+          onClose={() => setDealerOpen(false)}
         />
       )}
 
-      <div className="p-6 w-full lg:w-[calc(100%-256px)] overflow-y-auto">
-        <div className="md:hidden mb-4">
-          <div
-            onClick={() => setNavOpen(true)}
-            className="text-2xl text-[#092C1C] cursor-pointer"
-          >
-            <FaBars />
-          </div>
-        </div>
-
-        <div className="flex space-x-4 mb-6">
+      <div className="bg-white shadow-lg rounded-xl max-w-7xl mx-auto overflow-hidden">
+        <div className="flex space-x-4 overflow-x-auto pb-2 border-b border-gray-300 p-4">
           <button
-            className={`px-6 py-2 rounded cursor-pointer ${
-              activeTab === "executive"
-                ? "bg-[#092C1C] text-white"
-                : "bg-gray-200"
-            }`}
             onClick={() => setActiveTab("executive")}
+            className={`whitespace-nowrap px-5 py-2 rounded-md font-semibold transition-colors ${
+              activeTab === "executive"
+                ? "bg-[#1B2430] text-white shadow-md"
+                : "text-[#1B2430] hover:bg-blue-100"
+            }`}
+            aria-label="Executives Tab"
           >
             Executives
           </button>
           <button
-            className={`px-6 py-2 rounded cursor-pointer ${
-              activeTab === "dealer" ? "bg-[#092C1C] text-white" : "bg-gray-200"
-            }`}
             onClick={() => setActiveTab("dealer")}
+            className={`whitespace-nowrap px-5 py-2 rounded-md font-semibold transition-colors ${
+              activeTab === "dealer"
+                ? "bg-[#1B2430] text-white shadow-md"
+                : "text-[#1B2430] hover:bg-blue-100"
+            }`}
+            aria-label="Dealers Tab"
           >
             Dealers
           </button>
@@ -162,157 +133,236 @@ const Page = () => {
 
         {/* Executive Section */}
         {activeTab === "executive" && (
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h5 className="text-xl font-semibold">Executive List</h5>
+          <section>
+            <div className="flex flex-col md:flex-row justify-between md:items-center py-2 px-4">
+              <h2 className="text-2xl font-semibold text-gray-900">
+                Executives
+              </h2>
               {user?.role === "admin" && (
                 <button
-                  className="bg-[#092C1C] text-white px-6 py-2 rounded"
                   onClick={() => {
                     setEditExecutive(null);
                     setOpen(true);
                   }}
+                  className="mt-3 md:mt-0 inline-flex w-fit items-center gap-2 px-6 py-2 bg-[#1B2430] hover:bg-[#2F3E46] text-white rounded-md shadow-md transition"
+                  aria-label="Create New Executive"
                 >
-                  Create New Executive
+                  <AiOutlineUserAdd size={20} />
+                  Create Executive
                 </button>
               )}
             </div>
 
-            <div className="rounded-lg">
+            <div className="overflow-x-auto shadow-sm">
               {executives?.length > 0 ? (
-                <table className="w-full divide-y divide-gray-200 mt-6 shadow">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-gray-200 text-left">
+                  <thead className="bg-gray-100">
                     <tr>
-                      <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                      <th className="px-6 py-3 text-sm font-medium text-gray-700">
                         Name
                       </th>
-                      <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                      <th className="px-6 py-3 text-sm font-medium text-gray-700">
+                        Email
+                      </th>
+                      <th className="px-6 py-3 text-sm font-medium text-gray-700">
                         Status
                       </th>
-                      <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                      <th className="px-6 py-3 text-sm font-medium text-gray-700 w-36">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {executives.map((executive) => (
-                      <tr key={executive.id} className="hover:bg-gray-50">
-                        <td className="p-4 text-sm text-gray-700">
-                          {executive.username}
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {executives.map(({ id, username, isActive, email }) => (
+                      <tr key={id} className="hover:bg-blue-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-medium">
+                          {username}
                         </td>
-                        <td className="p-4 text-sm text-gray-700">
-                          {executive.isActive ? "Active" : "Inactive"}
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-medium">
+                          {email}
                         </td>
-                        <td className="p-4 text-sm text-gray-700 flex gap-2">
-                          <button
-                            onClick={() => handleEditExecutive(executive)}
-                            className="bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${
+                              isActive == "ACTIVE"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-gray-300 text-gray-700"
+                            }`}
+                            aria-label={isActive ? "Active" : "Inactive"}
                           >
-                            Edit
-                          </button>
+                            {isActive == "ACTIVE" ? "Active" : "Inactive"}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap flex space-x-3">
                           <button
-                            onClick={() => handleDeleteExecutive(executive.id)}
-                            className="bg-red-600 text-white px-3 py-1 rounded text-sm"
+                            onClick={() =>
+                              handleEditExecutive({
+                                id,
+                                username,
+                                isActive,
+                                email,
+                              })
+                            }
+                            title="Edit Executive"
+                            aria-label={`Edit executive ${username}`}
+                            className="text-blue-700 hover:text-blue-900 transition"
                           >
-                            Delete
+                            <AiOutlineEdit size={22} />
                           </button>
+                          {/* <button
+                          onClick={() => handleDeleteExecutive(id)}
+                          title="Delete Executive"
+                          aria-label={`Delete executive ${username}`}
+                          className="text-red-600 hover:text-red-800 transition"
+                        >
+                          <AiOutlineDelete size={22} />
+                        </button> */}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               ) : (
-                <p>No Executive Found</p>
+                <p className="p-3 text-center text-gray-500">
+                  No Executives Found
+                </p>
               )}
             </div>
-          </div>
+          </section>
         )}
 
         {/* Dealer Section */}
         {activeTab === "dealer" && (
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h5 className="text-xl font-semibold">Dealer List</h5>
+          <section>
+            <div className="flex flex-col md:flex-row justify-between md:items-center py-2 px-4">
+              <h2 className="text-2xl font-semibold text-gray-900">Dealers</h2>
               {user?.role === "admin" && (
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-3 mt-3 md:mt-0">
                   <button
                     onClick={handleCopyInviteLink}
-                    className="bg-[#092C1C] text-white px-6 py-2 rounded cursor-pointer"
+                    className="inline-flex items-center gap-2 px-6 py-2 bg-[#1B2430] hover:bg-[#2F3E46] text-white rounded-md shadow-md transition"
+                    aria-label="Copy Invite Link"
                   >
+                    <AiOutlineCopy size={20} />
                     Copy Invite Link
                   </button>
+
+                  {/* Uncomment if Invite Dealer is needed */}
                   {/* <button
-                    onClick={() => {
-                      setEditDealer(null);
-                      setDealerOpen(true);
-                    }}
-                    className="bg-[#092C1C] text-white px-6 py-2 rounded"
-                  >
-                    Invite New Dealer
-                  </button> */}
+                  onClick={() => {
+                    setEditDealer(null);
+                    setDealerOpen(true);
+                  }}
+                  className="inline-flex items-center gap-2 px-6 py-2 bg-blue-700 hover:bg-blue-800 text-white rounded-md shadow-md transition"
+                  aria-label="Invite New Dealer"
+                >
+                  <AiOutlineUserAdd size={20} />
+                  Invite Dealer
+                </button> */}
                 </div>
               )}
             </div>
 
-            <div className="space-y-4">
+            <div className="overflow-x-auto shadow-sm">
               {dealers?.length > 0 ? (
-                <table className="w-full divide-y divide-gray-200 mt-6 shadow">
-                  <thead className="bg-gray-50">
+                <table className="min-w-full divide-y divide-gray-200 text-left">
+                  <thead className="bg-gray-100">
                     <tr>
-                      <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                      <th className="px-6 py-3 text-sm font-medium text-gray-700">
                         Name
                       </th>
-                      <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                      <th className="px-6 py-3 text-sm font-medium text-gray-700">
+                        Email
+                      </th>
+                      <th className="px-6 py-3 text-sm font-medium text-gray-700">
                         Status
                       </th>
-                      <th className="p-4 text-left text-sm font-semibold text-gray-600">
+                      <th className="px-6 py-3 text-sm font-medium text-gray-700 w-44">
                         Actions
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {dealers.map((dealer) => (
-                      <tr key={dealer.id} className="hover:bg-gray-50">
-                        <td className="p-4 text-sm text-gray-700">
-                          {dealer.dealer.name}
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {dealers.map(({ id, dealer, status }) => (
+                      <tr key={id} className="hover:bg-blue-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-medium">
+                          {dealer.name}
                         </td>
-                        <td className="p-4 text-sm text-gray-700">
-                          {dealer.status}
+                        <td className="px-6 py-4 whitespace-nowrap text-gray-900 font-medium">
+                          {dealer.email}
                         </td>
-                        <td className="p-4 text-sm text-gray-700 flex flex-wrap gap-2">
-                          {dealer.status === "INACTIVE" && (
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold ${
+                              status === "ACTIVE"
+                                ? "bg-green-100 text-green-800"
+                                : status === "INACTIVE"
+                                ? "bg-yellow-100 text-yellow-800"
+                                : "bg-gray-300 text-gray-700"
+                            }`}
+                            aria-label={status}
+                          >
+                            {status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap flex flex-wrap items-center gap-3">
+                          {status === "INACTIVE" && (
                             <button
-                              onClick={() => approveDealer(dealer.dealer.id)}
-                              className="bg-green-600 text-white px-3 py-1 rounded text-sm"
+                              onClick={() => approveDealer(dealer.id)}
+                              title="Approve Dealer"
+                              aria-label={`Approve dealer ${dealer.name}`}
+                              className="text-green-700 hover:text-green-900 transition"
                             >
-                              Approve
+                              <AiOutlineCheckCircle size={24} />
                             </button>
                           )}
+
                           <button
-                            onClick={() => handleEditDealer(dealer)}
-                            className="bg-blue-600 text-white px-3 py-1 rounded text-sm"
+                            onClick={() =>
+                              handleEditDealer({ id, dealer, status })
+                            }
+                            title="Edit Dealer"
+                            aria-label={`Edit dealer ${dealer.name}`}
+                            className="text-blue-700 hover:text-blue-900 transition"
                           >
-                            Edit
+                            <AiOutlineEdit size={24} />
                           </button>
-                          <button
-                            onClick={() => handleDeleteDealer(dealer.id)}
-                            className="bg-red-600 text-white px-3 py-1 rounded text-sm"
-                          >
-                            Delete
-                          </button>
+
+                          {/* <button
+                          onClick={() => handleDeleteDealer(id)}
+                          title="Delete Dealer"
+                          aria-label={`Delete dealer ${dealer.name}`}
+                          className="text-red-600 hover:text-red-800 transition"
+                        >
+                          <AiOutlineDelete size={24} />
+                        </button> */}
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
               ) : (
-                <p>No Dealer Found</p>
+                <p className="p-3 text-center text-gray-500">
+                  No Dealers Found
+                </p>
               )}
             </div>
-          </div>
+          </section>
         )}
+
+        {/* Popups */}
+        {open && (
+          <CreateExecutivePopUp
+            onClose={closeExecutivePopup}
+            initialData={editExecutive}
+          />
+        )}
+
+        {/* {isDealerOpen && (
+          <InviteDealer onClose={closeDealerPopup} initialData={editDealer} />
+        )} */}
       </div>
-    </div>
+    </>
   );
 };
 

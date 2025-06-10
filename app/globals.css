@@ -28,10 +28,6 @@ body {
   }
 }
 
-.custom-scroller::-webkit-scrollbar {
-  height: 5px;
-}
-
 .custom-scroller::-webkit-scrollbar-track {
   background: #092c1c1e;
 }

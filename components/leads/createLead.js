@@ -88,11 +88,13 @@ const CreateLead = ({ leadId }) => {
 
   useEffect(() => {
     if (user) {
+      if (user.role == "admin" && user.role == "executive") {
+        dispatch(asyncGetDealers());
+        dispatch(asyncGetAllLeads());
+        dispatch(asyncGetExecutives());
+      }
       dispatch(asyncAddCategory());
       dispatch(asyncAddProducts());
-      dispatch(asyncGetDealers());
-      dispatch(asyncGetAllLeads());
-      dispatch(asyncGetExecutives());
     }
   }, []);
 

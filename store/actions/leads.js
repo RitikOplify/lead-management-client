@@ -74,9 +74,9 @@ export const asyncAddVisits = () => async (dispatch, getstate) => {
   }
 };
 
-export const asyncAddMyLeads = () => async (dispatch, getstate) => {
+export const asyncAddMyLeads = (company) => async (dispatch, getstate) => {
   try {
-    const { data } = await axios.get(`/lead/my-lead`);
+    const { data } = await axios.get(`/lead/my-lead?companyId=${company.id}`);
 
     console.log(data);
     dispatch(addMyLead(data.leads));

@@ -16,53 +16,48 @@ const ReassignExecutive = ({ onClose, leadId }) => {
   } = useForm();
 
   const [loading, setLoading] = useState(false);
-  const { company, executives } = useSelector((state) => state.leads);
+  const { executives } = useSelector((state) => state.leads);
   const dispatch = useDispatch();
+
   const onSubmit = async (executiveId) => {
     const updateData = { leadId, ...executiveId };
     try {
       setLoading(true);
-      const { data } = await axios.post(
-        "/admin/reassign-executive",
-        updateData
-      );
+      const { data } = await axios.post("/admin/reassign-executive", updateData);
       dispatch(updateLead(data.lead));
-      console.log(data);
-
-      setLoading(false);
       toast.success(data.message);
       reset();
       onClose();
     } catch (err) {
-      console.log(err);
-
+      toast.error(err.response?.data?.message || "Something went wrong");
+    } finally {
       setLoading(false);
-      toast.error(err.response?.data?.message);
     }
   };
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="bg-white h-screen sm:h-auto md:rounded-xl shadow-xl w-full max-w-lg p-6 relative"
+        className="bg-white h-screen sm:h-auto rounded-none sm:rounded-2xl shadow-xl w-full max-w-lg p-6 relative transition-all"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-black cursor-pointer"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition"
         >
           <IoClose size={24} />
         </button>
 
-        <h3 className="text-2xl font-semibold mb-4 text-center">
+        <h3 className="text-xl font-semibold mb-6 text-center text-slate-800">
           Reassign Executive
         </h3>
-        <form onSubmit={handleSubmit(onSubmit)}>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           <Select
-            label="Executive"
+            label="Select Executive"
             name="executiveId"
             register={register}
             options={(executives || []).map((e) => ({
@@ -72,40 +67,44 @@ const ReassignExecutive = ({ onClose, leadId }) => {
             touched={touchedFields.executiveId}
             error={errors.executiveId}
           />
-          <div className="text-right mt-5">
-            {loading ? (
-              <button
-                disabled
-                type="button"
-                className="px-3 py-2 rounded-lg bg-green-950 text-white"
-              >
-                <svg
-                  aria-hidden="true"
-                  role="status"
-                  className="inline w-4 h-4 me-3 text-white animate-spin"
-                  viewBox="0 0 100 101"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591..."
-                    fill="#E5E7EB"
-                  />
-                  <path
-                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116..."
-                    fill="currentColor"
-                  />
-                </svg>
-                Loading...
-              </button>
-            ) : (
-              <button
-                type="submit"
-                className="bg-[#092C1C] text-white px-6 py-2 rounded cursor-pointer"
-              >
-                Update
-              </button>
-            )}
+
+          <div className="text-right">
+            <button
+              type="submit"
+              disabled={loading}
+              className={`px-5 py-2 rounded-lg transition font-medium ${
+                loading
+                  ? "bg-slate-300 text-slate-600 cursor-not-allowed"
+                  : "bg-blue-700 text-white hover:bg-blue-800"
+              }`}
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg
+                    className="w-4 h-4 animate-spin text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 100 16v-4l-3.5 3.5L12 24v-4a8 8 0 01-8-8z"
+                    />
+                  </svg>
+                  Updating...
+                </span>
+              ) : (
+                "Update"
+              )}
+            </button>
           </div>
         </form>
       </div>

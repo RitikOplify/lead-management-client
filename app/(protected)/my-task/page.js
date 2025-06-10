@@ -1,203 +1,171 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import Nav from "@/components/Nav";
-import axios from "@/utils/axios";
 import Link from "next/link";
+import { useDispatch, useSelector } from "react-redux";
 import { FaEdit, FaEye } from "react-icons/fa";
 import { MdOutlineAccessAlarm } from "react-icons/md";
-import ViewProduct from "@/components/popups/ViewProduct";
-import CreateFollowUp from "@/components/popups/createFollowUp";
-import { useDispatch, useSelector } from "react-redux";
 import { asyncAddMyLeads } from "@/store/actions/leads";
+import ViewProduct from "@/components/popups/ViewProduct";
+import CreateFollowUp from "@/components/popups/CreateFollowUp";
 import EditLead from "@/components/popups/EditLeadPopUp";
 
-const Page = () => {
-  const [navOpen, setNavOpen] = useState(false);
-  const [productOpen, setProductOpen] = useState(false);
-  const [leadData, setLeadData] = useState();
+const MyLeadsPage = () => {
   const dispatch = useDispatch();
-
   const { myLeads } = useSelector((state) => state.leads);
+  const [leadData, setLeadData] = useState(null);
+  const [leadId, setLeadId] = useState(null);
+  const [editLeadId, setEditLeadId] = useState(null);
 
+  const [productOpen, setProductOpen] = useState(false);
+  const [followUpOpen, setFollowUpOpen] = useState(false);
+  const [editLeadOpen, setEditLeadOpen] = useState(false);
+  const { currentCompany } = useSelector((state) => state.auth);
   useEffect(() => {
-    dispatch(asyncAddMyLeads());
-  }, []);
-  const viewClick = (lead) => {
+    dispatch(asyncAddMyLeads(currentCompany));
+  }, [dispatch]);
+
+  const openProduct = (lead) => {
     setLeadData(lead);
-    if (!lead) return;
     setProductOpen(true);
   };
-  const [leadId, setLeadId] = useState(null);
-  const [open, setOpen] = useState(false);
-  const [editLead, setEditLead] = useState(false);
-  const [editLeadId, setEditLeadId] = useState(false);
-  const followUpClick = (leadId) => {
-    setLeadId(leadId);
-    if (!leadId) return;
-    setOpen(true);
+
+  const openFollowUp = (id) => {
+    setLeadId(id);
+    setFollowUpOpen(true);
   };
+
+  const getRowColor = (lead) => {
+    if (!lead?.nextFollowUpDate) return "";
+    const nextDate = new Date(lead.nextFollowUpDate);
+    const now = new Date();
+    const diff = nextDate - now;
+
+    if (nextDate < now) return "bg-red-50 text-red-700";
+    if (diff <= 86400000) return "bg-yellow-50 text-yellow-800";
+    return "bg-blue-50 text-blue-800";
+  };
+
   return (
-    <div className="flex h-screen">
-      <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
+    <>
       {productOpen && (
         <ViewProduct onClose={() => setProductOpen(false)} lead={leadData} />
       )}
-
-      {open && <CreateFollowUp onClose={() => setOpen(false)} id={leadId} />}
-      {editLead && (
+      {followUpOpen && (
+        <CreateFollowUp onClose={() => setFollowUpOpen(false)} id={leadId} />
+      )}
+      {editLeadOpen && (
         <EditLead
-          onClose={() => {
-            setEditLead(false);
-            setEditLeadId("");
-          }}
           leadId={editLeadId}
+          onClose={() => {
+            setEditLeadOpen(false);
+            setEditLeadId(null);
+          }}
         />
       )}
 
-      <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
-        <div className="bg-white shadow-md rounded-lg overflow-hidden">
-          <div className="overflow-x-auto custom-scroller">
-            {myLeads.length > 0 ? (
-              <table className="min-w-[1136px] w-full whitespace-nowrap divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Next Task
-                    </th>
+      <div className="bg-white shadow-lg rounded-xl overflow-hidden">
+        <div className="p-4 flex items-center justify-between">
+          <h2 className="text-xl font-semibold text-gray-800">My Leads</h2>
+        </div>
 
-                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Enq number
-                    </th>
-
-                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Enq Person
-                    </th>
-
-                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Dealer
-                    </th>
-
-                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Contact
-                    </th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Email
-                    </th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Company
-                    </th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      City
-                    </th>
-
-                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Source
-                    </th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Status
-                    </th>
-
-                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Date Created
-                    </th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Last Update
-                    </th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Products
-                    </th>
-                    <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {myLeads.map((lead, index) => (
-                    <tr
-                      key={index}
-                      className={`${
-                        lead.nextFollowUpDate
-                          ? (() => {
-                              const nextDate = new Date(lead.nextFollowUpDate);
-                              const now = new Date();
-                              const diff = nextDate - now;
-                              if (nextDate < now)
-                                return "bg-red-300 text-white";
-                              if (diff <= 24 * 60 * 60 * 1000)
-                                return "bg-red-100";
-                              return "";
-                            })()
-                          : ""
-                      }`}
+        <div className="overflow-x-auto custom-scroller">
+          {myLeads?.length > 0 ? (
+            <table className="min-w-[1200px] w-full divide-y divide-gray-200 text-sm">
+              <thead className="bg-gray-50 text-gray-600 font-semibold">
+                <tr>
+                  {[
+                    "Enq No",
+                    "Actions",
+                    "Next Task",
+                    "Enquiry Person",
+                    "Dealer",
+                    "Contact",
+                    "Email",
+                    "Company",
+                    "City",
+                    "Source",
+                    "Status",
+                    "Created",
+                    "Updated",
+                    "Products",
+                  ].map((head) => (
+                    <th
+                      key={head}
+                      className="p-4 text-left text-sm whitespace-nowrap font-semibold"
                     >
-                      <td className="p-4 text-sm">
-                        {lead.nextFollowUpStep || "NA"}
-                      </td>
-                      <td className="p-4 text-sm">{lead.enqNo || "NA"}</td>
-
-                      <td className="p-4 text-sm">{lead.name}</td>
-
-                      <td className="p-4 text-sm">
-                        {lead.dealerId ? lead.dealer?.name : "NA"}
-                      </td>
-                      <td className="p-4 text-sm">{lead.contact}</td>
-                      <td className="p-4 text-sm">{lead.email}</td>
-                      <td className="p-4 text-sm">{lead.companyName}</td>
-                      <td className="p-4 text-sm">{lead.city}</td>
-                      <td className="p-4 text-sm">{lead.source || "NA"}</td>
-                      <td className="p-4 text-sm">{lead.status}</td>
-
-                      <td className="p-4 text-sm">
-                        {new Date(lead.createdAt).toLocaleDateString("en-GB")}
-                      </td>
-                      <td className="p-4 text-sm">
-                        {new Date(lead.updatedAt).toLocaleDateString("en-GB")}
-                      </td>
-                      <td
-                        className="p-4 text-sm underline cursor-pointer"
-                        onClick={() => {
-                          viewClick(lead);
-                        }}
-                      >
-                        View
-                      </td>
-
-                      <td className="p-4 flex items-center space-x-4">
-                        <div
-                          className="cursor-pointer"
-                          onClick={() => {
-                            setEditLead(true);
-                            setEditLeadId(lead.id);
-                          }}
-                        >
-                          <FaEdit size={20} />
-                        </div>
-                        <Link href={`/lead/${lead.id}`}>
-                          <FaEye size={20} />
-                        </Link>
-
-                        <MdOutlineAccessAlarm
-                          className="cursor-pointer"
-                          size={20}
-                          onClick={() => {
-                            followUpClick(lead.id);
-                          }}
-                        />
-                      </td>
-                    </tr>
+                      {head}
+                    </th>
                   ))}
-                </tbody>
-              </table>
-            ) : (
-              <div className="flex items-center justify-center h-64 text-gray-500">
-                <p>No data available</p>
-              </div>
-            )}
-          </div>
+                </tr>
+              </thead>
+
+              <tbody className="divide-y divide-gray-100">
+                {myLeads.map((lead) => (
+                  <tr
+                    key={lead.id}
+                    className={`${getRowColor(lead)} transition`}
+                  >
+                    <td className="p-4 whitespace-nowrap">
+                      {lead.enqNo || "NA"}
+                    </td>
+                    <td className="flex items-center p-4 gap-3">
+                      <FaEdit
+                        className="cursor-pointer hover:text-blue-600"
+                        onClick={() => openFollowUp(lead.id)}
+                      />
+                      <Link href={`/lead/${lead.id}`}>
+                        <FaEye className="cursor-pointer hover:text-gray-600" />
+                      </Link>
+                    </td>
+                    <td className="p-4 whitespace-nowrap">
+                      {lead.nextFollowUpStep || "NA"}
+                    </td>
+
+                    <td className="p-4  whitespace-nowrap">
+                      {lead.enquiryPerson}
+                    </td>
+                    <td className="p-4  whitespace-nowrap">
+                      {lead.dealer?.name || "NA"}
+                    </td>
+                    <td className="p-4 whitespace-nowrap">
+                      {lead.contact || lead.customer?.contact}
+                    </td>
+                    <td className="p-4 whitespace-nowrap">
+                      {lead.email || lead.customer?.email}
+                    </td>
+                    <td className="p-4 whitespace-nowrap">
+                      {lead.customer?.customerName}
+                    </td>
+                    <td className="p-4  whitespace-nowrap">{lead.city}</td>
+                    <td className="p-4  whitespace-nowrap">
+                      {lead.source || "NA"}
+                    </td>
+                    <td className="p-4  whitespace-nowrap">{lead.status}</td>
+                    <td className="p-4  whitespace-nowrap">
+                      {new Date(lead.createdAt).toLocaleDateString("en-GB")}
+                    </td>
+                    <td className="p-4">
+                      {new Date(lead.updatedAt).toLocaleDateString("en-GB")}
+                    </td>
+                    <td
+                      className="p-4 text-blue-600 underline cursor-pointer"
+                      onClick={() => openProduct(lead)}
+                    >
+                      View
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div className="flex justify-center items-center h-64 text-gray-400">
+              No leads available.
+            </div>
+          )}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
-export default Page;
+export default MyLeadsPage;

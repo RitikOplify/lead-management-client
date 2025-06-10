@@ -1,58 +1,70 @@
 import { IoClose } from "react-icons/io5";
 
 const ViewProduct = ({ onClose, lead }) => {
-  console.log(lead);
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="bg-white h-screen sm:h-auto md:rounded-xl shadow-xl w-full max-w-lg p-6 relative"
+        className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 relative transition-transform transform hover:scale-[1.02]"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-gray-500 hover:text-black cursor-pointer"
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+          aria-label="Close"
         >
           <IoClose size={24} />
         </button>
-        <div className=" max-w-lg">
-          <h3 className="text-lg font-medium mb-4 ">Product Info</h3>
-          <p>
-            <span className="font-medium">Price:</span> ₹
-            {lead.price?.toLocaleString()}
-          </p>
 
-          <table className="w-full divide-y divide-gray-200 mt-6 shadow">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                  Product Name
-                </th>
-                <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                  Category
-                </th>
-                <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                  Sub Cubcategory
-                </th>
-              </tr>
-            </thead>
-            <tbody className=" divide-y divide-gray-200">
-              {lead.products?.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
-                  <td className="p-4 text-sm text-gray-700">{product.name}</td>
-                  <td className="p-4 text-sm text-gray-700">
-                    {product.category?.name}
-                  </td>
-                  <td className="p-4 text-sm text-gray-700">
-                    {product.subcategory?.name}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <h3 className="text-2xl font-semibold mb-6 text-gray-900 ">
+          Product Info
+        </h3>
+
+        <p className="text-lg mb-6 text-gray-700 ">
+          <span className="font-semibold">Price:</span>{" "}
+          {lead.price?.toLocaleString() || "NA"}
+        </p>
+
+        <div className=" grid grid-cols-1 sm:grid-cols-2">
+          {lead.products?.map((product) => (
+            <td className="px-6 py-4 text-gray-800  text-sm font-medium">
+              {product.name}
+            </td>
+          ))}
         </div>
+
+        {lead.categories?.length > 0 && (
+          <div>
+            <h3 className=" mb-2">Categories</h3>
+            <div className=" grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {lead.categories?.map((cat) => (
+                <p
+                  key={cat.id}
+                  className="px-6 py-4 text-gray-800 bg-gray-50  text-sm font-medium"
+                >
+                  {cat.name}
+                </p>
+              ))}
+            </div>
+          </div>
+        )}
+        {lead.subcategories?.length > 0 && (
+          <div>
+            <h3 className=" mb-2">Categories</h3>
+            <div className=" grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {lead.subcategories?.map((cat) => (
+                <p
+                  key={cat.id}
+                  className="px-6 py-4 text-gray-800 bg-gray-50  text-sm font-medium"
+                >
+                  {cat.name}
+                </p>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

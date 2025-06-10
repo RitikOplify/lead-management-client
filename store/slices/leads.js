@@ -32,7 +32,6 @@ export const leadsReducer = createSlice({
       state.totalLeads = action.payload.total;
       state.currentPage = action.payload.page;
     },
-
     updateLead: (state, action) => {
       const updatedLead = action.payload;
       state.leads = state.leads.map((lead) =>
@@ -63,11 +62,28 @@ export const leadsReducer = createSlice({
     addExecutive: (state, action) => {
       state.executives = action.payload;
     },
+    updateExecutive: (state, action) => {
+      const updatedExecutive = action.payload;
+      state.executives = state.executives.map((executive) =>
+        executive.id === updatedExecutive.id
+          ? { ...executive, ...updatedExecutive }
+          : executive
+      );
+    },
     addNewExecutive: (state, action) => {
       state.executives.push(action.payload);
     },
+
     addDealer: (state, action) => {
       state.dealers = action.payload;
+    },
+    updateDealer: (state, action) => {
+      const updatedDealer = action.payload;
+      state.dealers = state.dealers.map((dealer) =>
+        dealer.id === updatedDealer.id
+          ? { ...dealer, ...updatedDealer }
+          : dealer
+      );
     },
     addNewDealer: (state, action) => {
       state.dealers.push(action.payload);
@@ -78,11 +94,50 @@ export const leadsReducer = createSlice({
     addNewProduct: (state, action) => {
       state.products.push(action.payload);
     },
+    updateProduct: (state, action) => {
+      const updatedProduct = action.payload;
+      state.products = state.products.map((product) =>
+        product.id === updatedProduct.id
+          ? { ...product, ...updatedProduct }
+          : product
+      );
+    },
     addCategories: (state, action) => {
       state.categories = action.payload;
     },
+    updateCategory: (state, action) => {
+      const updatedCategory = action.payload;
+      state.categories = state.categories.map((cat) =>
+        cat.id === updatedCategory.id ? { ...cat, ...updatedCategory } : cat
+      );
+    },
     addNewCategory: (state, action) => {
       state.categories.push(action.payload);
+    },
+    updateSubCat: (state, action) => {
+      const updatedSubCat = action.payload;
+      state.categories = state.categories.map((cat) => {
+        return {
+          ...cat,
+          subcategories: cat.subcategories.map((subCategory) =>
+            subCategory.id === updatedSubCat.id
+              ? { ...subCategory, ...updatedSubCat }
+              : subCategory
+          ),
+        };
+      });
+    },
+    addNewSubCat: (state, action) => {
+      const newSubCat = action.payload;
+      state.categories = state.categories.map((category) => {
+        if (category.id === newSubCat.categoryId) {
+          return {
+            ...category,
+            subcategories: [...(category.subcategories || []), newSubCat],
+          };
+        }
+        return category;
+      });
     },
   },
 });
@@ -104,7 +159,12 @@ export const {
   addNewVisit,
   updateLead,
   addMyLead,
+  updateExecutive,
   addDealerLead,
+  updateProduct,
+  updateCategory,
+  updateSubCat,
+  addNewSubCat,
 } = leadsReducer.actions;
 
 export default leadsReducer.reducer;

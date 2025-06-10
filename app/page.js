@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncCurrentUser } from "@/store/actions/auth";
 import { useRouter } from "next/navigation";
@@ -15,11 +15,13 @@ import {
   asyncGetDealers,
   asyncGetExecutives,
 } from "@/store/actions/admin";
+import Nav from "@/components/Nav";
 
 function Home() {
   const dispatch = useDispatch();
   const router = useRouter();
   const { user, isLoading } = useSelector((state) => state.auth);
+  const [navOpen, setNavOpen] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -66,7 +68,23 @@ function Home() {
     );
   }
 
-  return <LeadDataTable />;
+  return (
+    <div className="flex h-screen">
+      <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
+      <main className="flex-1 overflow-auto p-6 transition-all bg-gray-100 duration-300 ease-in-out">
+        <div className="md:hidden mb-4">
+          <button
+            onClick={() => setNavOpen(true)}
+            className="text-2xl text-[#1B2430] p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="Open navigation menu"
+          >
+            ☰
+          </button>
+        </div>
+        <LeadDataTable />
+      </main>
+    </div>
+  );
 }
 
 export default Home;

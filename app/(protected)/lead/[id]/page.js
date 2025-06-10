@@ -1,18 +1,18 @@
 "use client";
-import Nav from "@/components/Nav";
 import React, { use, useEffect, useState } from "react";
 import axios from "@/utils/axios";
 import { toast } from "react-toastify";
 import Loader from "@/components/loader";
 import { useSelector } from "react-redux";
 import Link from "next/link";
-import CreateFollowUp from "@/components/popups/createFollowUp";
-import { FaBars } from "react-icons/fa";
+import CreateFollowUp from "@/components/popups/CreateFollowUp";
 
 function Page({ params }) {
   const { id } = use(params);
-  const [lead, setLead] = useState();
+  const [lead, setLead] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [leadId, setLeadId] = useState(null);
   const { user } = useSelector((state) => state.auth);
 
   useEffect(() => {
@@ -22,247 +22,229 @@ function Page({ params }) {
         const { data } = await axios.get(`/lead/${id}`);
         setLead(data.lead);
         setLoading(false);
-        console.log(data.lead);
       } catch (error) {
         setLoading(false);
-        console.log(error.response.data.message);
-        toast.error(error.response.data.message);
+        toast.error(error?.response?.data?.message || "Failed to fetch lead");
         console.error("Error fetching lead details:", error);
       }
     };
     fetchLeadDetails();
-  }, []);
-  const [open, setOpen] = useState(false);
+  }, [id]);
 
-  const [leadId, setLeadId] = useState(null);
   const followUpClick = (leadId) => {
     setLeadId(leadId);
     if (!leadId) return;
     setOpen(true);
   };
 
-    const [navOpen, setNavOpen] = useState(false);
-
-
   return (
-    <div className="flex h-screen">
-      <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
-
+    <div className="p-4 w-full overflow-y-auto custom-scroller2">
       {open && <CreateFollowUp onClose={() => setOpen(false)} id={leadId} />}
 
-      <div className="p-6 w-full lg:w-[calc(100%-256px)] overflow-y-auto custom-scroller2">
-        <div className="md:hidden mb-4">
-          <div
-            onClick={() => setNavOpen(true)}
-            className="text-2xl text-[#092C1C] cursor-pointer"
-          >
-            <FaBars />
-          </div>
+      {loading ? (
+        <div className="h-screen flex justify-center items-center">
+          <Loader />
         </div>
-        {loading ? (
-          <div className=" h-screen flex justify-center items-center">
-            <Loader />
-          </div>
-        ) : lead ? (
-          <div className="bg-white">
-            <div>
-              <div className=" flex justify-between mb-2">
-                <h2 className="text-2xl font-semibold ">Lead Details</h2>
-                <div className=" flex gap-4">
-                  <Link
-                    href={`/new-visit?leadId=${lead.id}`}
-                    className="bg-[#092C1C] text-white px-3 py-2 rounded cursor-pointer flex items-center"
-                  >
-                    Add Visit
-                  </Link>
-                  <h3
-                    className="bg-[#092C1C] text-white px-3 py-2 rounded cursor-pointer flex items-center"
-                    onClick={() => {
-                      followUpClick(lead.id);
-                    }}
-                  >
-                    Add Followup
-                  </h3>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-4">
-                <p>
-                  <span className="font-medium">Name:</span>{" "}
-                  {lead?.customer?.customerName || "NA"}
-                </p>
-                <p>
-                  <span className="font-medium">Email:</span>{" "}
-                  {lead.customer?.email}
-                </p>
-                <p>
-                  <span className="font-medium">Contact:</span>{" "}
-                  {lead.customer?.contact}
-                </p>
-                <p>
-                  <span className="font-medium">City:</span> {lead.city}
-                </p>
-                <p>
-                  <span className="font-medium">State:</span>{" "}
-                  {lead.state || "NA"}
-                </p>
-                <p>
-                  <span className="font-medium">Status:</span> {lead.status}
-                </p>
-                <p>
-                  <span className="font-medium">Final Status:</span>{" "}
-                  {lead.finalStatus || "NA"}
-                </p>
-                <p>
-                  <span className="font-medium">Source:</span>{" "}
-                  {lead.source || "NA"}
-                </p>
-                <p>
-                  <span className="font-medium">Price: </span>
-                  {`${
-                    lead.price?.toLocaleString()
-                      ? `${lead.price?.toLocaleString()}  ₹`
-                      : "NA"
-                  }`}
-                </p>
-                <p>
-                  <span className="font-medium">Comments:</span>{" "}
-                  {lead.comments || "NA"}
-                </p>
-              </div>
+      ) : lead ? (
+        <div className="bg-white rounded-lg shadow-lg w-full p-6 mx-auto">
+          {/* Header with Actions */}
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-semibold text-slate-900">
+              Lead Details
+            </h2>
+            <div className="flex gap-4">
+              <Link
+                href={`/new-visit?leadId=${lead.id}`}
+                className="bg-blue-700 hover:bg-blue-800 transition-colors duration-300 text-white px-4 py-2 rounded-lg font-medium shadow-md flex items-center"
+              >
+                Add Visit
+              </Link>
+              <button
+                onClick={() => followUpClick(lead.id)}
+                className="bg-blue-700 hover:bg-blue-800 transition-colors duration-300 text-white px-4 py-2 rounded-lg font-medium shadow-md flex items-center"
+              >
+                Add Followup
+              </button>
             </div>
+          </div>
 
-            <div className="mt-6">
-              <h3 className="text-lg font-medium mb-2 ">Product Info</h3>
-              {lead.products?.map((product) => (
+          {/* Lead Info Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm text-slate-700">
+            {[
+              { label: "Name", value: lead.customer?.customerName || "NA" },
+              { label: "Email", value: lead.customer?.email || "NA" },
+              { label: "Contact", value: lead.customer?.contact || "NA" },
+              { label: "City", value: lead.city || "NA" },
+              { label: "State", value: lead.state || "NA" },
+              { label: "Status", value: lead.status || "NA" },
+              { label: "Final Status", value: lead.finalStatus || "NA" },
+              { label: "Source", value: lead.source || "NA" },
+              {
+                label: "Price",
+                value: lead.price ? `${lead.price.toLocaleString()} ₹` : "NA",
+              },
+              { label: "Comments", value: lead.comments || "NA" },
+            ].map(({ label, value }) => (
+              <p
+                key={label}
+                className="bg-slate-100 p-4 rounded-lg shadow-inner"
+              >
+                <span className="font-semibold text-slate-900">{label}:</span>{" "}
+                {value}
+              </p>
+            ))}
+          </div>
+
+          {/* Product Info */}
+          <section className="mt-10">
+            <h3 className="text-xl font-semibold mb-4 text-slate-900 border-b border-slate-300 pb-2">
+              Product Info
+            </h3>
+            {lead.products?.length ? (
+              lead.products.map((product) => (
                 <div
                   key={product.id}
-                  className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-4"
+                  className="bg-slate-100 p-4 rounded-lg shadow-md mb-4 hover:shadow-lg transition-shadow duration-300"
+                >
+                  <p className="text-slate-800 font-medium">{product.name}</p>
+                </div>
+              ))
+            ) : (
+              <p className="text-slate-500">No products available</p>
+            )}
+          </section>
+
+          {/* Categories */}
+          {lead.categories?.length > 0 && (
+            <section className="mt-10">
+              <h3 className="text-xl font-semibold mb-4 text-slate-900 border-b border-slate-300 pb-2">
+                Categories
+              </h3>
+              <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {lead.categories.map((cat) => (
+                  <div
+                    key={cat.id}
+                    className="bg-slate-100 p-4 rounded-lg shadow-md mb-4 hover:shadow-lg transition-shadow duration-300"
+                  >
+                    <p className="text-slate-800 font-medium">{cat.name}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Visits Info */}
+          {lead.visits?.length > 0 && (
+            <section className="mt-10">
+              <h3 className="text-xl font-semibold mb-4 text-slate-900 border-b border-slate-300 pb-2">
+                Visits Info
+              </h3>
+              {lead.visits.map((visit) => (
+                <div
+                  key={visit.id}
+                  className="bg-slate-100 p-4 rounded-lg shadow-md mb-4 hover:shadow-lg transition-shadow duration-300"
                 >
                   <p>
-                    <span className="font-medium">Product Name:</span>{" "}
-                    {product.name}
+                    <span className="font-semibold text-slate-900">
+                      Visit Date:
+                    </span>{" "}
+                    {new Date(visit.visitDate).toLocaleDateString()}
+                  </p>
+                  <p>
+                    <span className="font-semibold text-slate-900">
+                      Purpose:
+                    </span>{" "}
+                    {visit.purpose}
                   </p>
                 </div>
               ))}
-            </div>
+            </section>
+          )}
 
-            {lead.categories?.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-lg font-medium mb-2 ">Categories</h3>
-                {lead.categories?.map((cat) => (
-                  <div
-                    key={cat.id}
-                    className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-4"
-                  >
-                    <p>
-                      <span className="font-medium">Category Name:</span>{" "}
-                      {cat.name}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {lead.visits && lead.visits.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-lg font-medium mb-2 ">Visits Info</h3>
-                {lead.visits?.map((visit) => (
-                  <div
-                    key={visit.id}
-                    className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-4"
-                  >
-                    <p>
-                      <span className="font-medium">Visit Date:</span>{" "}
-                      {new Date(visit.visitDate).toLocaleDateString()}
-                    </p>
-                    <p>
-                      <span className="font-medium">Purpose:</span>{" "}
-                      {visit.purpose}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {lead.followUps && lead.followUps.length > 0 && (
-              <div className="mt-6">
-                <h3 className="text-lg font-medium mb-2">Follow Ups</h3>
-                <div className="space-y-4 overflow-y-auto custom-scroller shadow-md rounded-lg">
-                  <table className="min-w-[1024px] w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                          Date
+          {/* Follow Ups Table */}
+          {lead.followUps?.length > 0 && (
+            <section className="mt-10">
+              <h3 className="text-xl font-semibold mb-4 text-slate-900 border-b border-slate-300 pb-2">
+                Follow Ups
+              </h3>
+              <div className="overflow-x-auto rounded-lg shadow-md">
+                <table className="min-w-full divide-y divide-slate-200 bg-white">
+                  <thead className="bg-slate-100">
+                    <tr>
+                      {[
+                        "Date",
+                        "Status",
+                        "Message",
+                        "Next Step",
+                        "Next Followup Date",
+                      ].map((header) => (
+                        <th
+                          key={header}
+                          className="p-4 text-left text-sm font-semibold text-slate-600"
+                        >
+                          {header}
                         </th>
-
-                        <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                          Status
-                        </th>
-
-                        <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                          Message
-                        </th>
-                        <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                          Next Step
-                        </th>
-                        <th className="p-4 text-left text-sm font-semibold text-gray-600">
-                          Next Followup Date
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className=" divide-y divide-gray-200">
-                      {lead.followUps.map((followUp, index) => (
-                        <tr key={followUp.id} className="hover:bg-gray-50">
-                          <td className="p-4 text-sm text-gray-700">
-                            {new Date(followUp.createdAt).toLocaleDateString()}
-                          </td>
-
-                          <td className="p-4 text-sm text-gray-700">
-                            {followUp.status}
-                          </td>
-
-                          <td className="p-4 text-sm text-gray-700">
-                            {followUp.message || "No message"}
-                          </td>
-                          <td className="p-4 text-sm text-gray-700">
-                            {followUp.nextFollowUpStep || "NA"}
-                          </td>
-                          <td className="p-4 text-sm text-gray-700">
-                            {new Date(
-                              followUp.nextFollowUpDate
-                            ).toLocaleString()}
-                          </td>
-                        </tr>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {lead.followUps.map((followUp) => (
+                      <tr
+                        key={followUp.id}
+                        className="hover:bg-slate-50 transition-colors duration-200"
+                      >
+                        <td className="p-4 text-sm text-slate-700">
+                          {new Date(followUp.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="p-4 text-sm text-slate-700">
+                          {followUp.status}
+                        </td>
+                        <td className="p-4 text-sm text-slate-700">
+                          {followUp.message || "No message"}
+                        </td>
+                        <td className="p-4 text-sm text-slate-700">
+                          {followUp.nextFollowUpStep || "NA"}
+                        </td>
+                        <td className="p-4 text-sm text-slate-700">
+                          {followUp.nextFollowUpDate
+                            ? new Date(
+                                followUp.nextFollowUpDate
+                              ).toLocaleString()
+                            : "NA"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-            )}
+            </section>
+          )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700 shadow-md rounded-lg p-6 mt-6">
-              {lead.executive && (
-                <p>
-                  <span className="font-medium">Executive:</span>{" "}
-                  {lead.executive?.username || "Not Assigned"}
-                </p>
-              )}
-              {lead.dealer && (
-                <p>
-                  <span className="font-medium">Dealer:</span>{" "}
-                  {lead.dealer?.name || "Not Assigned"}
-                </p>
-              )}
+          {/* Additional Lead Details */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm text-slate-700 mt-10 bg-slate-100 rounded-lg p-6 shadow-inner">
+            {lead.executive && (
               <p>
-                <span className="font-medium">Created At:</span>{" "}
-                {new Date(lead.createdAt).toLocaleString()}
+                <span className="font-semibold text-slate-900">Executive:</span>{" "}
+                {lead.executive?.username || "Not Assigned"}
               </p>
-            </div>
+            )}
+            {lead.dealer && (
+              <p>
+                <span className="font-semibold text-slate-900">Dealer:</span>{" "}
+                {lead.dealer?.name || "Not Assigned"}
+              </p>
+            )}
+            <p>
+              <span className="font-semibold text-slate-900">Created At:</span>{" "}
+              {new Date(lead.createdAt).toLocaleString()}
+            </p>
           </div>
-        ) : (
-          <p>Loading lead details...</p>
-        )}
-      </div>
+        </div>
+      ) : (
+        <p className="text-center text-slate-600 mt-20">
+          Loading lead details...
+        </p>
+      )}
     </div>
   );
 }

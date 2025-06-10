@@ -17,6 +17,9 @@ function Layout({ children }) {
 
   useEffect(() => {
     if (!isLoading && user) {
+      if (user.role == "dealer") {
+        router.replace("/my-task");
+      }
       router.replace("/");
     }
   }, [user, isLoading, router]);

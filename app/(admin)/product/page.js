@@ -1,33 +1,110 @@
 "use client";
+
 import React, { useState } from "react";
-import { FaBars } from "react-icons/fa";
-import CreateProductForm from "@/components/popups/CreateProduct";
-import Nav from "@/components/Nav";
+import { FaPlus, FaEdit, FaTrash } from "react-icons/fa";
 import { useSelector } from "react-redux";
+import CreateProductForm from "@/components/popups/CreateProduct";
 
-const Page = () => {
-  const [isProductOpen, setProductOpen] = useState(false);
-  const [navOpen, setNavOpen] = useState(false);
-  const [editProduct, setEditProduct] = useState(null);
+/** Tail-wind palette (change once – every instance updates) */
+const COLORS = {
+  primary: "#1B2430", // deep blue-grey
+  primaryHover: "#12202C",
+  positive: "blue-500",
+  positiveHover: "blue-600",
+  negative: "red-600",
+  negativeHover: "red-700",
+};
 
+const ProductsPage = () => {
   const { products } = useSelector((state) => state.leads);
+  const [isProductOpen, setProductOpen] = useState(false);
+  const [editProduct, setEditProduct] = useState(null);
 
   const handleEdit = (product) => {
     setEditProduct(product);
     setProductOpen(true);
   };
 
-  const handleDelete = (productId) => {
+  const handleDelete = (id) => {
     if (confirm("Are you sure you want to delete this product?")) {
-      // Call delete API or dispatch Redux action here
-      console.log("Deleting product with ID:", productId);
+      // dispatch asyncDeleteProduct(id)  -- or call your API
+      console.log("Deleting product with ID:", id);
     }
   };
 
   return (
-    <div className="flex h-screen">
-      <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
+    <section className="max-w-7xl mx-auto  bg-white rounded-xl shadow-sm overflow-hidden">
+      {/* CREATE button */}
+      <div className=" p-4">
+        <button
+          onClick={() => {
+            setEditProduct(null);
+            setProductOpen(true);
+          }}
+          className={`inline-flex items-center gap-2 px-6 py-2 rounded-lg text-white shadow 
+                    bg-[${COLORS.primary}] hover:bg-[${COLORS.primaryHover}] transition`}
+        >
+          <FaPlus className="text-sm" />
+          Create Product
+        </button>
+      </div>
 
+      {/* TABLE */}
+      {products?.length ? (
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200 bg-white">
+            <thead className="bg-gray-50">
+              <tr>
+                {["Name", "Category", "Sub-category", "Actions"].map((h) => (
+                  <th
+                    key={h}
+                    className="px-6 whitespace-nowrap py-3 text-left text-sm font-semibold text-gray-600"
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {products.map((p) => (
+                <tr key={p.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                    {p.name}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                    {p.category?.name || "NA"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                    {p.subcategory?.name || "NA"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm flex gap-2">
+                    <button
+                      onClick={() => handleEdit(p)}
+                      className={`inline-flex items-center gap-1 px-3 py-1 rounded text-white text-xs 
+                                  bg-${COLORS.positive} hover:bg-${COLORS.positiveHover} transition`}
+                    >
+                      <FaEdit />
+                      Edit
+                    </button>
+                    {/* <button
+                      onClick={() => handleDelete(p.id)}
+                      className={`inline-flex items-center gap-1 px-3 py-1 rounded text-white text-xs 
+                                  bg-${COLORS.negative} hover:bg-${COLORS.negativeHover} transition`}
+                    >
+                      <FaTrash />
+                      Delete
+                    </button> */}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p className="text-base text-gray-500 pb-6 pl-6">No products found.</p>
+      )}
+
+      {/* MODAL */}
       {isProductOpen && (
         <CreateProductForm
           onClose={() => {
@@ -35,78 +112,15 @@ const Page = () => {
             setEditProduct(null);
           }}
           defaultValues={{
-            name: editProduct?.name || "",
-            categoryId: editProduct?.categoryId || "",
-            subcategoryId: editProduct?.subcategoryId || "",
+            name: editProduct?.name ?? "",
+            categoryId: editProduct?.categoryId ?? "",
+            subcategoryId: editProduct?.subcategoryId ?? "",
           }}
-          productId={editProduct?.id || null}
+          productId={editProduct?.id ?? null}
         />
       )}
-
-      <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
-        <div className="md:hidden mb-4">
-          <div
-            onClick={() => setNavOpen(true)}
-            className="text-2xl text-[#092C1C] cursor-pointer"
-          >
-            <FaBars />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <button
-            className="bg-[#092C1C] text-white px-6 py-2 rounded cursor-pointer"
-            onClick={() => {
-              setEditProduct(null); // Clear edit state
-              setProductOpen(true);
-            }}
-          >
-            Create Product
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          {products?.length > 0 ? (
-            <table className="w-full divide-y divide-gray-200 mt-6 shadow">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="p-4 text-left text-sm font-semibold text-gray-600">Name</th>
-                  <th className="p-4 text-left text-sm font-semibold text-gray-600">Category</th>
-                  <th className="p-4 text-left text-sm font-semibold text-gray-600">Sub Category</th>
-                  <th className="p-4 text-left text-sm font-semibold text-gray-600">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {products.map((product) => (
-                  <tr key={product.id} className="hover:bg-gray-50">
-                    <td className="p-4 text-sm text-gray-700">{product.name}</td>
-                    <td className="p-4 text-sm text-gray-700">{product.category?.name}</td>
-                    <td className="p-4 text-sm text-gray-700">{product.subcategory?.name}</td>
-                    <td className="p-4 text-sm text-gray-700 flex gap-2">
-                      <button
-                        onClick={() => handleEdit(product)}
-                        className="bg-blue-600 text-white px-3 py-1 rounded text-sm"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(product.id)}
-                        className="bg-red-600 text-white px-3 py-1 rounded text-sm"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p>No Product Found</p>
-          )}
-        </div>
-      </div>
-    </div>
+    </section>
   );
 };
 
-export default Page;
+export default ProductsPage;

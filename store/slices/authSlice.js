@@ -18,8 +18,8 @@ export const userReducer = createSlice({
       state.user = action.payload;
       state.isAuthenticated = true;
       if (action.payload.role === "dealer") {
-        state.currentCompany.name = action.payload.company[0].company.name;
-        state.currentCompany.id = action.payload.company[0].company.id;
+        state.currentCompany.name = action.payload?.company[0]?.company?.name;
+        state.currentCompany.id = action.payload?.company[0]?.company?.id;
       }
     },
     removeUser: (state) => {

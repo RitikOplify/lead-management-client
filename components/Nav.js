@@ -16,9 +16,10 @@ import {
   FaUserTie,
 } from "react-icons/fa";
 import { HiOutlineSwitchVertical } from "react-icons/hi";
-import { MdDashboard, MdCategory } from "react-icons/md";
+import { MdCategory } from "react-icons/md";
 import { useDispatch, useSelector } from "react-redux";
 import SwitchCompany from "./popups/SwitchCompany";
+import Image from "next/image";
 
 function Nav({ navOpen, setNavOpen }) {
   const dispatch = useDispatch();
@@ -50,18 +51,43 @@ function Nav({ navOpen, setNavOpen }) {
     };
   }, [navOpen, setNavOpen]);
 
-  const handleCompanyChange = () => {
-    setSwitchCompanyOpen(true);
-  };
+  const navLinks = [
+    ...(user?.role !== "dealer"
+      ? [{ href: "/", icon: <FaHome />, label: "Home" }]
+      : []),
+    { href: "/new-lead", icon: <FaPlusCircle />, label: "Create Lead" },
+    ...(user?.role !== "dealer"
+      ? [
+          { href: "/new-visit", icon: <FaPlusCircle />, label: "New Visit" },
+          { href: "/visits", icon: <FaCalendarCheck />, label: "All Visits" },
+          { href: "/customer", icon: <FaUsers />, label: "Customer Details" },
+          {
+            href: "/dealer-sales-lead",
+            icon: <FaBuilding />,
+            label: "Partner's Sales Lead",
+          },
+        ]
+      : []),
+    ...(user?.role !== "admin"
+      ? [{ href: "/my-task", icon: <FaTasks />, label: "My Tasks" }]
+      : []),
+    ...(user?.role === "admin"
+      ? [
+          { href: "/analytics", icon: <FaChartBar />, label: "Analytics" },
+          { href: "/users", icon: <FaUsers />, label: "Users" },
+          { href: "/product", icon: <FaBoxOpen />, label: "Products" },
+          { href: "/category", icon: <MdCategory />, label: "Category" },
+        ]
+      : []),
+  ];
 
   return (
     <>
-      {/* Backdrop for smaller screens */}
       {navOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black/10 z-40"
+          className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
           onClick={() => setNavOpen(false)}
-        ></div>
+        />
       )}
 
       {switchCompanyOpen && (
@@ -70,130 +96,66 @@ function Nav({ navOpen, setNavOpen }) {
 
       <aside
         ref={navRef}
-        className={`bg-[#092C1C] text-white flex flex-col p-4 space-y-6 fixed md:static top-0 left-0 h-full w-64 z-50 transition-transform transform ${
-          navOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-        }`}
+        className={`bg-[#1B2430] text-white w-64 flex flex-col fixed md:static top-0 left-0 h-full z-50 transition-transform duration-300
+          ${navOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+        `}
       >
-        <div className="flex justify-between items-center md:hidden">
-          <h2 className="text-2xl font-bold">Logo</h2>
+        {/* Mobile Header */}
+        <div className="flex justify-between items-center md:hidden p-4 border-b border-gray-700">
+          <Image src={"/logo-192x192.png"} height={20} width={20} alt="logo" />
           <button
             onClick={() => setNavOpen(false)}
-            className="text-white text-2xl"
+            className="text-white text-xl hover:text-gray-300 transition"
           >
             <FaTimes />
           </button>
         </div>
 
-        <nav className="flex flex-col space-y-4 mt-4 md:mt-0">
-          {/* Switch Company (Dealer) */}
-          {user?.role === "dealer" && (
-            <p className="p-2 rounded flex items-center gap-2">
-              <FaUserTie />
-              {currentCompany.name}
-              <HiOutlineSwitchVertical
-                className="cursor-pointer"
-                onClick={handleCompanyChange}
-              />
-            </p>
-          )}
+        {/* Desktop Header */}
+        <div className="hidden md:flex pl-7 border-b border-gray-700">
+          <Image src={"/logo-192x192.png"} height={50} width={50} alt="logo" />
+        </div>
 
-          {/* Common */}
-          {user?.role !== "dealer" && (
-            <Link
-              href="/"
-              className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
+        {/* Dealer Company Switch */}
+        {user?.role === "dealer" && (
+          <div className="p-4">
+            <button
+              className="w-full p-3 rounded-lg flex items-center gap-3 hover:bg-green-700/80 hover:shadow-md transition-all"
+              onClick={() => setSwitchCompanyOpen(true)}
+              title="Switch Company"
             >
-              <FaHome /> Home
-            </Link>
-          )}
+              <FaUserTie size={20} />
+              <span className="flex-1 truncate text-left">
+                {currentCompany?.name}
+              </span>
+              <HiOutlineSwitchVertical size={20} />
+            </button>
+          </div>
+        )}
 
-          <Link
-            href="/new-lead"
-            className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-          >
-            <FaPlusCircle /> Create Lead
-          </Link>
-
-          {/* Non-Dealer */}
-          {user?.role !== "dealer" && (
-            <>
-              <Link
-                href="/new-visit"
-                className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-              >
-                <FaPlusCircle /> New Visit
-              </Link>
-              <Link
-                href="/visits"
-                className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-              >
-                <FaCalendarCheck /> All Visits
-              </Link>
-              <Link
-                href="/customer"
-                className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-              >
-                <FaUsers /> Customer Details
-              </Link>
-
-              <Link
-                href="/dealer-sales-lead"
-                className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-              >
-                <FaBuilding /> Partner{"'"}s Sales Lead
-              </Link>
-            </>
-          )}
-
-          {/* Non-Admin */}
-          {user?.role !== "admin" && (
+        {/* Navigation */}
+        <nav className="flex-1 flex flex-col p-4 space-y-2">
+          {navLinks.map(({ href, icon, label }) => (
             <Link
-              href="/my-task"
-              className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
+              key={href}
+              href={href}
+              onClick={() => window.innerWidth < 768 && setNavOpen(false)}
+              className="flex items-center gap-3 p-3 rounded-lg text-sm font-medium hover:bg-green-700/80 hover:shadow-md transition-all"
             >
-              <FaTasks /> My Tasks
+              <span className="text-lg">{icon}</span>
+              <span className="truncate">{label}</span>
             </Link>
-          )}
-
-          {/* Admin */}
-          {user?.role === "admin" && (
-            <>
-              <Link
-                href="/analytics"
-                className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-              >
-                <FaChartBar /> Analytics
-              </Link>
-
-              <Link
-                href="/users"
-                className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-              >
-                <FaUsers /> Users
-              </Link>
-              <Link
-                href="/product"
-                className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-              >
-                <FaBoxOpen /> Products
-              </Link>
-              <Link
-                href="/category"
-                className="hover:bg-green-800 p-2 rounded flex items-center gap-2"
-              >
-                <MdCategory /> Category
-              </Link>
-            </>
-          )}
+          ))}
         </nav>
 
-        {/* Signout */}
-        <div className="mt-auto">
+        {/* Logout */}
+        <div className="p-4 border-t border-gray-700">
           <button
-            className="text-sm hover:underline flex items-center gap-2 cursor-pointer"
             onClick={logout}
+            className="w-full flex items-center gap-3 p-3 rounded-lg text-sm font-medium hover:bg-red-700/80 hover:shadow-md transition-all"
           >
-            <FaSignOutAlt /> Sign Out
+            <FaSignOutAlt className="text-lg" />
+            <span>Sign Out</span>
           </button>
         </div>
       </aside>

@@ -1,7 +1,5 @@
 "use client";
 import React, { useState } from "react";
-import { FaBars } from "react-icons/fa";
-import Nav from "@/components/Nav";
 import { useSelector } from "react-redux";
 import CreateCategoryForm from "@/components/popups/CreateCategory";
 import CreateSubcategoryForm from "@/components/popups/CreateSubCategory";
@@ -11,12 +9,13 @@ const Page = () => {
   const [subCategoryOpen, setSubCategoryOpen] = useState(false);
   const [categoryToEdit, setCategoryToEdit] = useState(null);
   const [subCategoryToEdit, setSubCategoryToEdit] = useState(null);
-  const [navOpen, setNavOpen] = useState(false);
   const [expandedCategoryId, setExpandedCategoryId] = useState(null);
   const { categories } = useSelector((state) => state.leads);
 
   const toggleSubcategories = (categoryId) => {
-    setExpandedCategoryId(expandedCategoryId === categoryId ? null : categoryId);
+    setExpandedCategoryId(
+      expandedCategoryId === categoryId ? null : categoryId
+    );
   };
 
   const handleEditCategory = (category) => {
@@ -26,7 +25,6 @@ const Page = () => {
 
   const handleDeleteCategory = (id) => {
     console.log("Delete Category:", id);
-    // TODO: confirm and call delete API
   };
 
   const handleEditSubCategory = (subCategory) => {
@@ -36,7 +34,6 @@ const Page = () => {
 
   const handleDeleteSubCategory = (id) => {
     console.log("Delete SubCategory:", id);
-    // TODO: confirm and call delete API
   };
 
   const handleCloseCategoryForm = () => {
@@ -50,9 +47,7 @@ const Page = () => {
   };
 
   return (
-    <div className="flex h-screen">
-      <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
-
+    <>
       {categoryOpen && (
         <CreateCategoryForm
           onClose={handleCloseCategoryForm}
@@ -66,111 +61,112 @@ const Page = () => {
           subCategoryToEdit={subCategoryToEdit}
         />
       )}
-
-      <div className="p-6 w-full lg:w-[calc(100%-256px)] space-y-6 overflow-y-auto">
-        <div className="md:hidden mb-4">
-          <div
-            onClick={() => setNavOpen(true)}
-            className="text-2xl text-[#092C1C] cursor-pointer"
-          >
-            <FaBars />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className=" max-w-7xl mx-auto bg-white rounded-xl px-6 py-8 space-y-8 shadow-sm">
+        {/* Header Buttons */}
+        <div className="flex flex-wrap gap-4 ">
           <button
-            className="bg-[#092C1C] text-white px-6 py-2 rounded"
+            className="bg-[#1B2430] hover:bg-[#2F3E46] text-white font-medium px-5 py-2 rounded-md transition-all shadow-sm"
             onClick={() => {
               setCategoryToEdit(null);
               setCategoryOpen(true);
             }}
           >
-            Create Category
+            + Create Category
           </button>
           <button
-            className="bg-[#092C1C] text-white px-6 py-2 rounded"
+            className="bg-[#1B2430] hover:bg-[#2F3E46] text-white font-medium px-5 py-2 rounded-md transition-all shadow-sm"
             onClick={() => {
               setSubCategoryToEdit(null);
               setSubCategoryOpen(true);
             }}
           >
-            Create Sub Category
+            + Create Subcategory
           </button>
         </div>
 
-        <div className="rounded-lg p-4">
+        {/* Categories List */}
+        <div className="grid grid-cols-1 min-w-full sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {categories?.length > 0 ? (
-            <div className="space-y-4 mt-6">
-              {categories.map((cat) => (
-                <div
-                  key={cat.id}
-                  className="border rounded-lg p-4 shadow-sm bg-white"
-                >
-                  <div className="flex justify-between items-center">
-                    <h2 className="text-lg font-semibold">{cat.name}</h2>
-                    <div className="space-x-2">
-                      <button
-                        onClick={() => handleEditCategory(cat)}
-                        className="px-3 py-1 bg-blue-600 text-white rounded text-sm"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCategory(cat.id)}
-                        className="px-3 py-1 bg-red-600 text-white rounded text-sm"
-                      >
-                        Delete
-                      </button>
-                      <button
-                        onClick={() => toggleSubcategories(cat.id)}
-                        className="px-3 py-1 bg-gray-200 rounded text-sm cursor-pointer"
-                      >
-                        {expandedCategoryId === cat.id
-                          ? "Hide Subcategories"
-                          : "View Subcategories"}
-                      </button>
-                    </div>
+            categories.map((cat) => (
+              <div
+                key={cat.id}
+                className="bg-white border border-gray-200 rounded-xl p-5 shadow-md transition hover:shadow-lg"
+              >
+                <div className="flex justify-between items-start">
+                  <h2 className="text-lg font-semibold text-[#1B2430]">
+                    {cat.name}
+                  </h2>
+                  <div className="space-x-2">
+                    <button
+                      onClick={() => handleEditCategory(cat)}
+                      className="text-sm px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded transition"
+                    >
+                      Edit
+                    </button>
+                    {/* <button
+                      onClick={() => handleDeleteCategory(cat.id)}
+                      className="text-sm px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded transition"
+                    >
+                      Delete
+                    </button> */}
                   </div>
-
-                  {expandedCategoryId === cat.id && (
-                    <div className="mt-4 space-y-2">
-                      {cat.subcategories?.length > 0 ? (
-                        cat.subcategories.map((subCat) => (
-                          <div
-                            key={subCat.id}
-                            className="flex justify-between items-center bg-gray-100 px-3 py-2 rounded"
-                          >
-                            <span>{subCat.name}</span>
-                            <div className="space-x-2">
-                              <button
-                                onClick={() => handleEditSubCategory(subCat)}
-                                className="px-2 py-1 bg-blue-500 text-white rounded text-sm"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => handleDeleteSubCategory(subCat.id)}
-                                className="px-2 py-1 bg-red-500 text-white rounded text-sm"
-                              >
-                                Delete
-                              </button>
-                            </div>
-                          </div>
-                        ))
-                      ) : (
-                        <p className="text-sm text-gray-500">No Subcategories Found</p>
-                      )}
-                    </div>
-                  )}
                 </div>
-              ))}
-            </div>
+
+                {/* Toggle Subcategories */}
+                <div className="mt-3">
+                  <button
+                    onClick={() => toggleSubcategories(cat.id)}
+                    className="text-sm text-[#092C1C] hover:underline font-medium"
+                  >
+                    {expandedCategoryId === cat.id
+                      ? "Hide Subcategories"
+                      : "View Subcategories"}
+                  </button>
+                </div>
+
+                {/* Subcategories */}
+                {expandedCategoryId === cat.id && (
+                  <div className="mt-4 space-y-2">
+                    {cat.subcategories?.length > 0 ? (
+                      cat.subcategories.map((subCat) => (
+                        <div
+                          key={subCat.id}
+                          className="flex justify-between items-center px-4 py-2 bg-gray-50 border border-gray-200 rounded-md"
+                        >
+                          <span className="text-gray-800 text-sm font-medium">
+                            {subCat.name}
+                          </span>
+                          <div className="space-x-2">
+                            <button
+                              onClick={() => handleEditSubCategory(subCat)}
+                              className="text-xs px-2 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded"
+                            >
+                              Edit
+                            </button>
+                            {/* <button
+                              onClick={() => handleDeleteSubCategory(subCat.id)}
+                              className="text-xs px-2 py-1 bg-red-500 hover:bg-red-600 text-white rounded"
+                            >
+                              Delete
+                            </button> */}
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-sm text-gray-500 italic">
+                        No Subcategories Found
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))
           ) : (
-            <p>No Category Found</p>
+            <p className="text-gray-600 text-base">No Categories Found</p>
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

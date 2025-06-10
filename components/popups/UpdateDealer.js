@@ -3,10 +3,10 @@ import axios from "@/utils/axios";
 import { toast } from "react-toastify";
 import { IoClose } from "react-icons/io5";
 import { useState } from "react";
-import { Input } from "../inputFields";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { Select } from "../inputFields";
 
-const InviteDealer = ({ onClose }) => {
+const UpdateDealerStatus = ({ onClose, dealerId }) => {
   const {
     register,
     handleSubmit,
@@ -16,14 +16,16 @@ const InviteDealer = ({ onClose }) => {
 
   const [loading, setLoading] = useState(false);
   const { user } = useSelector((state) => state.auth);
-  const url = `${window.location.origin}/new-dealer/${user.id}`;
-
-  const onSubmit = async (data) => {
-    const inviteData = { ...data, companyName: user.name, url };
+  const dispatch = useDispatch();
+  const onSubmit = async (formData) => {
     try {
       setLoading(true);
-      const res = await axios.post("/admin/invite/dealer", inviteData);
-      toast.success(res.data.message);
+      const { data } = await axios.post("/admin/update-dealer-status", {
+        dealerId,
+        status: formData.status,
+      });
+    //   dispatch(UpdateDealerStatus(data.dealer));
+      toast.success(data.message || "Dealer status updated successfully");
       reset();
       onClose();
     } catch (err) {
@@ -39,42 +41,44 @@ const InviteDealer = ({ onClose }) => {
       onClick={onClose}
     >
       <div
-        className="bg-white  w-full max-w-md sm:rounded-xl shadow-2xl p-6 sm:p-8 relative"
+        className="bg-white w-full max-w-md sm:rounded-xl shadow-2xl p-6 sm:p-8 relative"
         onClick={(e) => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800  transition"
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition"
         >
           <IoClose size={24} />
         </button>
 
-        <h3 className="text-2xl font-bold text-slate-800mb-6 text-center">
-          Invite Dealer
+        <h3 className="text-2xl font-bold text-slate-800 mb-6 text-center">
+          Update Dealer Status
         </h3>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <Input
-            label="Dealer Email"
-            name="email"
+          <Select
+            label="Status"
+            name="status"
             register={register}
-            type="email"
-            required="Email is required"
-            error={errors.email}
-            placeholder="Enter dealer's email"
-            touched={touchedFields.email}
+            options={[
+              { label: "Inactive", value: "INACTIVE" },
+              { label: "Active", value: "ACTIVE" },
+            ].map((e) => ({
+              value: e.value,
+              label: e.label,
+            }))}
+            placeholder="Status"
           />
 
           <div className="flex justify-end">
             <button
               type="submit"
               disabled={loading}
-              className={`inline-flex items-center px-5 py-2.5 rounded-md text-white text-sm font-medium transition
-                ${
-                  loading
-                    ? "bg-slate-600 cursor-not-allowed"
-                    : "bg-slate-800 hover:bg-slate-700"
-                }`}
+              className={`inline-flex items-center px-5 py-2.5 rounded-md text-white text-sm font-medium transition ${
+                loading
+                  ? "bg-slate-600 cursor-not-allowed"
+                  : "bg-slate-800 hover:bg-slate-700"
+              }`}
             >
               {loading && (
                 <svg
@@ -83,17 +87,14 @@ const InviteDealer = ({ onClose }) => {
                   fill="none"
                   xmlns="http://www.w3.org/2000/svg"
                 >
-                  <path
-                    d="M100 50.5908C100 78.2051 77.6142..."
-                    fill="#E5E7EB"
-                  />
+                  <path d="M100 50.5908C100 78.2051..." fill="#E5E7EB" />
                   <path
                     d="M93.9676 39.0409C96.393 38.4038..."
                     fill="currentColor"
                   />
                 </svg>
               )}
-              {loading ? "Sending..." : "Send Invite"}
+              {loading ? "Updating..." : "Update Status"}
             </button>
           </div>
         </form>
@@ -102,4 +103,4 @@ const InviteDealer = ({ onClose }) => {
   );
 };
 
-export default InviteDealer;
+export default UpdateDealerStatus;

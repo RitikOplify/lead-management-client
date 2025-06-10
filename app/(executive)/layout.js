@@ -40,7 +40,7 @@ function AdminLayout({ children }) {
   }, [user, isLoading, router]);
 
   useEffect(() => {
-    if (user && user.role !== "admin") {
+    if (user && user.role !== "admin" && user.role !== "executive") {
       router.back();
     }
   }, [user, router]);
@@ -53,11 +53,14 @@ function AdminLayout({ children }) {
     );
   }
 
-  if (!user || user.role !== "admin") return null;
+  if (!user || (user.role !== "admin" && user.role !== "executive")) {
+    return null;
+  }
 
   return (
     <div className="flex h-screen">
       <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
+
       <main className="flex-1 overflow-auto p-6 transition-all bg-gray-100 duration-300 ease-in-out">
         <div className="md:hidden mb-4">
           <button
