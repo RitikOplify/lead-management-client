@@ -195,7 +195,7 @@ function Page({ onClose }) {
               <Select
                 label="Type of Enquiry *"
                 name="enquiryType"
-                placeholder="Select enquiry type"
+                placeholder="enquiry type"
                 register={register}
                 options={[
                   { value: "project", label: "Project" },
