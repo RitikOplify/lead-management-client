@@ -31,10 +31,23 @@ function AdminLayout({ children }) {
   }, [dispatch, user]);
 
   useEffect(() => {
-    if (user) {
+    if (!user || !user.role) return;
+
+    const fetchCommonData = () => {
       dispatch(asyncAddCategory());
       dispatch(asyncAddProducts());
-    }
+    };
+
+    const fetchRoleBasedData = () => {
+      if (user.role === "admin" || user.role === "executive") {
+        dispatch(asyncAddVisits());
+        dispatch(asyncGetDealers());
+        dispatch(asyncGetAllLeads());
+        dispatch(asyncGetExecutives());
+      }
+    };
+    fetchCommonData();
+    fetchRoleBasedData();
   }, [user, dispatch]);
 
   useEffect(() => {

@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncCurrentUser } from "@/store/actions/auth";
 import { useRouter } from "next/navigation";
-import { asyncAddProducts } from "@/store/actions/leads";
+import {
+  asyncAddProducts,
+  asyncAddVisits,
+  asyncGetAllLeads,
+} from "@/store/actions/leads";
 import {
   asyncAddCategory,
   asyncGetDealers,
@@ -25,10 +29,12 @@ function AdminLayout({ children }) {
   }, [dispatch, user]);
 
   useEffect(() => {
-    if (user) {
+    if (user && user.role == "admin") {
       dispatch(asyncAddCategory());
+      dispatch(asyncAddVisits());
       dispatch(asyncAddProducts());
       dispatch(asyncGetDealers());
+      dispatch(asyncGetAllLeads());
       dispatch(asyncGetExecutives());
     }
   }, [user, dispatch]);

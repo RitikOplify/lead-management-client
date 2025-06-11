@@ -1,7 +1,7 @@
 import axios from "axios";
 import { store } from "@/store/store";
 import { toast } from "react-toastify";
-import Router from "next/router";
+import Router from "next/navigation";
 import { removeUser } from "@/store/slices/authSlice";
 
 let isRefreshing = false;

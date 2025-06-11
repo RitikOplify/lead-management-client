@@ -15,9 +15,9 @@ import { useDispatch, useSelector } from "react-redux";
 import CreateFollowUp from "../popups/createFollowUp";
 import ViewProduct from "../popups/ViewProduct";
 import ReassignExecutive from "../popups/ReassignExecutive";
-import EditLead from "../popups/EditLeadPopUp";
 import { asyncGetAllLeads } from "@/store/actions/leads";
 import DownloadLeadsModal from "../popups/DownloadLeadsModal";
+import Loader from "../loader";
 
 const LeadDataTable = () => {
   const dispatch = useDispatch();
@@ -30,15 +30,17 @@ const LeadDataTable = () => {
   const [open, setOpen] = useState(false);
   const [productOpen, setProductOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
-  const [editLead, setEditLead] = useState(false);
 
   const [leadData, setLeadData] = useState();
   const [leadId, setLeadId] = useState(null);
-  const [editLeadId, setEditLeadId] = useState(null);
+
   const [modelOpen, setModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    dispatch(asyncGetAllLeads(page, leadsPerPage));
+    if (user && (user.role === "admin" || user.role === "executive")) {
+      dispatch(asyncGetAllLeads(page, leadsPerPage, setLoading));
+    }
   }, [dispatch, page]);
 
   const followUpClick = (leadId) => {
@@ -74,15 +76,7 @@ const LeadDataTable = () => {
           leadId={leadId}
         />
       )}
-      {editLead && (
-        <EditLead
-          onClose={() => {
-            setEditLead(false);
-            setEditLeadId(null);
-          }}
-          leadId={editLeadId}
-        />
-      )}
+
       {modelOpen && <DownloadLeadsModal onClose={() => setModalOpen(false)} />}
 
       <div className="bg-white shadow-lg rounded-xl">
@@ -108,116 +102,120 @@ const LeadDataTable = () => {
           </div>
         </div>
 
-        <div className="overflow-x-auto custom-scroller">
-          {leads?.length > 0 ? (
-            <table className="min-w-[1200px] w-full divide-y divide-gray-200">
-              <thead className="bg-gray-100 text-gray-700">
-                <tr>
-                  {[
-                    "Enq No",
-                    "Action",
-                    "Enquiry Person",
-                    "Sales Person",
-                    "Dealer",
-                    "Contact",
-                    "Email",
-                    "Company",
-                    "Status",
-                    "Source",
-                    "City",
-                    "Created",
-                    "Updated",
-                    "Products",
-                  ].map((head) => (
-                    <th
-                      key={head}
-                      className="p-4 text-left text-sm whitespace-nowrap font-semibold"
-                    >
-                      {head}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 text-sm">
-                {leads.map((lead, index) => {
-                  if (lead.status?.toLowerCase() === "closed") return null;
-
-                  const nextDate = new Date(lead.nextFollowUpDate);
-                  const now = new Date();
-                  const timeDiff = nextDate - now;
-                  let rowClass = "bg-white";
-
-                  if (lead.nextFollowUpDate) {
-                    if (nextDate < now) rowClass = "bg-red-50 text-red-700";
-                    else if (timeDiff <= 86400000)
-                      rowClass = "bg-yellow-50 text-yellow-800";
-                    else rowClass = "bg-blue-50 text-blue-800";
-                  }
-
-                  return (
-                    <tr key={index} className={`${rowClass} transition-all`}>
-                      <td className="p-4 whitespace-nowrap">
-                        {lead.enqNo || "NA"}
-                      </td>
-                      <td className="p-4 whitespace-nowrap flex items-center gap-3">
-                        <FaEdit
-                          className="cursor-pointer hover:text-blue-600"
-                          onClick={() => followUpClick(lead.id)}
-                        />
-                        <Link href={`/lead/${lead.id}`}>
-                          <FaEye className="cursor-pointer hover:text-gray-600" />
-                        </Link>
-                      </td>
-                      <td className="p-4 whitespace-nowrap">
-                        {lead.enquiryPerson}
-                      </td>
-                      <td className="p-4 whitespace-nowrap flex items-center gap-2">
-                        {lead.executiveId ? lead.executive?.username : "NA"}
-                        {user.role === "admin" && (
-                          <HiOutlineSwitchVertical
-                            className="cursor-pointer hover:text-purple-600"
-                            onClick={() => handleReassignExecutive(lead.id)}
-                          />
-                        )}
-                      </td>
-                      <td className="p-4 whitespace-nowrap">
-                        {lead.dealerId ? lead.dealer?.name : "NA"}
-                      </td>
-                      <td className="p-4 whitespace-nowrap">
-                        {lead.contact || lead.customer?.contact}
-                      </td>
-                      <td className="p-4 whitespace-nowrap">
-                        {lead.email || lead.customer?.email}
-                      </td>
-                      <td className="p-4 whitespace-nowrap">
-                        {lead.customer?.customerName}
-                      </td>
-                      <td className="p-4 whitespace-nowrap">{lead.status}</td>
-                      <td className="p-4 whitespace-nowrap">{lead.source}</td>
-                      <td className="p-4 whitespace-nowrap">{lead.city}</td>
-                      <td className="p-4 whitespace-nowrap">
-                        {new Date(lead.createdAt).toLocaleDateString("en-GB")}
-                      </td>
-                      <td className="p-4 whitespace-nowrap">
-                        {new Date(lead.updatedAt).toLocaleDateString("en-GB")}
-                      </td>
-                      <td
-                        className="p-4 whitespace-nowrap text-blue-600 underline cursor-pointer"
-                        onClick={() => viewClick(lead)}
+        {loading ? (
+          <div className="h-screen flex justify-center items-center">
+            <Loader />
+          </div>
+        ) : (
+          <div className="overflow-x-auto custom-scroller">
+            {leads?.length > 0 ? (
+              <table className="min-w-[1200px] w-full divide-y divide-gray-200">
+                <thead className="bg-gray-100 text-gray-700">
+                  <tr>
+                    {[
+                      "Enq No",
+                      "Action",
+                      "Enquiry Person",
+                      "Sales Person",
+                      "Dealer",
+                      "Contact",
+                      "Email",
+                      "Company",
+                      "Status",
+                      "Source",
+                      "City",
+                      "Created",
+                      "Updated",
+                      "Products",
+                    ].map((head) => (
+                      <th
+                        key={head}
+                        className="p-4 text-left text-sm whitespace-nowrap font-semibold"
                       >
-                        View
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          ) : (
-            <div className="flex justify-center items-center h-64 text-gray-400">
-              No data available
-            </div>
-          )}
-        </div>
+                        {head}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100 text-sm">
+                  {leads.map((lead, index) => {
+                    if (lead.status?.toLowerCase() === "closed") return null;
+
+                    const nextDate = new Date(lead.nextFollowUpDate);
+                    const now = new Date();
+                    const timeDiff = nextDate - now;
+                    let rowClass = "bg-white";
+
+                    if (lead.nextFollowUpDate) {
+                      if (nextDate < now) rowClass = "bg-red-50 text-red-700";
+                      else if (timeDiff <= 86400000)
+                        rowClass = "bg-yellow-50 text-yellow-800";
+                      else rowClass = "bg-blue-50 text-blue-800";
+                    }
+
+                    return (
+                      <tr key={index} className={`${rowClass} transition-all`}>
+                        <td className="p-4 whitespace-nowrap">
+                          {lead.enqNo || "NA"}
+                        </td>
+                        <td className="p-4 whitespace-nowrap flex items-center gap-3">
+                          <FaEdit
+                            className="cursor-pointer hover:text-blue-600"
+                            onClick={() => followUpClick(lead.id)}
+                          />
+                          <Link href={`/lead/${lead.id}`}>
+                            <FaEye className="cursor-pointer hover:text-gray-600" />
+                          </Link>
+                        </td>
+                        <td className="p-4 whitespace-nowrap">
+                          {lead.enquiryPerson}
+                        </td>
+                        <td className="p-4 whitespace-nowrap flex items-center gap-2">
+                          {lead.executiveId ? lead.executive?.username : "NA"}
+                          {user.role === "admin" && (
+                            <HiOutlineSwitchVertical
+                              className="cursor-pointer hover:text-purple-600"
+                              onClick={() => handleReassignExecutive(lead.id)}
+                            />
+                          )}
+                        </td>
+                        <td className="p-4 whitespace-nowrap">
+                          {lead.dealerId ? lead.dealer?.name : "NA"}
+                        </td>
+                        <td className="p-4 whitespace-nowrap">
+                          {lead.contact || lead.customer?.contact}
+                        </td>
+                        <td className="p-4 whitespace-nowrap">
+                          {lead.email || lead.customer?.email}
+                        </td>
+                        <td className="p-4 whitespace-nowrap">
+                          {lead.customer?.customerName}
+                        </td>
+                        <td className="p-4 whitespace-nowrap">{lead.status}</td>
+                        <td className="p-4 whitespace-nowrap">{lead.source}</td>
+                        <td className="p-4 whitespace-nowrap">{lead.city}</td>
+                        <td className="p-4 whitespace-nowrap">
+                          {new Date(lead.createdAt).toLocaleDateString("en-GB")}
+                        </td>
+                        <td className="p-4 whitespace-nowrap">
+                          {new Date(lead.updatedAt).toLocaleDateString("en-GB")}
+                        </td>
+                        <td
+                          className="p-4 whitespace-nowrap text-blue-600 underline cursor-pointer"
+                          onClick={() => viewClick(lead)}
+                        >
+                          View
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            ) : (
+              <p className=" mb-5">No data available</p>
+            )}
+          </div>
+        )}
 
         {leads?.length > 0 && (
           <div className="flex justify-end items-center gap-4 p-4">

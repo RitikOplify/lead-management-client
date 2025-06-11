@@ -1,4 +1,5 @@
 "use client";
+import { usePathname } from "next/navigation";
 import { asyncSignOutUser } from "@/store/actions/auth";
 import Link from "next/link";
 import React, { useEffect, useRef, useState } from "react";
@@ -23,6 +24,7 @@ import Image from "next/image";
 
 function Nav({ navOpen, setNavOpen }) {
   const dispatch = useDispatch();
+  const pathname = usePathname();
   const [switchCompanyOpen, setSwitchCompanyOpen] = useState(false);
   const { user, currentCompany } = useSelector((state) => state.auth);
   const navRef = useRef();
@@ -135,24 +137,33 @@ function Nav({ navOpen, setNavOpen }) {
 
         {/* Navigation */}
         <nav className="flex-1 flex flex-col p-4 space-y-2">
-          {navLinks.map(({ href, icon, label }) => (
-            <Link
-              key={href}
-              href={href}
-              onClick={() => window.innerWidth < 768 && setNavOpen(false)}
-              className="flex items-center gap-3 p-3 rounded-lg text-sm font-medium hover:bg-green-700/80 hover:shadow-md transition-all"
-            >
-              <span className="text-lg">{icon}</span>
-              <span className="truncate">{label}</span>
-            </Link>
-          ))}
+          {navLinks.map(({ href, icon, label }) => {
+            const isActive = pathname === href;
+
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={() => window.innerWidth < 768 && setNavOpen(false)}
+                className={`flex items-center gap-3 p-3 rounded-lg text-sm font-medium transition-all
+                  ${
+                    isActive
+                      ? "bg-green-700/90 text-white shadow-inner"
+                      : "hover:bg-green-700/80 hover:shadow-md text-gray-300"
+                  }`}
+              >
+                <span className="text-lg">{icon}</span>
+                <span className="truncate">{label}</span>
+              </Link>
+            );
+          })}
         </nav>
 
         {/* Logout */}
         <div className="p-4 border-t border-gray-700">
           <button
             onClick={logout}
-            className="w-full flex items-center gap-3 p-3 rounded-lg text-sm font-medium hover:bg-red-700/80 hover:shadow-md transition-all"
+            className="w-full cursor-pointer flex items-center gap-3 p-3 rounded-lg text-sm font-medium hover:bg-red-700/80 hover:shadow-md transition-all text-gray-300"
           >
             <FaSignOutAlt className="text-lg" />
             <span>Sign Out</span>

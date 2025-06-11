@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { asyncCurrentUser } from "@/store/actions/auth";
 import { useRouter } from "next/navigation";
-import { asyncAddProducts } from "@/store/actions/leads";
+import {
+  asyncAddProducts,
+  asyncAddVisits,
+  asyncGetAllLeads,
+} from "@/store/actions/leads";
 import {
   asyncAddCategory,
   asyncGetDealers,
@@ -25,12 +29,24 @@ function AdminLayout({ children }) {
   }, [dispatch, user]);
 
   useEffect(() => {
-    if (user) {
+    if (!user || !user.role) return;
+
+    const fetchCommonData = () => {
       dispatch(asyncAddCategory());
       dispatch(asyncAddProducts());
-      dispatch(asyncGetDealers());
-      dispatch(asyncGetExecutives());
-    }
+    };
+
+    const fetchRoleBasedData = () => {
+      if (user.role === "admin" || user.role === "executive") {
+        dispatch(asyncAddVisits());
+        dispatch(asyncGetDealers());
+        dispatch(asyncGetAllLeads());
+        dispatch(asyncGetExecutives());
+      }
+    };
+
+    fetchCommonData();
+    fetchRoleBasedData();
   }, [user, dispatch]);
 
   useEffect(() => {
@@ -60,7 +76,6 @@ function AdminLayout({ children }) {
   return (
     <div className="flex h-screen">
       <Nav navOpen={navOpen} setNavOpen={setNavOpen} />
-
       <main className="flex-1 overflow-auto p-6 transition-all bg-gray-100 duration-300 ease-in-out">
         <div className="md:hidden mb-4">
           <button

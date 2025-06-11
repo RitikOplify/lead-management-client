@@ -45,7 +45,7 @@ const Page = () => {
                       </Link>
                     ) : (
                       <Link
-                        href={`/new-lead?visitId=${visit.id}`}
+                        href={`/new-lead?visitid=${visit.id}`}
                         className="inline-block bg-green-600 text-white text-xs font-semibold px-4 py-1 rounded-md shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 transition"
                       >
                         Add Lead

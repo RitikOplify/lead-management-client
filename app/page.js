@@ -30,7 +30,7 @@ function Home() {
   }, [dispatch, user]);
 
   useEffect(() => {
-    if (user) {
+    if (user && (user.role === "admin" || user.role === "executive")) {
       dispatch(asyncAddCategory());
       dispatch(asyncAddVisits());
       dispatch(asyncAddProducts());
@@ -47,7 +47,7 @@ function Home() {
   }, [user, isLoading, router]);
 
   useEffect(() => {
-    if (!isLoading && user && user.role == "dealer") {
+    if (!isLoading && user && user.role === "dealer") {
       router.replace("/my-task");
     }
   }, [user, isLoading, router]);

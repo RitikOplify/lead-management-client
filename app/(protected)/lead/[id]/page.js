@@ -25,7 +25,6 @@ function Page({ params }) {
       } catch (error) {
         setLoading(false);
         toast.error(error?.response?.data?.message || "Failed to fetch lead");
-        console.error("Error fetching lead details:", error);
       }
     };
     fetchLeadDetails();
@@ -47,7 +46,7 @@ function Page({ params }) {
         </div>
       ) : lead ? (
         <div className="bg-white rounded-lg shadow-lg w-full p-6 mx-auto">
-          {/* Header with Actions */}
+          {/* Header */}
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-semibold text-slate-900">
               Lead Details
@@ -68,7 +67,7 @@ function Page({ params }) {
             </div>
           </div>
 
-          {/* Lead Info Grid */}
+          {/* Lead Info */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm text-slate-700">
             {[
               { label: "Name", value: lead.customer?.customerName || "NA" },
@@ -120,11 +119,11 @@ function Page({ params }) {
               <h3 className="text-xl font-semibold mb-4 text-slate-900 border-b border-slate-300 pb-2">
                 Categories
               </h3>
-              <div className=" grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                 {lead.categories.map((cat) => (
                   <div
                     key={cat.id}
-                    className="bg-slate-100 p-4 rounded-lg shadow-md mb-4 hover:shadow-lg transition-shadow duration-300"
+                    className="bg-slate-100 p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
                   >
                     <p className="text-slate-800 font-medium">{cat.name}</p>
                   </div>
@@ -139,36 +138,66 @@ function Page({ params }) {
               <h3 className="text-xl font-semibold mb-4 text-slate-900 border-b border-slate-300 pb-2">
                 Visits Info
               </h3>
-              {lead.visits.map((visit) => (
-                <div
-                  key={visit.id}
-                  className="bg-slate-100 p-4 rounded-lg shadow-md mb-4 hover:shadow-lg transition-shadow duration-300"
-                >
-                  <p>
-                    <span className="font-semibold text-slate-900">
-                      Visit Date:
-                    </span>{" "}
-                    {new Date(visit.visitDate).toLocaleDateString()}
-                  </p>
-                  <p>
-                    <span className="font-semibold text-slate-900">
-                      Purpose:
-                    </span>{" "}
-                    {visit.purpose}
-                  </p>
-                </div>
-              ))}
+
+              <div className="overflow-x-auto shadow-md rounded-lg">
+                <table className="min-w-[1024px] w-full divide-y divide-slate-200 bg-white">
+                  <thead className="bg-slate-100">
+                    <tr>
+                      {[
+                        "Visit Date",
+                        "Purpose",
+                        "Sales Person",
+                        "Contact Person",
+                        "Remark",
+                      ].map((header) => (
+                        <th
+                          key={header}
+                          className="p-4 text-left text-sm font-semibold text-slate-600"
+                        >
+                          {header}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {lead.visits.map((visit) => (
+                      <tr
+                        key={visit.id}
+                        className="hover:bg-slate-50 transition"
+                      >
+                        <td className="p-4 text-sm text-slate-700">
+                          {new Date(visit.visitDate).toLocaleDateString()}
+                        </td>
+
+                        <td className="p-4 text-sm text-slate-700">
+                          {visit.purpose}
+                        </td>
+                        <td className="p-4 text-sm text-slate-700">
+                          {visit.executive?.username || "NA"}
+                        </td>
+                        <td className="p-4 text-sm text-slate-700">
+                          {visit.contactPersonName || "NA"}
+                        </td>
+
+                        <td className="p-4 text-sm text-slate-700 max-w-xs">
+                          {visit.remarks || "No message"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </section>
           )}
 
-          {/* Follow Ups Table */}
+          {/* Follow Ups */}
           {lead.followUps?.length > 0 && (
             <section className="mt-10">
               <h3 className="text-xl font-semibold mb-4 text-slate-900 border-b border-slate-300 pb-2">
                 Follow Ups
               </h3>
-              <div className="overflow-x-auto rounded-lg shadow-md">
-                <table className="min-w-full divide-y divide-slate-200 bg-white">
+              <div className="overflow-x-auto shadow-md rounded-lg">
+                <table className="min-w-[1024px] w-full divide-y divide-slate-200 bg-white">
                   <thead className="bg-slate-100">
                     <tr>
                       {[
@@ -191,7 +220,7 @@ function Page({ params }) {
                     {lead.followUps.map((followUp) => (
                       <tr
                         key={followUp.id}
-                        className="hover:bg-slate-50 transition-colors duration-200"
+                        className="hover:bg-slate-50 transition"
                       >
                         <td className="p-4 text-sm text-slate-700">
                           {new Date(followUp.createdAt).toLocaleDateString()}
@@ -220,7 +249,7 @@ function Page({ params }) {
             </section>
           )}
 
-          {/* Additional Lead Details */}
+          {/* Footer */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 text-sm text-slate-700 mt-10 bg-slate-100 rounded-lg p-6 shadow-inner">
             {lead.executive && (
               <p>
