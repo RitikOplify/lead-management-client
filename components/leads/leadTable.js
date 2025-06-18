@@ -76,10 +76,10 @@ const LeadDataTable = () => {
           leadId={leadId}
         />
       )}
-
       {modelOpen && <DownloadLeadsModal onClose={() => setModalOpen(false)} />}
 
       <div className="bg-white shadow-lg rounded-xl">
+        {/* Header */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 p-4 bg-gray-50 rounded-t-xl">
           <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 tracking-tight">
             Lead Overview
@@ -102,6 +102,30 @@ const LeadDataTable = () => {
           </div>
         </div>
 
+        <div className="flex flex-wrap gap-4 p-4 text-sm border-b border-gray-200">
+          <div className="flex items-center gap-2">
+            <span className="w-4 h-4 rounded bg-amber-100 border border-amber-300"></span>
+            <span>Follow-up overdue</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-4 h-4 rounded bg-yellow-50 border border-yellow-300"></span>
+            <span>Follow-up today</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-4 h-4 rounded bg-blue-50 border border-blue-300"></span>
+            <span>Upcoming follow-up</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-4 h-4 rounded bg-green-100 border border-green-300"></span>
+            <span>Closed (Converted)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="w-4 h-4 rounded bg-rose-100 border border-rose-300"></span>
+            <span>Closed (Lost)</span>
+          </div>
+        </div>
+
+        {/* Table */}
         {loading ? (
           <div className="h-screen flex justify-center items-center">
             <Loader />
@@ -139,18 +163,26 @@ const LeadDataTable = () => {
                 </thead>
                 <tbody className="divide-y divide-gray-100 text-sm">
                   {leads.map((lead, index) => {
-                    if (lead.status?.toLowerCase() === "closed") return null;
+                    let rowClass = "bg-white text-slate-700 hover:bg-gray-50";
 
-                    const nextDate = new Date(lead.nextFollowUpDate);
-                    const now = new Date();
-                    const timeDiff = nextDate - now;
-                    let rowClass = "bg-white";
+                    if (lead.status?.toLowerCase() === "closed") {
+                      if (lead.finalStatus?.toLowerCase() === "converted") {
+                        rowClass = "bg-green-100 text-green-900";
+                      } else if (lead.finalStatus?.toLowerCase() === "lost") {
+                        rowClass = "bg-rose-100 text-rose-900";
+                      }
+                    } else if (lead.nextFollowUpDate) {
+                      const nextDate = new Date(lead.nextFollowUpDate);
+                      const now = new Date();
+                      const timeDiff = nextDate - now;
 
-                    if (lead.nextFollowUpDate) {
-                      if (nextDate < now) rowClass = "bg-red-50 text-red-700";
-                      else if (timeDiff <= 86400000)
-                        rowClass = "bg-yellow-50 text-yellow-800";
-                      else rowClass = "bg-blue-50 text-blue-800";
+                      if (nextDate < now) {
+                        rowClass = "bg-amber-100 text-amber-900";
+                      } else if (timeDiff <= 86400000) {
+                        rowClass = "bg-yellow-50 text-yellow-900";
+                      } else {
+                        rowClass = "bg-blue-50 text-blue-900";
+                      }
                     }
 
                     return (
@@ -191,7 +223,11 @@ const LeadDataTable = () => {
                         <td className="p-4 whitespace-nowrap">
                           {lead.customer?.customerName}
                         </td>
-                        <td className="p-4 whitespace-nowrap">{lead.status}</td>
+                        <td className="p-4 whitespace-nowrap">
+                          {lead.status?.toLowerCase() === "closed"
+                            ? `${lead.status} (${lead.finalStatus})`
+                            : lead.status}
+                        </td>
                         <td className="p-4 whitespace-nowrap">{lead.source}</td>
                         <td className="p-4 whitespace-nowrap">{lead.city}</td>
                         <td className="p-4 whitespace-nowrap">
@@ -212,11 +248,12 @@ const LeadDataTable = () => {
                 </tbody>
               </table>
             ) : (
-              <p className=" mb-5">No data available</p>
+              <p className="mb-5 p-4">No data available</p>
             )}
           </div>
         )}
 
+        {/* Pagination */}
         {leads?.length > 0 && (
           <div className="flex justify-end items-center gap-4 p-4">
             <button

@@ -15,14 +15,17 @@ import {
   asyncGetExecutives,
 } from "@/store/actions/admin";
 import Nav from "@/components/Nav";
+import Link from "next/link";
+import { FaHome } from "react-icons/fa";
+import { IoIosArrowForward } from "react-icons/io";
+import { usePathname } from "next/navigation";
 
-function AdminLayout({ children }) {
+function ProtectedLayout({ children }) {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { user, isLoading, currentCompany } = useSelector(
-    (state) => state.auth
-  );
+  const { user, isLoading } = useSelector((state) => state.auth);
   const [navOpen, setNavOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!user) {
@@ -80,6 +83,19 @@ function AdminLayout({ children }) {
             ☰
           </button>
         </div>
+        <div className="mb-4 text-sm text-gray-600 flex items-center space-x-2">
+          <Link
+            href={user?.role === "dealer" ? "/my-task" : "/"}
+            className="flex items-center space-x-1 text-blue-600 hover:underline"
+          >
+            <FaHome />
+            <span>Home</span>
+          </Link>
+          <IoIosArrowForward />
+          <span className="capitalize">
+            {pathname.split("/").filter(Boolean).slice(-1)[0]}
+          </span>
+        </div>
 
         {children}
       </main>
@@ -87,4 +103,4 @@ function AdminLayout({ children }) {
   );
 }
 
-export default AdminLayout;
+export default ProtectedLayout;

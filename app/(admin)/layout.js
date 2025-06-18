@@ -15,12 +15,17 @@ import {
 } from "@/store/actions/admin";
 import Loader from "@/components/loader";
 import Nav from "@/components/Nav";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { FaHome } from "react-icons/fa";
+import { IoIosArrowForward } from "react-icons/io";
 
 function AdminLayout({ children }) {
   const dispatch = useDispatch();
   const router = useRouter();
   const { user, isLoading } = useSelector((state) => state.auth);
   const [navOpen, setNavOpen] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!user) {
@@ -73,6 +78,19 @@ function AdminLayout({ children }) {
           >
             ☰
           </button>
+        </div>
+        <div className="mb-4 text-sm text-gray-600 flex items-center space-x-2">
+          <Link
+            href="/"
+            className="flex items-center space-x-1 text-blue-600 hover:underline"
+          >
+            <FaHome />
+            <span>Home</span>
+          </Link>
+          <IoIosArrowForward />
+          <span className="capitalize">
+            {pathname.split("/").filter(Boolean).slice(-1)[0]}
+          </span>
         </div>
         {children}
       </main>

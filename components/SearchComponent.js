@@ -94,20 +94,26 @@ function SearchResultsTable({ leads, onEditLead, isExpanded, onToggleExpand }) {
           </thead>
           <tbody className="divide-y divide-gray-100">
             {displayLeads.map((lead) => {
-              const now = new Date();
-              const followUp = new Date(lead.nextFollowUpDate);
-              const isOverdue = followUp < now;
-              const isToday = followUp - now <= 86400000;
+              let rowClass = "bg-white text-slate-700 hover:bg-gray-50";
 
-              let rowClass = "bg-white";
               if (lead.status?.toLowerCase() === "closed") {
-                rowClass = "bg-gray-50 text-gray-400";
+                if (lead.finalStatus?.toLowerCase() === "converted") {
+                  rowClass = "bg-green-100 text-green-900";
+                } else if (lead.finalStatus?.toLowerCase() === "lost") {
+                  rowClass = "bg-rose-100 text-rose-900";
+                }
               } else if (lead.nextFollowUpDate) {
-                rowClass = isOverdue
-                  ? "bg-red-50 hover:bg-red-100 text-red-700"
-                  : isToday
-                  ? "bg-yellow-50 hover:bg-yellow-100 text-yellow-800"
-                  : "hover:bg-gray-50";
+                const nextDate = new Date(lead.nextFollowUpDate);
+                const now = new Date();
+                const timeDiff = nextDate - now;
+
+                if (nextDate < now) {
+                  rowClass = "bg-amber-100 text-amber-900";
+                } else if (timeDiff <= 86400000) {
+                  rowClass = "bg-yellow-50 text-yellow-900";
+                } else {
+                  rowClass = "bg-blue-50 text-blue-900";
+                }
               }
 
               return (
@@ -143,19 +149,9 @@ function SearchResultsTable({ leads, onEditLead, isExpanded, onToggleExpand }) {
                     {lead.customer?.customerName || "N/A"}
                   </td>
                   <td className="p-4 whitespace-nowrap">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        lead.status === "active"
-                          ? "bg-green-100 text-green-800"
-                          : lead.status === "pending"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : lead.status === "closed"
-                          ? "bg-gray-300 text-gray-700"
-                          : "bg-gray-100 text-gray-800"
-                      }`}
-                    >
-                      {lead.status || "N/A"}
-                    </span>
+                    {lead.status?.toLowerCase() === "closed"
+                      ? `${lead.status} (${lead.finalStatus})`
+                      : lead.status}
                   </td>
                   <td className="p-4 whitespace-nowrap">
                     {lead.source || "N/A"}
