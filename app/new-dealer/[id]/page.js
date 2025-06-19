@@ -5,6 +5,7 @@ import axios from "@/utils/axios";
 import { use, useEffect, useState } from "react";
 import { Input } from "@/components/inputFields";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 const CreateDealerForm = ({ params }) => {
   const { id } = use(params);
@@ -18,7 +19,7 @@ const CreateDealerForm = ({ params }) => {
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fetchStatus, setFetchStatus] = useState("loading");
-
+  const router = useRouter();
   useEffect(() => {
     const getCompany = async () => {
       try {
@@ -38,6 +39,7 @@ const CreateDealerForm = ({ params }) => {
     try {
       setLoading(true);
       const { data } = await axios.post(`/dealer/register`, dealerData);
+      router.push("/signin");
       toast.success(data.message);
       reset();
       setLoading(false);
@@ -60,22 +62,23 @@ const CreateDealerForm = ({ params }) => {
     <div className="w-full flex items-center justify-center py-10 px-4">
       <div className="w-full max-w-lg bg-white rounded-xl shadow-md p-6">
         <h2 className="text-2xl font-semibold text-center text-[#092C1C] mb-2">
-          Dealer Registration
+          Partner Registration
         </h2>
         {company && (
           <p className="text-center text-gray-600 mb-6 text-sm">
-            Registering under: <span className="font-medium">{company.name}</span>
+            Registering under:{" "}
+            <span className="font-medium">{company.name}</span>
           </p>
         )}
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <Input
-            label="Dealer Name"
+            label="Partner Name"
             name="name"
             register={register}
             required="Name is required"
             error={errors.name}
-            placeholder="Enter dealer name"
+            placeholder="Enter partner name"
           />
           <Input
             label="Contact Person"
@@ -84,24 +87,6 @@ const CreateDealerForm = ({ params }) => {
             required="Contact person name is required"
             error={errors.contactPersonName}
             placeholder="Enter contact person's name"
-          />
-          <Input
-            label="Email"
-            name="email"
-            type="email"
-            register={register}
-            required="Email is required"
-            error={errors.email}
-            placeholder="Enter email address"
-          />
-          <Input
-            label="Password"
-            name="password"
-            type="password"
-            register={register}
-            required="Password is required"
-            error={errors.password}
-            placeholder="Enter password"
           />
           <Input
             label="GST Number"
@@ -137,6 +122,28 @@ const CreateDealerForm = ({ params }) => {
             error={errors.pincode}
             placeholder="Enter pincode"
           />
+
+          <div className="space-y-4">
+            <h3 className=" mt-5 font-semibold">Login Credential</h3>
+            <Input
+              label="Email / userid"
+              name="email"
+              type="email"
+              register={register}
+              required="Email is required"
+              error={errors.email}
+              placeholder="Enter email address"
+            />
+            <Input
+              label="Password"
+              name="password"
+              type="password"
+              register={register}
+              required="Password is required"
+              error={errors.password}
+              placeholder="Enter password"
+            />
+          </div>
 
           <div className="pt-4 text-right">
             <button

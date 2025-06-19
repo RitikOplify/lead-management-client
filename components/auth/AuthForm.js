@@ -53,7 +53,7 @@ const AuthForm = ({ type }) => {
               <option value="">Select Role</option>
               <option value={"admin"}>Admin</option>
               <option value={"executive"}>Executive</option>
-              <option value={"dealer"}>Dealer</option>
+              <option value={"dealer"}>Partner</option>
             </select>
             <div className="absolute inset-y-0 right-2 flex items-center pointer-events-none">
               <IoIosArrowDown size={18} />
