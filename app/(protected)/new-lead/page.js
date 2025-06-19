@@ -293,7 +293,7 @@ function Page({ onClose }) {
               />
 
               <Input
-                label="City *"
+                label={`City ${user.role !== "dealer" ? " *" : ""}`}
                 name="customerCity"
                 register={register}
                 required="City is required"
@@ -372,7 +372,7 @@ function Page({ onClose }) {
                     register={register}
                     options={(executives || []).map((e) => ({
                       value: e.id,
-                      label: e.email,
+                      label: e.username,
                     }))}
                     touched={touchedFields.executiveId}
                     error={errors.executiveId}
@@ -380,13 +380,13 @@ function Page({ onClose }) {
                   />
 
                   <Select
-                    label="Assign Dealer"
+                    label="Assign Partner"
                     name="dealerId"
                     touched={touchedFields.dealerId}
                     register={register}
                     options={(dealers || []).map((d) => ({
                       value: d.dealerId,
-                      label: d.dealer.email,
+                      label: d.dealer.name,
                     }))}
                     error={errors.dealerId}
                     placeholder="Select dealer"

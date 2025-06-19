@@ -189,7 +189,7 @@ const MyLeadsPage = () => {
                 </tbody>
               </table>
             ) : (
-              <div className="flex justify-center items-center mb-5 text-gray-400">
+              <div className="flex justify-center items-center my-5 text-gray-400">
                 No leads available.
               </div>
             )}
