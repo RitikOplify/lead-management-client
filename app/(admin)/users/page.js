@@ -28,7 +28,7 @@ const Page = () => {
     try {
       toast.loading("Approving dealer...", { toastId: "approve-dealer" });
       const { data } = await axios.post(`/admin/approve-dealer/${id}`);
-      // dispatch(UpdateDealerStatus(data.dealer));
+      dispatch(UpdateDealerStatus(data.dealer));
       toast.dismiss("approve-dealer");
       toast.success(data.message);
     } catch (error) {

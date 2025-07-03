@@ -6,7 +6,9 @@ import { use, useEffect, useState } from "react";
 import { Input } from "@/components/inputFields";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import Link from "next/link";
+import { asyncCurrentUser } from "@/store/actions/auth";
 
 const CreateDealerForm = ({ params }) => {
   const { id } = use(params);
@@ -21,8 +23,21 @@ const CreateDealerForm = ({ params }) => {
   const [loading, setLoading] = useState(false);
   const [fetchStatus, setFetchStatus] = useState("loading");
   const { user, isLoading } = useSelector((state) => state.auth);
-
+  const dispatch = useDispatch();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      dispatch(asyncCurrentUser());
+    }
+  }, [dispatch, user]);
+
+  useEffect(() => {
+    if (!isLoading && user && user.role === "dealer") {
+      router.push("/my-task");
+    }
+  }, [user, isLoading, router]);
+
   useEffect(() => {
     const getCompany = async () => {
       try {
@@ -185,6 +200,12 @@ const CreateDealerForm = ({ params }) => {
               )}
               {loading ? "Registering..." : "Register"}
             </button>
+            <div className=" py-4 text-center">
+              Already have an account?{" "}
+              <Link href="/signin" className="font-bold">
+                Sign In
+              </Link>
+            </div>
           </div>
         </form>
       </div>

@@ -175,7 +175,7 @@ const AuthForm = ({ type }) => {
           ) : (
             <>
               Don&apos;t have an account?{" "}
-              <Link href="/signup" className="font-bold">
+              <Link href="/" className="font-bold">
                 Sign Up
               </Link>
             </>

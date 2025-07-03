@@ -102,17 +102,33 @@ export const leadsReducer = createSlice({
           : product
       );
     },
+    removeProduct: (state, action) => {
+      const productId = action.payload;
+      state.products = state.products.filter(
+        (product) => product.id !== productId
+      );
+    },
+
     addCategories: (state, action) => {
       state.categories = action.payload;
     },
+
     updateCategory: (state, action) => {
       const updatedCategory = action.payload;
       state.categories = state.categories.map((cat) =>
         cat.id === updatedCategory.id ? { ...cat, ...updatedCategory } : cat
       );
     },
+
     addNewCategory: (state, action) => {
       state.categories.push(action.payload);
+    },
+
+    removeCategory: (state, action) => {
+      const categoryId = action.payload;
+      state.categories = state.categories.filter(
+        (cat) => cat.id !== categoryId
+      );
     },
     updateSubCat: (state, action) => {
       const updatedSubCat = action.payload;
@@ -134,6 +150,21 @@ export const leadsReducer = createSlice({
           return {
             ...category,
             subcategories: [...(category.subcategories || []), newSubCat],
+          };
+        }
+        return category;
+      });
+    },
+
+    removeSubCategory: (state, action) => {
+      const subCat = action.payload;
+      state.categories = state.categories.map((category) => {
+        if (category.id === subCat.categoryId) {
+          return {
+            ...category,
+            subcategories: category.subcategories.filter(
+              (sub) => sub.id !== subCat.id
+            ),
           };
         }
         return category;
