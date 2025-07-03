@@ -6,6 +6,7 @@ import { use, useEffect, useState } from "react";
 import { Input } from "@/components/inputFields";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { useSelector } from "react-redux";
 
 const CreateDealerForm = ({ params }) => {
   const { id } = use(params);
@@ -19,6 +20,8 @@ const CreateDealerForm = ({ params }) => {
   const [company, setCompany] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fetchStatus, setFetchStatus] = useState("loading");
+  const { user, isLoading } = useSelector((state) => state.auth);
+
   const router = useRouter();
   useEffect(() => {
     const getCompany = async () => {
@@ -33,6 +36,12 @@ const CreateDealerForm = ({ params }) => {
     };
     getCompany();
   }, [id]);
+
+  useEffect(() => {
+    if (!isLoading && user && user.role && user.role !== "dealer") {
+      router.replace("/my-task");
+    }
+  }, [user, isLoading, router]);
 
   const onSubmit = async (dealer) => {
     const dealerData = { ...dealer, companyId: id };
